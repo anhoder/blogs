@@ -11,8 +11,8 @@ pjax是什么? 它是pushState和ajax的合称，相当于是ajax的plus版。
 ![1.jpg](https://media.alan123.xyz/imgs/blogs/pjax/1.jpg)
 然后点击按钮进行ajax请求：
 ![2.jpg](https://media.alan123.xyz/imgs/blogs/pjax/2.jpg)
-可以发现请求前后的URL是保持不变的，这时点击浏览器的返回键，页面回到了最初的状态：
-![3.gif](https://media.alan123.xyz/imgs/blogs/pjax/3.gif)
+可以发现请求前后的URL是保持不变的，如果这时点击浏览器的返回键，页面就会回到了最初的状态。
+   
 试想一下，如果我们构建一个web应用使用到ajax请求，那就可能意味着我们强行将用户浏览器的返回和前进按给钮扣掉了。
 ### 2. pjax的解决原理
 pjax就是为了解决ajax上述问题、提高用户的体验而出现的，其使用的关键技术就是HTML5的pushState。
@@ -47,7 +47,7 @@ pushState(state, title, url);
 </html>
 ```
 点击“变个魔术”按钮，你会发现页面并没有刷新，但URL却已经改变了，这时你可以点击返回，URL会变成上一个URL，效果图如下：
-![4.gif](https://media.alan123.xyz/imgs/blogs/pjax/4.gif)
+![3.jpg](https://media.alan123.xyz/imgs/blogs/pjax/3.jpg)
 
 #### pjax的使用
 OK，了解了pushState，我们大致清楚了pjax的实现原理，接下来开始使用pjax，因为已经有人造好了轮子，所以我们可以直接使用，给个[传送门](https://github.com/defunkt/jquery-pjax)。
@@ -85,7 +85,6 @@ $(document).pjax(element1, element2);
 <?php
 echo 'Hello World';
 ```
-效果图：
-![5.gif](https://media.alan123.xyz/imgs/blogs/pjax/5.gif)
+结果就不上图，自己测试吧
 
 
