@@ -24,7 +24,7 @@ typedef unsigned int zend_uint;     // zend_uint => unsigned int
 typedef unsigned char zend_uchar;   // zend_uchar => unsigned char
 ```
 
-而变量的值value的数据类型为zvalue_value，它是一个联合体(union，联合体详情==>[传送门](##))，在Zend/zend.h中定义：
+而变量的值value的数据类型为zvalue_value，它是一个联合体(union，联合体详情请看第四节==>[传送门](https://blog.alan123.xyz/php/592.html))，在Zend/zend.h中定义：
 
 ```c
 typedef union _zvalue_value {
