@@ -2,9 +2,9 @@
    
 *Mission Start!*
    
-一直想了解一下PHP底层源码的实现，同时还可以增强自己的C语言能力，于是颇有兴致的在PHP官网下载了源码，打开整个项目却不知从何下手，然后就找了阅读资料---[《TIPI：深入了解PHP内核》](https://www.php-internals.com)、[《PHP扩展开发及内核应用》](https://github.com/walu/phpbook/blob/master/preface.md)，感谢各位编写的大佬！   
+一直想了解一下PHP底层源码的实现，同时还可以增强自己的C语言能力，于是颇有兴致的在PHP官网下载了源码，打开整个项目却不知从何下手，然后就找了阅读资料---[《TIPI：深入了解PHP内核》](https://www.php-internals.com)、[《PHP扩展开发及内核应用》](https://github.com/walu/phpbook/blob/master/preface.md)、《PHP7内核剖析》，感谢各位编写的大佬！   
 
-因此，该系列博客都是在阅读《TIPI：深入了解PHP内核》、《PHP扩展开发及内核应用》过程中自己的一些总结、摘录。
+因此，该系列博客都是在阅读《TIPI：深入了解PHP内核》、《PHP扩展开发及内核应用》、《PHP7内核剖析》过程中自己的一些总结、摘录。
 ## 一、PHP源码目录结构
 阅读源码自然少不了理解源码各个目录结构和功能，目录结构如下：
 
