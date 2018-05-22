@@ -78,7 +78,7 @@ struct _zend_reference {
 ```
 
 例如：
-> ① 定义\$a
+> ① 定义$a
 
 > ```php
 $a = '123456';
@@ -87,7 +87,7 @@ $a = '123456';
 > PHP内部：
 > ![PHP引用1](https://media.alan123.xyz/imgs/blogs/phpreference/1.jpg)
 
-> ② 定义\$b为\$a的引用
+> ② 定义$b为$a的引用
 
 > ```php
 $b = &$a;
