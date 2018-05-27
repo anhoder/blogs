@@ -30,7 +30,7 @@ course表的结构与数据为：
 
 ### 关联表
 
-终端使用命令`php artisan make:migration course_student_table --create=course_student`或`php artisan make:migration:pivot course_student_table --create=course_student`建立迁移文件。
+使用命令`php artisan make:migration course_student_table --create=course_student`建立迁移文件。
 
 > *关联表的命名规范：<span style="color:red;">① 表名需包含相关表表名；② 根据单词首字母排序；③ 单词一律小写；④ 单词之间用下划线连接</span>*
 
@@ -156,8 +156,9 @@ $courses = Student::find($id = 1)->answers;
 $course->sync([1, 2, 3]);
 ```
 
-> *以上方法参数中的变量（如：$id、$id1等）只起提示作用，可去除*
-> 顺便附上官方文档的传送门：[英文](https://docs.golaravel.com/docs/5.6/eloquent-relationships/#many-to-many)、[中文](http://laravelacademy.org/post/8867.html#toc_5)
+> **以上方法参数中的变量（如：$id、$id1等）只起提示作用，可去除**
+> 
+> **顺便附上官方文档的传送门：[英文](https://docs.golaravel.com/docs/5.6/eloquent-relationships/#many-to-many)、[中文](http://laravelacademy.org/post/8867.html#toc_5)**
 
 *Mission Complete!*
 
