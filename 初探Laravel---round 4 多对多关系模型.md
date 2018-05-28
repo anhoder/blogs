@@ -134,7 +134,7 @@ $courses->detach([1, 2, 3, 4]);
 ① 输出id为1的学生的所有课程名（在Student中查询courses表的name字段）：
 
 ```php
-$courses = Student::find($id = 1)->answers;     // 没有括号
+$courses = Student::find($id = 1)->courses;     // 没有括号
 foreach ($courses => $course) {
     echo $course->name, ' ';
 }
@@ -142,17 +142,28 @@ foreach ($courses => $course) {
 ② 输出id为1的学生的所有课程成绩（在Student中查询中间表course_student的score字段）：
 
 ```php
-$courses = Student::find($id = 1)->answers;
+$courses = Student::find($id = 1)->courses;
 foreach ($courses => $course) {
     echo $course->pivot->course, ' ';
 }
+```
+③ 输出id为1的学生的id为2的课程成绩（在Student中对中间表course_student进行条件查询）：
+
+```php
+$courses = Student::find($id = 1)->courses()->newPivotStatement(); // 返回Builder对象
+$res = $courses
+    ->where('student_id', 1)
+    ->where('course_id', 2)
+    ->first();
+echo $res->score;
+
 ```
 ### 4. 同步---sync()
 
 删除id为1的学生的除1, 2, 3号外的所有课程：
 
 ```php
-$courses = Student::find($id = 1)->answers;
+$courses = Student::find($id = 1)->courses();
 $course->sync([1, 2, 3]);
 ```
 
