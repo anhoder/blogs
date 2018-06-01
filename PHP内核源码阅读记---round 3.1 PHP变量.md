@@ -128,6 +128,22 @@ PHP内核提供了三个基础宏来获取变量的值（与上述类型获取�
 | IS_OBJECT | 对象是一个复杂的结构体（zend_object_value结构体），不仅存储属性的定义、属性的值，还存储着访问权限、方法等信息。 内核中定义了以下组合宏让我们方便的操作对象： OBJ_HANDLE：返回handle标识符， OBJ_HT：handle表， OBJCE：类定义， OBJPROP：HashTable的属性， OBJ_HANDLER：在OBJ_HT中操作一个特殊的handler方法。 |
 | IS_RESOURCE | 资源型变量的值其实就是一个整数，可以用RESVAL组合宏来访问它，我们把它的值传给zend_fetch_resource函数，便可以得到这个资源的操作句柄。 |
 
+## 四、变量符号表与作用域
+
+### 变量符号表
+
+PHP的变量符号表与zval值的映射，是通过HashTable实现的。如：
+
+```php
+<?php
+$var = 'test';
+```
+$var的变量名会存储在变量符号表中，代表$var的类型和值的zval结构存储在哈希表中。内核通过变量符号表与zval地址的哈希映射来实现PHP变量的存取。
+
+### 作用域
+
+按照作用域可将PHP变量分为全局变量和局部变量，每种作用域PHP都会维护一个符号表的HashTable。当在PHP中创建一个函数或者类时，zend engine就会创建一个新的符号表，表名函数或类中的变量是局部变量，这样就实现了局部变量的保护。当用户创建一个PHP变量时，zend engine会分配一个zval，并设置相应type和初始值，并将改变量加入到当前作用域的符号表。
+
 *Mission Complete!*
 
 
