@@ -115,7 +115,9 @@ $temp = serialize($one);
 $two = unserialize($temp); // 此时的$two与$one是不会影响的两个变量
 ```
 
-> **注意：若使用json_encode和json_decode将丢失原对象中的方法**
+> **注意：
+> ① 使用序列化和反序列化时，将会触发__sleep和__wakeup魔术方法
+> ② 同样的原理我们也可以使用json相关函数进行对象复制，若使用json_encode和json_decode将丢失原对象中的方法**
 
 *Mission Complete!*
 
