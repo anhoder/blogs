@@ -234,9 +234,50 @@ $ git rm filename
 ```
 然后使用git commit将修改提交到版本库。
 
+### 11.添加远程仓库
+以使用的较多的GitHub为例。   
+首先，需要在GitHub上为你的账户配置ssh密钥，确保在电脑上可以通过GitHub的验证，可以在命令行或终端使用如下命令进行测试：
 
+```sh
+$ ssh git@github.com
+```
+若结果显示为：
 
+```sh
+PTY allocation request failed on channel 0
+Hi username! You've successfully authenticated, but GitHub does not provide shell access.
+Connection to github.com closed.
+```
+则表示通过GitHub的验证；   
 
+然后，使用命令关联远程仓库：
+
+```sh
+$ git remote add origin git@github.com:username/test.git 
+```
+其中，origin为远程库的名字，然后使用git push将本地库内容推送到远程库：
+
+```sh
+$ git push -u origin master
+```
+第一次推送加上-u参数，Git不但会把master分支内容推送给远程新的master分支，还会把本地master分支和远程master分支关联起来。在以后将本地内容推送到远程仓库时，只需要使用以下命令即可：
+
+```sh
+$ git push origin master
+```
+
+### 11.从远程仓库克隆
+远程仓库的内容克隆到本地：
+
+```sh
+$ git clone git@github.com:username/test.git
+```
+然后，Git就会下载远程仓库的内容到本地。   
+Git默认使用的是ssh协议，除此之外还可以使用https等协议，例如：
+
+```sh
+$ git clone https://github.com/username/test.git
+```
 
 
 
