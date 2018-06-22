@@ -278,11 +278,98 @@ Git默认使用的是ssh协议，除此之外还可以使用https等协议，例
 ```sh
 $ git clone https://github.com/username/test.git
 ```
+### 12.分支管理
+首先了解一下分支是什么？每个分支都是一条timeline(时间线)，前面用到的分支就是master主分支，用户可以在分支上单独操作互不影响。   
+创建test分支：
 
+```sh
+$ git branch test
+```
+切换到test分支：
 
+```sh
+$ git checkout test
+Switched to branch 'test'
+```
+以上两步也可以使用一个命令完成：
 
+```sh
+$ git checkout -b test
+```
+查看所有分支（*号表示当前分支）：
 
+```sh
+$ git branch
+  master
+* test
+```
+合并分支：
 
+```sh
+$ git checkout master
+$ git merge test
+Updating 8d8593e..4b01548
+Fast-forward
+ google.md | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 google.md
+```
+删除分支：
 
+```sh
+$ git branch -d test
+Deleted branch test (was cfc8d84).
+```
+为了更好的理解Git的分支，我们做一个小试验：
+> ① git init创建一个仓库
+> ② 在master分支中新建readme.md，使用git add和git commit提交至仓库
+> ③ 使用git checkout -b test1新建并切换至test1分支，在test1分支中新建并提交test1.md
+> ④ 使用git checkout -b test2新建并切换至test2分支，在test2分支中新建并提交test2.md
+> ⑤ 使用git checkout master切换至master分支，在master分支中新建test.md文件，并提交
+> ⑥ 此时，各分支状况如下图所示：
+> ![分支状况1](https://media.alan123.xyz/imgs/blogs/git/1.png)
+> ⑦ 在master、test1、test2分支中切换时，工作区的文件也会随之变化：切换到master时，工作区有readme.md和test.md；切换至test1分支时，工作区有readme.md和test1.md；切换至test2分支时，工作区有readme.md和test2.md文件
+> ⑧ 切换至master分支，使用git merge test1 test2将test1和test2分支合并至master
+> ⑨ 此时，master分支下的文件包含原来的readme.md、test.md以及加入的test1.md、test2.md，而test1和test2分支未发生变化
+> ⑩ 这时的test1和test2可以用git branch -d test1 test2进行删除   
+
+那么，如果存在两个分支master、test，它们对同一个文件readme.md进行修改（master在文件末尾加入master line，test在文件末尾加入test line），这时，当将test分支合并到master分支时Git会报错。
+
+```sh
+$ git merge test
+Auto-merging readme.md
+CONFLICT (content): Merge conflict in readme.md
+Automatic merge failed; fix conflicts and then commit the result.
+```
+使用git status查看状态也会提示文件在两个分支都修改了：
+
+```sh
+On branch master
+Your branch is ahead of 'origin/master' by 6 commits.
+  (use "git push" to publish your local commits)
+
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+	both modified:   readme.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+此时，需要手动对master主分支下的readme.md文件进行修改，使用vim readme.md打开文件：
+
+```sh
+  1 <<<<<<< HEAD
+  2 master line
+  3 =======
+  4 test line
+  5 >>>>>>> test
+```
+Git将两个分支的readme.md的内容使用<<<<<<<、=======、>>>>>>>区分开来。将内容修改为目标内容，然后git add、git commit即可完成合并。（使用git log --graph可以查看分支合并图）
+
+未完待续...
 
 
