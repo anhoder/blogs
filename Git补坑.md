@@ -487,40 +487,40 @@ $ git pull --help
 
 | 命令 | 说明 |
 | --- | --- |
-| git config —global user.name “<username>" | 配置用户名 |
-| git config —global user.email “<user@example.com>" | 配置邮箱 |
+| git config —global user.name “< username >" | 配置用户名 |
+| git config —global user.email “< user@example.com >" | 配置邮箱 |
 | git init | 创建版本库 |
-| git add <file> | 添加文件到版本库（Git追踪该文件） |
-| git commit -m “<commit message>" | 将改动提交到版本库 |
+| git add < file > | 添加文件到版本库（Git追踪该文件） |
+| git commit -m “< commit message >" | 将改动提交到版本库 |
 | git log [--graph --pretty=oneline ...] | 查看版本库日志信息 |
-| git reset --hard <version> | 重置版本,HEAD^,HEAD~5,commit id |
+| git reset --hard < version > | 重置版本,HEAD^,HEAD~5,commit id |
 | git status | 查看状态 |
-| git diff <version>  | 查看版本和当前工作区差异 |
-| git checkout — <file> | 恢复至最近commit或add时的状态 |
-| git rm <file> | 从版本库删除文件 |
-| git remote add <远程库名> <address> | 关联远程仓库（远程库名、地址） |
-| git push [-u] <远程库名> <branch> | 本地库内容推送至远程，第一次加-u（，分支） |
-| git pull origin <远程分支名>:<本地分支名> | 将远程库的更改合并至当前库 |
-| git clone <address> | 远程仓库的内容克隆到本地 |
-| git branch <branch> | 添加分支 |
-| git branch -d <branch> | 删除分支 |
+| git diff < version >  | 查看版本和当前工作区差异 |
+| git checkout — < file > | 恢复至最近commit或add时的状态 |
+| git rm < file > | 从版本库删除文件 |
+| git remote add < 远程库名 > < address > | 关联远程仓库（远程库名、地址） |
+| git push [-u] < 远程库名 > < branch > | 本地库内容推送至远程，第一次加-u（，分支） |
+| git pull origin < 远程分支名 >:< 本地分支名 > | 将远程库的更改合并至当前库 |
+| git clone < address > | 远程仓库的内容克隆到本地 |
+| git branch < branch > | 添加分支 |
+| git branch -d < branch > | 删除分支 |
 | git branch | 显示所有分支 |
-| git checkout <branch> | 切换分支 |
-| git checkout -b <branch> | 新建并切换分支 |
-| git merge <branch> | 合并分支 |
-| git merge --no-ff -m “<commit message>” <branch> | 禁用Fast forward模式合并分支 |
+| git checkout < branch > | 切换分支 |
+| git checkout -b < branch > | 新建并切换分支 |
+| git merge < branch > | 合并分支 |
+| git merge --no-ff -m “< commit message >” < branch > | 禁用Fast forward模式合并分支 |
 | git stash | 隐藏已跟踪未提交的工作区内容 |
 | git stash list | 显示stash |
 | git stash apply | 恢复隐藏内容，但不删除 |
 | git stash drop | 删除stash记录 |
 | git stash pop | 恢复隐藏内容，并删除 |
-| git tag <tag name> [<commit id>] | 添加标签 |
+| git tag < tag name > [< commit id >] | 添加标签 |
 | git tag | 显示所有标签 |
-| git show <tag name> | 显示tag详细信息 |
-| git tag -d <tag name> | 删除标签 |
-| git push <远程库名> <tag name> | 推送标签至远程库 |
-| git push <远程库名> --tags | 推送所有标签至远程库 |
-| git push <远程库名> :refs/tags/<tag name> | 删除远程库标签 |
+| git show < tag name > | 显示tag详细信息 |
+| git tag -d < tag name > | 删除标签 |
+| git push < 远程库名 > < tag name > | 推送标签至远程库 |
+| git push < 远程库名 > --tags | 推送所有标签至远程库 |
+| git push < 远程库名 > :refs/tags/< tag name > | 删除远程库标签 |
 
 
 
