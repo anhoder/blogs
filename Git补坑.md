@@ -162,10 +162,10 @@ Untracked files:
 
 no changes added to commit (use "git add" and/or "git commit -a")
 ```
-master分支下状态结果显示分三个状态：
-① Changes to be committed表示已添加到暂存区但未提交的修改
-② Changes not staged for commit表示被修改但未未添加到暂存区的修改，执行git add filename后该修改便会出现在状态① Changes to be committed中，并显示为modified: filename
-③ Untracked files表示未跟踪的文件，执行git add filename后该文件便会出现在状态① Changes to be committed中，并显示为new file: filename
+master分支下状态结果显示分三个状态：   
+① Changes to be committed表示已添加到暂存区但未提交的修改   
+② Changes not staged for commit表示被修改但未未添加到暂存区的修改，执行git add filename后该修改便会出现在状态① Changes to be committed中，并显示为modified: filename   
+③ Untracked files表示未跟踪的文件，执行git add filename后该文件便会出现在状态① Changes to be committed中，并显示为new file: filename   
 
 ### 8.查看差异
 使用git diff HEAD可以显示最新提交版本和工作区的差异：
@@ -266,7 +266,12 @@ $ git push -u origin master
 ```sh
 $ git push origin master
 ```
+将远程库的更改合并至当前库：
 
+```sh
+$ git pull origin master:test // 远程master与test分支合并
+$ git pull origin master // 远程master和当前分支合并
+```
 ### 11.从远程仓库克隆
 远程仓库的内容克隆到本地：
 
@@ -322,17 +327,17 @@ $ git branch -d test
 Deleted branch test (was cfc8d84).
 ```
 为了更好的理解Git的分支，我们做一个小试验：
-> ① git init创建一个仓库
-> ② 在master分支中新建readme.md，使用git add和git commit提交至仓库
-> ③ 使用git checkout -b test1新建并切换至test1分支，在test1分支中新建并提交test1.md
-> ④ 使用git checkout -b test2新建并切换至test2分支，在test2分支中新建并提交test2.md
-> ⑤ 使用git checkout master切换至master分支，在master分支中新建test.md文件，并提交
-> ⑥ 此时，各分支状况如下图所示：
-> ![分支状况1](https://media.alan123.xyz/imgs/blogs/git/1.png)
-> ⑦ 在master、test1、test2分支中切换时，工作区的文件也会随之变化：切换到master时，工作区有readme.md和test.md；切换至test1分支时，工作区有readme.md和test1.md；切换至test2分支时，工作区有readme.md和test2.md文件
-> ⑧ 切换至master分支，使用git merge test1 test2将test1和test2分支合并至master
-> ⑨ 此时，master分支下的文件包含原来的readme.md、test.md以及加入的test1.md、test2.md，而test1和test2分支未发生变化
-> ⑩ 这时的test1和test2可以用git branch -d test1 test2进行删除   
+> ① git init创建一个仓库   
+> ② 在master分支中新建readme.md，使用git add和git commit提交至仓库   
+> ③ 使用git checkout -b test1新建并切换至test1分支，在test1分支中新建并提交test1.md   
+> ④ 使用git checkout -b test2新建并切换至test2分支，在test2分支中新建并提交test2.md   
+> ⑤ 使用git checkout master切换至master分支，在master分支中新建test.md文件，并提交   
+> ⑥ 此时，各分支状况如下图所示：   
+> ![分支状况1](https://media.alan123.xyz/imgs/blogs/git/1.png)   
+> ⑦ 在master、test1、test2分支中切换时，工作区的文件也会随之变化：切换到master时，工作区有readme.md和test.md；切换至test1分支时，工作区有readme.md和test1.md；切换至test2分支时，工作区有readme.md和test2.md文件   
+> ⑧ 切换至master分支，使用git merge test1 test2将test1和test2分支合并至master   
+> ⑨ 此时，master分支下的文件包含原来的readme.md、test.md以及加入的test1.md、test2.md，而test1和test2分支未发生变化   
+> ⑩ 这时的test1和test2可以用git branch -d test1 test2进行删除    
 
 那么，如果存在两个分支master、test，它们对同一个文件readme.md进行修改（master在文件末尾加入master line，test在文件末尾加入test line），这时，当将test分支合并到master分支时Git会报错。
 
@@ -413,9 +418,9 @@ stash@{0}: WIP on master: 9ee02e9 add readme.md
 ```
 Git将相对于最近commit的修改保存至一个类似队列的结构中，可以尝试在使用git stash后再次添加一个文件并使用git stash，然后使用git stash list即可查看到两个stash。   
    
-隐藏后如何恢复呢？
-① 使用git stash apply，使用后stash的记录和内容不会删除，可以使用git stash drop进行删除；
-② 使用git stash pop弹出stash，在恢复的同时，删除stash
+隐藏后如何恢复呢？   
+① 使用git stash apply，使用后stash的记录和内容不会删除，可以使用git stash drop进行删除；   
+② 使用git stash pop弹出stash，在恢复的同时，删除stash   
 
 ### 15.标签管理
 添加标签：
@@ -473,7 +478,51 @@ $ git push origin :refs/tags/v1.0  // 删除标签v1.0
 
 ## 三、总结
 
-未完...
+善用Git的--help可以帮助更好的使用命令，例如：
+
+```sh
+$ git --help
+$ git pull --help
+```
+
+| 命令 | 说明 |
+| --- | --- |
+| git config —global user.name “<username>" | 配置用户名 |
+| git config —global user.email “<user@example.com>" | 配置邮箱 |
+| git init | 创建版本库 |
+| git add <file> | 添加文件到版本库（Git追踪该文件） |
+| git commit -m “<commit message>" | 将改动提交到版本库 |
+| git log [--graph --pretty=oneline ...] | 查看版本库日志信息 |
+| git reset --hard <version> | 重置版本,HEAD^,HEAD~5,commit id |
+| git status | 查看状态 |
+| git diff <version>  | 查看版本和当前工作区差异 |
+| git checkout — <file> | 恢复至最近commit或add时的状态 |
+| git rm <file> | 从版本库删除文件 |
+| git remote add <远程库名> <address> | 关联远程仓库（远程库名、地址） |
+| git push [-u] <远程库名> <branch> | 本地库内容推送至远程，第一次加-u（，分支） |
+| git pull origin <远程分支名>:<本地分支名> | 将远程库的更改合并至当前库 |
+| git clone <address> | 远程仓库的内容克隆到本地 |
+| git branch <branch> | 添加分支 |
+| git branch -d <branch> | 删除分支 |
+| git branch | 显示所有分支 |
+| git checkout <branch> | 切换分支 |
+| git checkout -b <branch> | 新建并切换分支 |
+| git merge <branch> | 合并分支 |
+| git merge --no-ff -m “<commit message>” <branch> | 禁用Fast forward模式合并分支 |
+| git stash | 隐藏已跟踪未提交的工作区内容 |
+| git stash list | 显示stash |
+| git stash apply | 恢复隐藏内容，但不删除 |
+| git stash drop | 删除stash记录 |
+| git stash pop | 恢复隐藏内容，并删除 |
+| git tag <tag name> [<commit id>] | 添加标签 |
+| git tag | 显示所有标签 |
+| git show <tag name> | 显示tag详细信息 |
+| git tag -d <tag name> | 删除标签 |
+| git push <远程库名> <tag name> | 推送标签至远程库 |
+| git push <远程库名> --tags | 推送所有标签至远程库 |
+| git push <远程库名> :refs/tags/<tag name> | 删除远程库标签 |
+
+
 
 *Mission Complete!*
 
