@@ -55,6 +55,7 @@ Test git:(master) ✗ $
 ```
 
 ### 2.添加文件到版本库
+添加文件到仓库，让Git跟踪该文件：
 
 ```sh
 $ touch readme.md     // 创建readme.md文件
@@ -260,7 +261,7 @@ $ git remote add origin git@github.com:username/test.git
 ```sh
 $ git push -u origin master
 ```
-第一次推送加上-u参数，Git不但会把master分支内容推送给远程新的master分支，还会把本地master分支和远程master分支关联起来。在以后将本地内容推送到远程仓库时，只需要使用以下命令即可：
+第一次推送时加上-u参数，Git不但会把master分支内容推送给远程新的master分支，还会把本地master分支和远程master分支关联起来。在以后将本地内容推送到远程仓库时，只需要使用以下命令即可：
 
 ```sh
 $ git push origin master
@@ -370,6 +371,110 @@ no changes added to commit (use "git add" and/or "git commit -a")
 ```
 Git将两个分支的readme.md的内容使用<<<<<<<、=======、>>>>>>>区分开来。将内容修改为目标内容，然后git add、git commit即可完成合并。（使用git log --graph可以查看分支合并图）
 
-未完待续...
+### 13.分支管理策略
+在合并分支时，如果不指定合并模式，Git会默认使用Fast forward模式，在这个模式下，删除分支信息后，会丢失分支信息。我们可以在合并分支时加上--no-ff参数禁用Fast forward模式，此时Git在合并时会生成一个新的commit：
+
+```sh
+$ git merge --no-ff -m 'merge test' test
+```
+
+使用git log --graph --pretty=oneline分别查看禁用Fast forward和不禁用时的区别：
+
+```sh
+# 不禁用时：
+$ git merge test
+* 06cf0607846548da37edf16cba68a4b46ba95835 (HEAD -> master) add test.md
+* 9ee02e9c78cde794543df93ab508fefb2b7f7667 add readme.md
+
+# 禁用时：
+% git merge --no-ff -m 'merge test' test
+*   2e6de5d4c6f4c919d63b553615181f51411b3a99 (HEAD -> master) merge test
+|\  
+| * bbfb8e492523ba516e69813ce7b6b09b7ccd3778 test.md
+|/  
+* 9ee02e9c78cde794543df93ab508fefb2b7f7667 add readme.md
+
+```
+
+### 14.隐藏改变
+当正在为一个Web应用程序进行升级时，突然发现当前版本的程序存在Bug，需要优先修复Bug，此时，升级的工作未完成，尚不能commit，而由于升级修改的文件会影响原来版本，怎么办？  
+   
+使用git stash命令即可隐藏工作区未提交的工作（前提需要将文件添加到仓库，使得Git能够追踪这些文件）。例如，在当前目录下创建test.md文件并添加至仓库，此时使用
+
+```sh
+$ git stash
+Saved working directory and index state WIP on master: 9ee02e9 add readme.md
+```
+此时，那些未上传的文件在工作区消失了，可以使用以下命令进行查看：
+
+```sh
+$ git stash list
+stash@{0}: WIP on master: 9ee02e9 add readme.md
+```
+Git将相对于最近commit的修改保存至一个类似队列的结构中，可以尝试在使用git stash后再次添加一个文件并使用git stash，然后使用git stash list即可查看到两个stash。   
+   
+隐藏后如何恢复呢？
+① 使用git stash apply，使用后stash的记录和内容不会删除，可以使用git stash drop进行删除；
+② 使用git stash pop弹出stash，在恢复的同时，删除stash
+
+### 15.标签管理
+添加标签：
+
+```sh
+$ git tag v1.0
+```
+Git默认是为当前分支下的最新commit版本添加标签，如果想为历史提交的版本添加标签，添加上commit id即可：
+
+```sh
+$ git tag v1.0 commitid
+```
+查看所有标签：
+
+```sh
+$ git tag
+v1.0
+```
+查看标签详细信息：
+
+```sh
+$ git show v1.0
+```
+删除标签：
+
+```sh
+$ git tag -d v1.0
+```
+本地标签不会自动推送至远程，可以手动推送至远程库：
+
+```sh
+$ git push origin v1.0   // 推送标签名v1.0至远程库
+$ git push origin --tags // 推送所有标签至远程库
+```
+删除远程库标签：
+
+```sh
+$ git push origin :refs/tags/v1.0  // 删除标签v1.0
+```
+
+### 16.多人协作的工作流程
+多人协作的工作模式通常是这样：
+
+1. 首先，可以试图用git push origin <branch-name>推送自己的修改；
+
+2. 如果推送失败，则因为远程分支比你的本地更新，需要先用git pull试图合并；
+
+3. 如果合并有冲突，则解决冲突，并在本地提交；
+
+4. 没有冲突或者解决掉冲突后，再用git push origin <branch-name>推送就能成功！
+
+如果git pull提示no tracking information，则说明本地分支和远程分支的链接关系没有创建，用命令git branch --set-upstream-to <branch-name> origin/<branch-name>。
+
+这就是多人协作的工作模式，一旦熟悉了，就非常简单。
+
+## 三、总结
+
+未完...
+
+*Mission Complete!*
 
 
