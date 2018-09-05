@@ -33,9 +33,15 @@ PHP的扩展分为两类：PHP扩展、Zend扩展，在内核中分别称为modu
 ② 定义宏ZEND_GET_MODULE(extension_name)以获取扩展的zend_module_entry结构地址：    
 
 ```c
+ZEND_GET_MODULE(extension_name)
+```
+<br />
+在PHP中，ZEND_GET_MODULE宏的定义如下：
+
+```c
 #define ZEND_GET_MODULE(name) \
     BEGIN_EXTERN_C() \
-    ZEND_DLEXPORT zend_module_entry *get_module(void) { return &name##_module_entry; } \
+    ZEND_DLEXPORT zend_module_entry *get_module(void) { return &name_module_entry; } \
     END_EXTERN_C()
 ```
 
