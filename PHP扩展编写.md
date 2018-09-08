@@ -41,7 +41,7 @@ ZEND_GET_MODULE(extension_name)
 ```c
 #define ZEND_GET_MODULE(name) \
     BEGIN_EXTERN_C() \
-    ZEND_DLEXPORT zend_module_entry *get_module(void) { return &name_module_entry; } \
+    ZEND_DLEXPORT zend_module_entry *get_module(void) { return &name##_module_entry; } \    // ##起到拼接字符串的作用
     END_EXTERN_C()
 ```
 

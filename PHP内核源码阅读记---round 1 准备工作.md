@@ -39,7 +39,7 @@ void zif_count(int ht, zval *return_value, zval **return_value_ptr,
         zval *this_ptr, int return_value_used TSRMLS_DC)
 ```
 宏ZEND_FN(name)中有一个"##"，它的作用一如之前所说，是一个连接符，将zif和宏的变量name的值连接起来。
-### 2、"#"
+### 2、"#"和"##"
 "#"是一种预处理运算符，它的功能是将其后面的宏参数进行字符串化操作，简单说就是在对它所引用的宏变量通过替换后在其左右各加上一个双引号，用比较官方的话说就是将语言符号(Token)转化为字符串。 例如:
 
 ```c
@@ -51,6 +51,13 @@ int main(int argc char** argv)
     return 0;
 }
 ```
+
+"##"则是将两个变量连接成一个字符串，例如：
+
+```c
+#define STR_CONCATE(a, b) a##b
+```
+
 ### 3、宏定义中的do-while循环
 
 ```c
