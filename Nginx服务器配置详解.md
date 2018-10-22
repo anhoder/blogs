@@ -131,7 +131,110 @@ if ($http_user_agent ~ MSIE) {
 - $uri：不带请求参数的当前URI，$uri不包含主机名，如”/foo/bar.html”。
 - $document_uri：与$uri相同。
 
-## 三、Events事件模型
+## 三、upstream模块与负载均衡
+Nginx的反向代理是其出色的特点之一，通过反向代理可以实现负载均衡，将请求分发到其他服务器。而upstream节点就是配置反向代理的关键所在。   
+   
+### 配置步骤
+① 在http节点下加入upstream节点：
+
+```conf
+upstream upstreamName {
+    server ip1:port1;
+    server ip2:port2;
+    ...
+}
+```
+② 在server节点下的location节点中，将相应的请求通过proxy_pass转发到http://upstreamName下：
+
+```conf
+location / {
+    ...
+    proxy_pass http://upstreamName;
+    ...
+}
+```
+   
+至此，负载均衡已经配置完毕，Nginx会根据轮询的策略将请求按时间顺序逐一分配到不同的后端服务器上。   
+   
+当然，还存在其他的分配策略。
+
+### 请求分配策略
+#### ① 轮询   
+默认情况下，Nginx使用轮询的方式进行请求的分配，这种方式虽然配置简单，但缺点在于可靠性不高、请求分发不均衡。   
+   
+#### ② weight权重   
+在upstream节点中指定server的weight权重，Nginx会根据每个服务器的权重调整分发请求的几率，weight与分发请求的几率成正比，例如：
+
+```conf
+upstream upstreamName{
+    server ip1:port1 weight=1;
+    server ip2:port2 weight=2;
+    # 转发请求给ip2服务器的几率是转发给ip1服务器的两倍
+    ...
+}
+```
+
+#### ③ ip_hash   
+每个请求都按照访问ip的hash结果机型分配，即访问ip与服务器绑定，同一个用户的请求都会固定转发到一台服务器上进行处理（该方法可以用于解决分布式session不一致的问题）。使用方法：
+
+```conf
+upstream upstreamName{
+    ip_hash;
+    server ip1:port1;
+    server ip2:port2;
+    ...
+}
+```
+
+#### ④ fair   
+使用后端服务器的响应时间作为依据，响应时间短的服务器分配到更多的请求。
+
+```conf
+upstream upstreamName{
+    fair;
+    server ip1:port1;
+    server ip2:port2;
+}
+```
+
+### ⑤ url_hash
+通过访问url的hash结果来分配请求，让url定向到同一个后端服务器：
+
+```conf
+upstream upstreamName{
+    server ip1:port1;
+    server ip2:port2;
+    hash $request_uri;  
+    hash_method crc32;  # 计算hash时使用的hash算法
+    ### 使用hash后，不能使用weight等其他参数
+}
+```
+
+### 状态值
+upstream节点中，可以为每一个设备设置状态值，如下：
+> down: 表示当前的server不参与负载均衡   
+> weight: weight越大，收到的请求就越多   
+> max_fails: 允许请求失败的最大次数，当超过该值时，返回proxy_next_upstream模块定义的错误   
+> fail_timeout: 达到max_fails次失败时，暂停的时间   
+> backup: 后备服务器，当其他全部的非backup机器down或者忙的时候，请求backup机器   
+   
+使用方法：
+
+```conf
+upstream upstreamName{
+    server ip1:port1 down;
+    server ip2:port2 weight=2;
+    server ip3:port3 backup;
+}
+```
+
+### 分布式系统session的处理方法
+① session复制：当某一台服务器的session发生改变时，将session的改变复制到其他所有服务器上（毫无疑问，该方法的性能较低）   
+② 请求ip与服务器绑定：客户端的ip与服务器绑定在一起，同一用户的请求都转发到同一台机器上进行处理   
+③ 将session信息存放在MySQL等数据库中   
+④ 将session存放在Redis、memcached内存数据库中
+
+## 四、Events事件模型
 Nginx的I/O模型包括标准事件模型、高效事件模型。
 
 ### 标准事件模型
@@ -148,7 +251,7 @@ Nginx的I/O模型包括标准事件模型、高效事件模型。
 使用于Linux内核2.6版本及以后的系统
 *TODO*
 
-## 四、Nginx配置文件 + 注释
+## 五、Nginx配置文件 + 注释
 
 ```conf
 # Nginx的用户和组
