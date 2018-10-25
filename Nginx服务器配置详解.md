@@ -52,7 +52,7 @@ location [ = | ^~ | ~ | ~* | / ] [字符串 | 正则表达式] {
 作用：使用nginx的全局变量及自定义变量实现URL的重写及重定向（放在server、location、if中）。   
    
 rewrite和location具有相似之处，其区别在于：
-> location主要用于访问控制、反向代理
+> location主要用于访问控制、反向代理   
 > rewrite主要用于实现URL的重写、跳转
 
 rewrite规则格式如下：
@@ -175,7 +175,7 @@ upstream upstreamName{
 ```
 
 #### ③ ip_hash   
-每个请求都按照访问ip的hash结果机型分配，即访问ip与服务器绑定，同一个用户的请求都会固定转发到一台服务器上进行处理（该方法可以用于解决分布式session不一致的问题）。使用方法：
+每个请求都按照访问ip的hash结果进行分配，即访问ip与服务器绑定，同一个用户的请求都会固定转发到一台服务器上进行处理（该方法可以用于解决分布式session不一致的问题）。使用方法：
 
 ```conf
 upstream upstreamName{
