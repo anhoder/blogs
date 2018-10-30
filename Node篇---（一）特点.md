@@ -44,7 +44,7 @@ Node在操作系统之上搭建了一层平台层---libuv，其与不同的操�
 ```mermaid
 graph TB;
   A[Node.js]-->B[libuv]
-  B-->C[*nix]
+  B-->C[Linux或Unix]
   B-->D[Windows]
 ```
 
