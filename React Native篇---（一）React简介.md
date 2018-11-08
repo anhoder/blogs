@@ -47,7 +47,7 @@ React引进了Virtual DOM，其将真实的DOM转化为JavaScript对象树，这
 
 ## JSX
 
-使用JavaScript对象树去描述真实的DOM是很贴切的，可是在上面的例子中，使用HTML只是一小段，转化为JavaScript对象树却是很冗长的代码。如果要描述更复杂的DOM呢？另外一方面，JavaScript对象树的可读性较差，没有HTML来的简单直接。JSX正是在这样的环境下应运而生。例如：
+使用JavaScript对象树去描述真实的DOM是很贴切的，可是在上面的例子中，使用HTML只是一小段，转化为JavaScript对象树却是很冗长的代码。如果要描述更复杂的DOM呢？另外一方面，JavaScript对象树的可读性较差，没有HTML来的简单直接。JSX正是在这样的环境下应运而生，其是JavaScript和XML结合的一种格式。如：
 
 ```jsx
 const RegisterForm = () => (
