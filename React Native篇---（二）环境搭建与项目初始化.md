@@ -121,6 +121,6 @@ react-native run-android
 
 ③ 需要重新进行编译的情况：当项目中的android或ios目录下的文件发生改动、电脑分配的IP地址发生变化。   
 ④ 只改动外部的JS代码可以在App中打开菜单，选择“Reload”项进行更新。   
-
+⑤ 在App的菜单中选择Remote JS Debugging便可以在电脑浏览器中查看控制台的输出内容。   
 
 *Mission Complete!*
