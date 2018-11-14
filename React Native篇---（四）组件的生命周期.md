@@ -34,7 +34,9 @@ constructor (props) {
 ## componentWillReceiveProps
 
 > componentWillReceiveProps (newProps)
+> 
 > param: 接受一个对象作为参数，该对象为新的props
+> 
 > *Tips：函数内，this.props表示旧的props，新的props为参数newProps*
 
 在初次渲染完成后，当组件接收到新的props时，这个函数被调用。如果新的props会造成界面重新渲染，该函数会在渲染前执行。    
@@ -44,8 +46,11 @@ constructor (props) {
 ## shouldComponentUpdate
 
 > shouldComponentUpdate (newProps, newState)
+> 
 > param: 接受两个对象作为参数，分别为新的props、新的state
+> 
 > return: 需返回Bool值，是否重新渲染该组件
+> 
 > *Tips：函数内，this.props(this.state)表示旧的props(state)，新的props(state)为参数newProps(newState)*
 
 在初始渲染完成后，当组件接收到新的state或props时，该函数被调用。React Native默认返回true。
@@ -59,6 +64,7 @@ constructor (props) {
 ## componentDidUpdate
 
 > componentDidUpdate (oldProps, oldState)
+> 
 > param：渲染前的props、state
 
 初次渲染完成后，当该组件重新渲染完成会被调用。
