@@ -155,3 +155,5 @@ thenable对象是指具有then方法的对象，Promise.resolve()会将该对象
 
 ### Promise.reject()
 返回一个rejected状态的Promise对象，参数作为后续方法的参数。
+
+*Mission Complete!*
