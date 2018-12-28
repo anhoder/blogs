@@ -4,7 +4,7 @@
 
 *Mission Start!*
 
-## PHP的错误ERROR与异常EXCEPTION
+## 一、PHP的错误ERROR与异常EXCEPTION
 
 *注意：在不同的语言中，错误与异常的定义不同。因此以下内容只在PHP中成立。*
 
@@ -207,3 +207,400 @@ callable set_exception_handler(callable $exception_handler)
  */
 ```
 
+**需要注意的是：set_error_handler、register_shutdown_function、set_exception_handler三个函数捕获错误的范围并不是相互独立，可能存在一定的交集，但错误只会被捕获一次，不会重复被捕获**
+
+## 二、日期与时间
+
+* mktime: 获取时间戳，参数依次为时、分、秒、月、日、年，皆可选
+* strtotime: 将自然语言英语转换为时间戳
+* gettimeofday: 获取某一天中的具体时间
+* getdate: 获取一个由时间戳组成的关联数组，可选参数：一个时间戳
+* date: 以指定格式返回时间字符串，参数：指定格式，可选参数为时间戳
+* date_default_timezone_set: 设置默认时区，RPC、Asia/Shanghai、Asia/Chongqing、Etc/GMT-8
+* microtime: 获取当前微秒级时间戳，可选参数：是否以浮点数形式返回
+
+## 三、文件与目录
+
+### 类型
+
+```php
+// 获取文件类型
+filetype(string $file) : string | false
+```
+
+Windows中PHP只能获取到3种文件类型：file、dir、unknown，而在UNIX中，可以获取7种block、char、dir、fifo、file、link、unknown。
+
+* block：块设备文件，如：硬盘分区、软驱、光驱等
+* char：字符设备，指I/O传输中以字符为单位进行传输的设备，如键盘、打印机等
+* dir：目录类型，目录也是文件的一种
+* fifo：命名管道，常用于将信息从一个进程传递到另一个进程
+* file：普通文件类型
+* link：链接，软链接、硬链接
+* unknown：未知类型
+
+### 文件
+
+* is_file、is_dir、is_link...：判断是否给定的文件为某一类型
+* file_exists：**文件或目录**是否存在
+* filesize：文件大小
+* is_readable：是否可读
+* is_writeable：是否可写
+* is_executable：是否可执行
+* filectime：文件创建时间（inode修改时间）
+* filemtime：文件修改时间
+* fileatime：文件访问时间
+* stat：获取文件的大部分属性值
+* unlink：删除文件
+* copy：复制文件
+* rename：重命名
+* fopen：打开文件，返回文件句柄，r、r+、w、w+、x、x+、a、a+、b、t
+* fclose：关闭打开的文件
+* fwrite：往打开的文件中写
+* fread：读取打开文件的指定长度内容，参数1为文件句柄，参数2为读取的长度
+* file_get_content：获取文件内容
+* fgets：从打开的文件中获取一行
+* fgets：从打开的文件中获取一个字符
+* readfile：读取一个文件，并输出到输出缓冲区，返回长度
+* file：把文件按行读到一个数组中
+* ftell：返回文件指针的当前位置
+* fseek：移动文件指针到指定位置
+* rewind：重置文件指针到文件开头
+* ftruncate：把文件截取到指定长度
+* flock：文件锁，LOCK_SH共享锁、LOCK_EX排他锁、LOCK_UN释放锁、LOCK_NB附件锁（如果不希望flock在锁定时堵塞，则应该                                                                       加上该锁），锁也可被fclose释放
+
+| 模式 | 描述 |
+| --- | --- |
+| r | 只读方式打开文件，从文件开头开始读 |
+| r+ | 读写方式打开文件，从文件开头开始读写，逐个覆盖原内容 |
+| w | 只写方式打开文件，从文件开头开始写。若文件已存在，删除原文件内容；若不存在，创建 |
+| w+ | 读写方式打开文件，从文件开头开始读写。若文件已存在，删除原文件内容；若不存在，创建 |
+| x | 创建并以写入方式打开，从文件开头开始写。若文件存在，报出E_WARNING级别的错误 |
+| x+ | 创建并以读写方式打开，从文件开头开始读写。若文件存在，报出E_WARNING级别的错误 |
+| a | 写入方式打开，从文件结尾开始写。若文件不存在，创建 |
+| a+ | 读写方式打开，从文件结尾开始读写。若文件不存在，创建 |
+| b | 以二进制模式打开文件 |
+| t | 以文本模式打开文件，只在Windows下可用 |
+
+
+### 目录
+
+在UNIX系统中，必须使用'/'作为文件分隔符，而在Windows中，默认使用'\'作为分隔符，同时支持使用'/'作为分隔符。    
+
+在PHP中可以使用DIRECTORY_SEPARATOR获取当前系统的分隔符（Windows为'\'，UNIX为'/'）
+
+* basename：获取文件名部分，第二个参数可以指定扩展名，如果指定了，返回值则不带扩展名
+* dirname：获取去掉文件名部分后的目录
+* pathinfo：获取路径的目录部分dirname、带扩展的文件名basename、扩展extension、不带扩展的文件名filename
+* dir：返回Directory类的实例
+* opendir：打开目录，返回目录句柄
+* readdir：读取目录
+* closedir：关闭目录
+* rewinddir：倒回目录句柄，将目录指针重置到开始处
+* scandir：浏览目录内容
+* glob：检索指定的目录
+* mkdir：创建目录
+* rmdir：删除目录
+
+### 上传文件
+
+需要注意的点：
+
+* form表单设置enctype="multipart/form-data" method="data"
+* PHP使用$_FILES获取上传文件信息
+* 多文件上传，可指定name="file[]"的形式
+
+处理上传文件可以用到的函数：
+
+> is_uploaded_file：判断处理的文件是否是通过HTTP POST上传的。但参数必须是类似$_POST['file']['tmp_name']的变量。
+>
+> move_uploaded_file：将上传移动到新位置，且该函数会判断文件是否为合法的通过HTTP POST上传的文件。
+
+### 下载文件
+
+设置网页头部信息，以保证浏览器是下载文件而不是直接输出：
+
+```php
+header('Content-Type: image/gif');
+header('Content-Disposition: attachment; filename="test.gif"'); // 说明是附件
+header('Content-Length: 3390');
+
+readfile('test.gif');
+```
+
+## 图像绘制
+
+### 创建画布
+
+```php
+resource imagecreate($x_size, $y_size)          // 基于调色板
+resource imagecreatetruecolor($x_size, $y_size) // 真彩
+```
+### 设置颜色
+
+```php
+int imagecolorallocate(resource $image, int $r, int $g, int $b)
+```
+
+### 绘制
+
+图形区域填充
+
+```php
+bool imagefill(resource $image, int $x, int $y, int $color)
+```
+
+绘制点和线
+
+```php
+bool imagesetpixel(resource $image, int $x, int $y, int $color)
+bool imageline(resource $image, int $x1, int $y1, int $x2, int $y2, int $color)
+```
+
+绘制矩阵
+
+```php
+// 画一个矩阵
+bool imagerectangle(resource $image, int $x1, int $y1, int $x2, int $y2, int $color)
+// 画一个矩阵并填充
+bool imagefilledrectangle(resource $image, int $x1, int $y1, int $x2, int $y2, int $color)
+```
+
+绘制多边形
+
+```php
+bool imagepolygon(resource $image, array $point, int $num_points, int $color)
+bool imagefilledpolygon(resource $image, array $point, int $num_points, int $color)
+```
+
+绘制椭圆
+
+```php
+bool imageellipse(resource $image, int $cx, int $cy, int $w, int $h, int $color)
+bool imagefilledellipse(resource $image, int $cx, int $cy, int $w, int $h, int $color)
+// ($cx, $cy) 中心坐标
+// $w, $h 宽、高
+```
+
+绘制弧线
+
+```php
+bool imagearc(int $cx, int $cy, int $w, int $h, int $s, int $e, int $color)
+```
+
+绘制文字
+
+```php
+bool imagestring(resource $image, int $font, int $x, int $y, string $s, int $color) // 水平
+bool imagestringup(resource $image, int $font, int $x, int $y, string $s, int $color) // 垂直
+bool imagechar(resource $image, int $font, int $x, int $y, char $c, int $color)
+bool imagecharup(resource $image, int $font, int $x, int $y, char $c, int $color)
+// 以ttf字体绘制文本
+array imagettftext(resource $image, float $size, float $angle, int $x, int $y, int $color, string $fontfile, string $text)
+```
+
+### 生成图像
+
+```php
+bool imagegif(resource $image [, string $filename])
+bool imagejpeg(resource $image [, string $filename [, int $quality]])
+bool imagepng(resource $image [, string $filename])
+bool imagewbmp(resource $image [, string $filename [, int $foreground]])
+```
+
+### 销毁图像
+
+```php
+bool imagedestory(resource $img)
+```
+
+## 图像处理
+
+以图片为背景创建图像
+
+```php
+resource imagecreatefromjpeg(string $file)
+resource imagecreatefrompng(string $file)
+resource imagecreatefromgif(string $file)
+```
+
+获取图片大小和类型
+
+```php
+array getimagesize(string $file [, array &$imageinfo])
+```
+
+图片缩放、剪切
+
+```php
+bool imagecopyresampled (resource $dst_img, resource $src_img, int $dst_x, int $dst_y, int $src_x, int $src_y, int $dst_w, int $dst_h, int $src_w, int $src_h)
+// 该函数可以将图像中的一块正方形区域复制到另一个图像中
+```
+
+添加水印
+
+```php
+bool imagecopy(resource $des_img, resource $src_img, int $dst_x, int $dst_y, int $src_x, int $src_y, int $src_w, int $src_h)
+// 将源图像的(src_x, src,y)的宽src_w，高src_h的一部分复制到目标图像的(dst_x, dst_y)处
+```
+
+图片旋转、翻转
+
+```php
+resource imagerotate(resource $src_img, float $angle, int $bg_color [, int $ignore_transport])
+// 图片旋转angle角度，旋转后未覆盖到的部分使用bg_color填充，igno_transport为非零值，则透明色被忽略。
+```
+
+## PDO
+
+### PDO驱动
+
+| PDO驱动 | 对应访问的数据库 |
+| --- | --- |
+| PDO_BDLIB | FreeTDS/Microsoft SQL Server/Sybase |
+| PDO_FIREBIRD | Firbird/Interbase 6 |
+| PDO_MYSQL | MySQL 3.x/4.x/5.x |
+| PDO_OCI | Oracle (OCI=Oracle Call Interface) |
+| PDO_ODBC | ODBC v3 |
+| PDO_PGSQL | PostgreSQL |
+| PDO_SQLITE | SQLite 2.x/3.x |
+
+### PDO类的方法
+
+#### 构造方法
+
+```php
+__construct(string $dsn [, string $username [, string $pwd [, array $driver_options]]])
+// dsn：Data Source Name，数据源名，如：
+// mysql:dbname=test;host=127.0.0.1;port=3306;charset=utf8
+// DSN也可指定文件为参数（如果该文件中存放着DSN字符串），如：
+// uri:file:///user/local/dbconnect
+```
+
+#### Attribute
+
+```php
+// 获取或设置一个数据库连接对象的属性
+getAttribute() // 参数：属性名
+setAttribute() // 参数：属性名，属性值
+```
+
+PDO的一些属性
+
+| 属性名 | 描述 |
+| --- | --- |
+| PDO::ATTR_AUTOCOMMIT | 确定PDO是否关闭自动提交功能，设置FALSE值时关闭 |
+| PDO::ATTR_CASE | 强制PDO获取的表字段字符大小写转换，或原样使用列信息 |
+| PDO::ATTR_ERRMODE | 设置错误处理模式，PDO::ERRMODE_SILENT, PDO::ERRMODE_WARNING, PDO::ERRMODE_EXCEPTION |
+| PDO::ATTR_PERSISTENT | 确定连接是否为持久连接，默认为FALSE |
+| PDO::ATTR_ORACLE_NULLS | 将返回的空字符串转换为SQL的NULL |
+| PDO::ATTR_PREFETCH | 设置应用程序提前获取的数据大小(单位：K) |
+| PDO::ATTR_TIMEOUT | 设置超时之前等待的时间(单位：s) |
+| PDO::ATTR_SERVER_INFO | 包含与数据库特有的服务器信息 |
+| PDO::ATTR_SERVER_VERSION | 包含与数据库服务器版本号有关的信息 |
+| PDO::ATTR_CLIENT_VERSION | 包含与数据库客户端版本号有关的信息 |
+| PDO::ATTR_CONNECTION_STATUS | 包含数据库特有的与连接状态有关的信息 |
+
+#### 错误
+
+```php
+// 获取最后一次数据库操作的错误码
+errorCode()
+// 获取最后一次数据库操作的错误信息
+errorInfo()
+```
+
+#### SQL
+
+```php
+exec() // 执行一条SQL语句，并返回受影响的行数
+query() // 执行一条SQL语句，并返回PDOStatement对象（结果集）
+quote() // 为SQL语句中的字符串添加引号
+lastInsertId() // 获取插入到表中的最后一条数据的主键值
+prepare() // 准备要执行的SQL语句，返回PDOStatement对象
+getAvailableDrivers() // 获取有效的PDO驱动器名称
+beginTransaction() // 开始事务
+commit() //提交事务
+rollback() // 回滚事务
+```
+
+### 预处理语句和PDOStatement类
+
+通过PDO的prepare方法传入一条预处理语句，返回一个PDOStatement查询对象，可以使用该对象传入参数，执行语句。    
+
+
+| PDOStatement类的成员方法 | 描述 |
+| --- | --- |
+| bindColumn() | 将列名绑定到一个PHP变量，这样获取到记录后，会将相应的列值赋给该变量 |
+| bindParam() | 将参数绑定到相应的占位符 |
+| bindValue() | 将一个值绑定到对应的一个参数中 |
+| closeCursor() | 关闭游标，使该声明再次被执行 |
+| columnCount() | 在结果集中返回列的数目 |
+| errorCode() | 获取错误码 |
+| errorInfo() | 获取错误信息 |
+| execute() | 执行一个预处理查询 |
+| fetch() | 获取结果集的下一行，到结尾返回false |
+| fetchAll() | 获取结果集的所有行 |
+| fetchColumn() | 获取某一列的下一个值 |
+| fetchObject() | 获取结果集的下一行，作为对象返回 |
+| getAttribute() | 获取属性 |
+| setAttribute() | 设置属性 |
+| nextRowset() | 获取下一行结果集 |
+| rowCount() | 获取结果集的行数 |
+| getColumnMeta() | 获取某一列的信息 |
+| setFetchMode() | 设置获取结果集的类型 |
+
+## MemCached
+
+### MemCached命令
+
+> stats: 当前所有memcached服务器运行的状态信息
+> add: 添加一个数据到服务器
+> set: 替换一个已经存在的数据，如果数据不存在，则与add命令相同
+> get: 从服务器端获取指定的数据
+> delete: 删除指定的单个数据
+> flush_all: 删除所有数据
+
+### 在PHP中使用MemCached
+
+需要安装memcached扩展包
+
+```php
+Memcached::connect  // 打开一个到memcached的连接
+Memcached::pconnect  // 打开一个到memcached的长连接
+Memcached::addServer  // 分布式服务器添加一个服务器
+Memcached::close  // 关闭一个memcached的连接
+Memcached::getStats // 获取当前memcached服务器的状态
+Memcached::add  // 添加一个值，若存在，返回false
+Memcached::set  // 添加一个值，若存在，覆盖
+Memcached::replace  // 替换一个值，类似于set                               
+Memcached::get  // 获取一个数据                
+Memcached::delete  // 删除一个数据
+Memcached::flush   // 清空所有数据
+```    
+
+## 框架
+
+一个框架需要的功能：
+
+* 目录组织结构
+* 类加载
+* 基础类
+* URL处理
+* 输入处理
+* 错误异常处理
+* 扩展类
+
+## PHP安全和优化
+
+* 不信任用户输入、验证用户数据
+* 及时修补漏洞
+* 隐藏Apache和PHP（Apache的ServerSignature、ServerToken指令、PHP的expose_php()函数）
+* 删除phpinfo()调用的所有实例
+* 修改文档扩展名
+* 拒绝访问某些类型的文件
+
+优化
+
+* 使用循环时，应该先计算长度，不要每次都计算一遍
+* 使用```isset($str{10})```比```strlen($str) > 10```更快，对于数组也一样
+* ```$i++```比```++$i```稍慢（仅适用PHP）
