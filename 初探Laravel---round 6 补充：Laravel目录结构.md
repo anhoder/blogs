@@ -12,9 +12,15 @@
 | 文件夹名称 | 简介 |
 | --- | --- |
 | app | 应用程序的业务逻辑代码存放文件夹 |
-| app/Console | 存放自定义Artisan命令文件 |
+| app/Console | 存放自定义artisan命令文件 |
+| app/Events | 用于放置与事件相关的类 |
+| app/Exceptions | 包含应用程序的异常处理类，用于处理应用程序抛出的任何异常 |
+| app/Http | 主要包含路由文件、控制器文件、请求文件、中间件文件等，是应用程序与Laravel框架源代码等外部库交互的主要地方 |
 | app/Http/Controllers | 存放控制器文件 |
 | app/Http/Middleware | 存放中间件文件 |
+| app/Jobs | 主要包含消息队列的各种消息类文件 |
+| app/Listeners | 主要包含监听事件类文件 |
+| app/Providers | 主要包含服务提供者的相关文件 |
 | bootstrap | 框架启动与自动加载设置相关文件 |
 | config | 应用程序的配置文件 |
 | database | 数据库操作相关文件（数据库迁移和数据库填充） |
