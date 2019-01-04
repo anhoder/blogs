@@ -170,7 +170,7 @@ This is footer.
 
 ```html
 object(stdClass)[203]
-  public 'iteration' => int 1       // 第几个item，范围：1
+  public 'iteration' => int 1       // 第几个item，范围：1~length
   public 'index' => int 0           // 索引，范围：0~length-1
   public 'remaining' => int 3       // 倒数，范围：length-1~0
   public 'count' => int 4           // 总长度，length
