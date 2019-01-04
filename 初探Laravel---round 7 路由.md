@@ -1,5 +1,7 @@
 # 初探Laravel---round 7 路由
 
+*Mission Start!*
+
 路由是框架根据URL的不同，将请求提交给指定的控制器或者功能函数来处理。Laravel中，应用程序中的路由基本在laravel/routes目录下。路由文件在应用程序服务提供者启动过程中，通过app\Providers\RouteServiceProvider.php文件中的map方法进行加载。
 
 ## 基础路由
@@ -68,6 +70,8 @@ Route::get('user/{id}/{name}', function ($name) {
         '$id=' . $id . PHP_EOL;
 })->where(['name' => '[A-Za-z]+', 'id' => '[0-9]+']);
 ```
+
+> <span style="color:red;">注意：**形参的传入与参数名无关，只与形参的先后顺序有关。**</span>
 
 ## 路由命名
 
