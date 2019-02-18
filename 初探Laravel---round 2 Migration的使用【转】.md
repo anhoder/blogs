@@ -23,7 +23,7 @@ php artisan make:migration add_votes_to_users_table --table=users
 如：
 
 ```php
-Schema::create('users', function ($table) {
+Schema::create('users', function (Blueprint $table) {
     $table->increments('id');
     $table->string('name');
 });
@@ -59,7 +59,7 @@ Schema::create('users', function ($table) {
 将部分方法放在代码中演示
 
 ```php
-Schema::table('users', function ($table) {
+Schema::table('users', function (Blueprint $table) {
     $table->string('name', 30)->change();               // 将长度修改为30
     $table->string('name', 30)->nullable()->change();   // 将name列修改为允许NULL
     $table->remameColumn('name', 'user_name');          // name列名修改为user_name，暂不支持enum类型列的重命名
