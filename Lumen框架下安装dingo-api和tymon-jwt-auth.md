@@ -93,26 +93,16 @@ $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 ```
 
-③ 修改app/Providers/AuthServiceProvider.php文件：
+③ 修改app/Providers/AppServiceProvider.php文件：
 
-在AuthServiceProvider类中的register方法里添加以下代码：
+在AppServiceProvider类中的register方法里添加以下代码：
 
 ```php
 $this->app
-->register(\Dingo\Api\Provider\LumenServiceProvider::class);
-$this->app['Dingo\Api\Auth\Auth']
-->extend('jwt', function () {
-    return new \Dingo\Api\Auth\Provider\JWT($this->app['Tymon\JWTAuth\JWTAuth']);
-});
+->register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 ```
 
-④ 生成jwt的secret：
-
-```sh
-php artisan jwt:secret
-```
-
-⑤ 将Lumen框架的配置文件auth.php复制到config/auth.php，并修改内容为：
+④ 将Lumen框架的配置文件auth.php复制到config/auth.php，并修改内容为：
 
 ```php
 <?php
@@ -133,7 +123,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model'  => \App\User::class,
+            'model'  => App\User::class,
         ],
     ],
 
@@ -143,7 +133,7 @@ return [
 ];
 ```
 
-⑥ 修改配置文件，将dingo/api和tymon/jwt-auth关联：
+⑤ 修改配置文件，将dingo/api和tymon/jwt-auth关联：
 
 修改dingo/api的配置文件config/api.php:
 
@@ -154,5 +144,11 @@ return [
 ```
 
 完成以上步骤就完成了在Lumen框架下dingo/api和tymon/jwt-auth的安装。
+
+⑥ 生成jwt的secret：
+
+```sh
+php artisan jwt:secret
+```
 
 *Mission Complete!*
