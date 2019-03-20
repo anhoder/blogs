@@ -474,7 +474,7 @@ http {
       deny all;   # 拒绝除allow之外的所有访问
     }
 
-    # 转发PHP请求到php-fpm
+    # 转发PHP请求到php-fpm，[^/]匹配非/的字符
     location ~ [^/]\.php(/|$) {
       fastcgi_pass 127.0.0.1:9000; # 转发到本地9000端口，php-fpm默认端口
       #fastcgi_pass unix:/dev/shm/php-cgi.sock;
