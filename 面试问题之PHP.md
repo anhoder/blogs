@@ -47,7 +47,7 @@
 * const：语言结构，可以在类中定义常量，数据更快
 * define：函数
 
-> PHP中预定义的常量（魔术常量）：__FILE__、__LINE__、__DIR__、__FUNCTION__、__CLASS__、__TRAIT__、__METHOD__、__NAMESPACE__
+> PHP中预定义的常量（魔术常量）：__DIR__、__FILE__、__LINE__、__NAMESPACE__、__CLASS__、__TRAIT__、__FUNCTION__、__METHOD__
 
 ## static、self、$this、parent
 
@@ -136,7 +136,7 @@ require_once、include_once与require、include类似，但文件只会被包含
 
 * public可被外部访问，protected与private不可被外部访问
 * public、protected可被子类继承，private不可被继承
-* final描述的方法，不可被子类重写
+* final描述的方法，不可被子类重写；final描述的类，不可被继承
 
 ## SERVER_ADDR、REMOTE_ADDR、HTTP_X_FORWARDED_FOR、HTTP_CLIENT_IP
 
