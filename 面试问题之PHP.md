@@ -288,3 +288,57 @@ Generator生成器提供的方法有：
 * FastCGI: 是用于提升CGI性能的标准，FastCGI要求CGI进程在处理完请求后不被立刻杀死，而是保留下来，等待处理下一次请求。
 
 * PHP-FPM: FastCGI Processor Manager，实现FastCGI的管理器，使用FastCGI标准管理CGI程序
+
+## PHP操作MySQL数据库
+
+### mysqli面向过程
+
+```php
+// 使用prepare（推荐）
+$conn = mysqli_connect('127.0.0.1', 'root', '', 'test');
+mysqli_set_charset($conn, 'utf8');
+$stmt = mysqli_prepare($conn, 'SELECT `name`, `phone` FROM `aihailin` LIMIT ?');
+mysqli_stmt_bind_param($stmt, 'i', $limit);
+$limit = 2;
+mysqli_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+foreach ($result as $row) {
+  var_dump($row);
+}
+// 或不使用prepare
+$conn = mysqli_connect('127.0.0.1', 'root', '', 'test');
+mysqli_set_charset($conn, 'utf8');
+$res = mysqli_query($conn, 'SELECT * FROM `aihailin` LIMIT 2');
+foreach ($res as $row) {
+  var_dump($row);
+}
+```
+
+### mysqli面向对象
+
+```php
+$mysqli = new mysqli('127.0.0.1', 'root', '', 'test');
+$mysqli->set_charset('utf8');
+$stmt = $mysqli->prepare('SELECT `name`, `phone` FROM `aihailin` LIMIT ?');
+$stmt->bind_param('i', $limit);
+$limit = 2;
+$stmt->execute();
+$result = $stmt->get_result();
+foreach ($result as $row) {
+  var_dump($row);
+}
+```
+
+### PDO
+
+```php
+$dsn = 'mysql:host=127.0.0.1;dbname=test;charset=utf8';
+$pdo = new PDO($dsn, 'root', '');
+$stmt = $pdo->prepare('SELECT * FROM `aihailin` LIMIT :limit');
+$stmt->bindParam(':limit', $limit);
+$limit = 5;
+if ($stmt->execute()) {
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    var_dump($result);
+}
+```
