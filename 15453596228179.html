@@ -1,0 +1,1394 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  读《细说PHP》 - Alan的进阶日志
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="Alan的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+ 
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:alanalbert.github.io ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">博客</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">归档</a></li>
+        
+        <li id=""><a target="_self" href="about.html">关于</a></li>
+        
+        <li id=""><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Alan的进阶日志</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="_self" href="index.html">博客</a></li>
+        
+        <li><a target="_self" href="archives.html">归档</a></li>
+        
+        <li><a target="_self" href="about.html">关于</a></li>
+        
+        <li><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="php.html">PHP</a></li>
+        
+            <li><a href="interview.html">面试</a></li>
+        
+            <li><a href="security.html">安全</a></li>
+        
+            <li><a href="linux.html">Linux</a></li>
+        
+            <li><a href="mysql.html">MySQL</a></li>
+        
+            <li><a href="redis.html">Redis</a></li>
+        
+            <li><a href="data-struct-and-algorithm.html">数据结构及算法</a></li>
+        
+            <li><a href="computer-network.html">计算机网络</a></li>
+        
+            <li><a href="version-control-tool.html">版本控制工具</a></li>
+        
+            <li><a href="read.html">读书</a></li>
+        
+            <li><a href="javascript.html">JavaScript</a></li>
+        
+            <li><a href="web-server.html">Web服务器</a></li>
+        
+            <li><a href="hackintosh.html">黑苹果</a></li>
+        
+            <li><a href="markdown.html">Markdown</a></li>
+        
+            <li><a href="other.html">其它</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+              <div class="f-img"><img src="https://source.unsplash.com/random/1024x404" /></div>
+          
+          <h1>读《细说PHP》</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2018/12/21</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='read.html'>读书</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<h2 id="toc_0">一、PHP的错误ERROR与异常EXCEPTION</h2>
+
+<p><em>注意：在不同的语言中，错误与异常的定义不同。因此以下内容只在PHP中成立。</em></p>
+
+<h3 id="toc_1">错误ERROR</h3>
+
+<p>错误：属于PHP脚本自身的问题，可能是由错误的语法、服务器环境等导致，使得编译器无法通过检查，甚至无法运行的情况。    </p>
+
+<p><strong>错误不能被try/catch捕获</strong>    </p>
+
+<p>错误的级别：</p>
+
+<ul>
+<li>Fatal Error  致命错误，脚本终止运行
+<ul>
+<li>E_ERRO: 致命的运行时错误，阻止脚本的执行</li>
+<li>E_CORE_ERROR: PHP初始化启动过程发生的错误，由PHP引擎核心产生</li>
+<li>E_COMPILE_ERROR: 致命编译时错误，由Zend脚本引擎产生</li>
+<li>E_USER_ERROR: 用户产生的错误信息，在代码中使用函数trigger_error()产生（错误类型设置为E_USER_ERROR）</li>
+</ul></li>
+<li>Parse Error  编译时解析错误，语法错误，脚本终止运行
+<ul>
+<li>E_PARSE: 编译时语法解析错误，仅有分析器产生</li>
+</ul></li>
+<li>Warning Error  警告错误，脚本不终止运行
+<ul>
+<li>E_WARNING: 运行时警告，非致命错误</li>
+<li>E_CORE_WARNING: PHP初始化启动过程中发生的警告，非致命错误，由PHP引擎核心产生</li>
+<li>E_COMPILE_WARNING: 编译时警告，非致命错误，由Zend脚本产生</li>
+<li>E_USER_WARNING: 用户产生的警告信息，在代码中使用函数trigger_error()产生（错误类型设置为E_USER_WARNING）</li>
+</ul></li>
+<li><p>Notice Error  通知错误，脚本不终止运行</p>
+<ul>
+<li>E_NOTICE: 运行时通知，表示脚本遇到可能会表现为错误的情况，但是在可以正常运行的脚本里面也可能会有类似的通知</li>
+<li>E_USER_NOTICE: 用户产生的通知信息，在代码中使用函数trigger_error()产生（错误类型设置为E_USER_NOTICE）</li>
+</ul>
+<p>另外：</p>
+<ul>
+<li>E_ALL: 除E_ALL外的所有的错误、警告和注意</li>
+<li>E_STRICT: 关于PHP版本移植的兼容性和互操作性建议</li>
+</ul></li>
+</ul>
+
+<h3 id="toc_2">异常EXCEPTION</h3>
+
+<p>异常：在程序运行期间出现的不符合预期的情况，允许发生但不正常的情况。属于业务逻辑的错误，而不是语法或编译的错误。</p>
+
+<h3 id="toc_3">捕获错误和异常</h3>
+
+<p>在PHP中，用于捕获异常和错误的几个重要函数：<strong>error_reporting</strong>、<strong>set_error_handler</strong>、<strong>register_shutdown_function</strong>、<strong>error_get_last</strong>、<strong>set_exception_handler</strong>。</p>
+
+<h4 id="toc_4">error_reporting函数</h4>
+
+<p>设置报告哪些错误</p>
+
+<pre><code class="language-php">int error_reporting([int $err_type])
+
+/**
+ * int $err_type 可选参数，需要设置错误等级
+ * 返回值：int 返回旧的错误级别
+ */
+</code></pre>
+
+<p>用例：</p>
+
+<pre><code class="language-php">error_report(E_ALL | E_STRICT);
+</code></pre>
+
+<h4 id="toc_5">set_error_handler函数</h4>
+
+<p>捕获错误，并执行用户自定义的错误处理函数。</p>
+
+<pre><code class="language-php">mixed set_error_handler(callable $error_handler 
+    [, int $error_types = E_ALL | E_STRICT])
+/**
+ * callable $error_handler
+ *     回调函数，需要声明四个参数：错误类型、错误信息、错误所在文件、错误所在行。
+ *     第五个参数可选，指向错误发生时活动符号表的array，但在PHP 7.2.0被废）
+ *     
+ * int $error_types
+ *     可选，规定在哪个错误报告级别显示用户定义的错误
+ */
+</code></pre>
+
+<p>注意事项：</p>
+
+<blockquote>
+<ol>
+<li>如果存在该方法，相应的error_reporting()就不能再使用，所有错误都会交给自定义函数处理；</li>
+<li>此函数只能捕获系统产生的一些Warning、Notice级别的错误，不能捕获：E_ERROR、E_PARSE、E_CORE_ERROR、E_CORE_WARNING、E_COMPILE_WARNING以及set_error_handler()函数所在文件中产生的E_STRICT。</li>
+</ol>
+</blockquote>
+
+<p>用例：</p>
+
+<pre><code class="language-php">&lt;?php
+    set_error_handler(&#39;error_handler&#39;);
+    function error_handler($err_type, $err_msg, $err_file, $err_line)
+    {
+        var_dump($err_type);
+        var_dump($err_msg);
+        var_dump($err_file);
+        var_dump($err_line);
+    }
+    
+    // 或者
+    
+    set_error_handler(array(&#39;class_name&#39;, &#39;function_name&#39;));
+</code></pre>
+
+<h4 id="toc_6">register_shutdown_function函数</h4>
+
+<p>该函数时PHP脚本执行结束前最后一个调用的函数。通过这个函数就可以在脚本结束前判断是否产生错误。这是需要使用到<strong>error_get_last</strong>函数，获取本次执行产生的所有错误。<strong>register_shutdown_function可以配合set_error_handler捕获所有错误</strong></p>
+
+<pre><code class="language-php">void register_shutdown_function(callable $callback
+    [, mixed $parameter
+    [, mixed $...]])
+/**
+ * callable $callback 回调函数
+ * mixed $parameter 传递给回调的参数
+ * ... 更多回调
+ */
+</code></pre>
+
+<p>注意事项：</p>
+
+<blockquote>
+<ol>
+<li>该函数可以捕获的错误：Fatal Error、Parse Error等</li>
+<li>register_shutdown_function所在的文件发生语法错误，不能触发回调函数（用例之后会说到）</li>
+</ol>
+</blockquote>
+
+<p>用例：</p>
+
+<pre><code class="language-php">&lt;?php
+    register_shutdown_function(&#39;shutdown_handler&#39;);
+    function shutdown_handler()
+    {
+        if ($err = error_get_last()) {
+            var_dump($err);
+        }
+    }
+</code></pre>
+
+<p>但是，如果执行下列测试文件，是不能触发调用回调函数：</p>
+
+<pre><code class="language-php">&lt;?php
+    register_shutdown_function(&#39;shutdown_handler&#39;);
+    function shutdown_handler()
+    {
+        if ($err = error_get_last()) {
+            var_dump($err);
+        }
+    }
+    echo 1++;
+</code></pre>
+
+<p>为什么不能触发呢？这是因为：</p>
+
+<blockquote>
+<p>如果register_shutdown_function所在文件发生语法错误，该脚本不能通过PHP的语法分析，register_shutdown_function函数就不会被执行，也就没有注册回调函数。</p>
+
+<p>因此，我们需要保证register_shutdown_function所在文件没有语法错误。</p>
+</blockquote>
+
+<p>将上述代码修改为：</p>
+
+<pre><code class="language-php">&lt;?php
+    register_shutdown_function(&#39;shutdown_handler&#39;);
+    function shutdown_handler()
+    {
+        if ($err = error_get_last()) {
+            var_dump($err);
+        }
+    }
+    require &#39;a.php&#39;;
+    
+// a.php文件
+&lt;?php
+    echo 1++;
+</code></pre>
+
+<p>修改之后，因为register_shutdown_function所在文件没有语法错误，通过了PHP的语法分析，所以register_shutdown_function函数得以正常运行，便能注册回调函数了。    </p>
+
+<p><strong>因此，最好将register_shutdown_function单独放在一个的文件中，并保证该文件没有语法错误。</strong></p>
+
+<h4 id="toc_7">error_get_last函数</h4>
+
+<p>该函数用于获取本次执行中产生的错误信息。</p>
+
+<pre><code class="language-php">array error_get_last()
+/**
+ * 返回值：array 
+ * type =&gt;　错误类型
+ * message =&gt; 错误信息
+ * file =&gt; 发生错误的文件
+ * line =&gt; 发生错误的行号
+ */
+</code></pre>
+
+<h4 id="toc_8">set_exception_handler函数</h4>
+
+<p>设置异常处理函数，如果异常没被捕获就会进到该方法中，并且在回调函数调用后异常会中止。</p>
+
+<pre><code class="language-php">callable set_exception_handler(callable $exception_handler)
+
+/**
+ * callable $exception_handler 回调函数，需要接受一个参数：捕获的异常对象
+ * 返回值： callable 返回定义的回调函数的名称
+ */
+</code></pre>
+
+<p><strong>需要注意的是：set_error_handler、register_shutdown_function、set_exception_handler三个函数捕获错误的范围并不是相互独立，可能存在一定的交集，但错误只会被捕获一次，不会重复被捕获</strong></p>
+
+<h2 id="toc_9">二、日期与时间</h2>
+
+<ul>
+<li>mktime: 获取时间戳，参数依次为时、分、秒、月、日、年，皆可选</li>
+<li>strtotime: 将自然语言英语转换为时间戳</li>
+<li>gettimeofday: 获取某一天中的具体时间</li>
+<li>getdate: 获取一个由时间戳组成的关联数组，可选参数：一个时间戳</li>
+<li>date: 以指定格式返回时间字符串，参数：指定格式，可选参数为时间戳</li>
+<li>date_default_timezone_set: 设置默认时区，RPC、Asia/Shanghai、Asia/Chongqing、Etc/GMT-8</li>
+<li>microtime: 获取当前微秒级时间戳，可选参数：是否以浮点数形式返回</li>
+</ul>
+
+<h2 id="toc_10">三、文件与目录</h2>
+
+<h3 id="toc_11">类型</h3>
+
+<pre><code class="language-php">// 获取文件类型
+filetype(string $file) : string | false
+</code></pre>
+
+<p>Windows中PHP只能获取到3种文件类型：file、dir、unknown，而在UNIX中，可以获取7种block、char、dir、fifo、file、link、unknown。</p>
+
+<ul>
+<li>block：块设备文件，如：硬盘分区、软驱、光驱等</li>
+<li>char：字符设备，指I/O传输中以字符为单位进行传输的设备，如键盘、打印机等</li>
+<li>dir：目录类型，目录也是文件的一种</li>
+<li>fifo：命名管道，常用于将信息从一个进程传递到另一个进程</li>
+<li>file：普通文件类型</li>
+<li>link：链接，软链接、硬链接</li>
+<li>unknown：未知类型</li>
+</ul>
+
+<h3 id="toc_12">文件</h3>
+
+<ul>
+<li>is_file、is_dir、is_link...：判断是否给定的文件为某一类型</li>
+<li>file_exists：<strong>文件或目录</strong>是否存在</li>
+<li>filesize：文件大小</li>
+<li>is_readable：是否可读</li>
+<li>is_writeable：是否可写</li>
+<li>is_executable：是否可执行</li>
+<li>filectime：文件创建时间（inode修改时间）</li>
+<li>filemtime：文件修改时间</li>
+<li>fileatime：文件访问时间</li>
+<li>stat：获取文件的大部分属性值</li>
+<li>unlink：删除文件</li>
+<li>copy：复制文件</li>
+<li>rename：重命名</li>
+<li>fopen：打开文件，返回文件句柄，r、r+、w、w+、x、x+、a、a+、b、t</li>
+<li>fclose：关闭打开的文件</li>
+<li>fwrite：往打开的文件中写</li>
+<li>fread：读取打开文件的指定长度内容，参数1为文件句柄，参数2为读取的长度</li>
+<li>file_get_content：获取文件内容</li>
+<li>fgets：从打开的文件中获取一行</li>
+<li>fgets：从打开的文件中获取一个字符</li>
+<li>readfile：读取一个文件，并输出到输出缓冲区，返回长度</li>
+<li>file：把文件按行读到一个数组中</li>
+<li>ftell：返回文件指针的当前位置</li>
+<li>fseek：移动文件指针到指定位置</li>
+<li>rewind：重置文件指针到文件开头</li>
+<li>ftruncate：把文件截取到指定长度</li>
+<li>flock：文件锁，LOCK_SH共享锁、LOCK_EX排他锁、LOCK_UN释放锁、LOCK_NB附件锁（如果不希望flock在锁定时堵塞，则应该                                                                       加上该锁），锁也可被fclose释放</li>
+</ul>
+
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>描述</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>r</td>
+<td>只读方式打开文件，从文件开头开始读</td>
+</tr>
+<tr>
+<td>r+</td>
+<td>读写方式打开文件，从文件开头开始读写，逐个覆盖原内容</td>
+</tr>
+<tr>
+<td>w</td>
+<td>只写方式打开文件，从文件开头开始写。若文件已存在，删除原文件内容；若不存在，创建</td>
+</tr>
+<tr>
+<td>w+</td>
+<td>读写方式打开文件，从文件开头开始读写。若文件已存在，删除原文件内容；若不存在，创建</td>
+</tr>
+<tr>
+<td>x</td>
+<td>创建并以写入方式打开，从文件开头开始写。若文件存在，报出E_WARNING级别的错误</td>
+</tr>
+<tr>
+<td>x+</td>
+<td>创建并以读写方式打开，从文件开头开始读写。若文件存在，报出E_WARNING级别的错误</td>
+</tr>
+<tr>
+<td>a</td>
+<td>写入方式打开，从文件结尾开始写。若文件不存在，创建</td>
+</tr>
+<tr>
+<td>a+</td>
+<td>读写方式打开，从文件结尾开始读写。若文件不存在，创建</td>
+</tr>
+<tr>
+<td>b</td>
+<td>以二进制模式打开文件</td>
+</tr>
+<tr>
+<td>t</td>
+<td>以文本模式打开文件，只在Windows下可用</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="toc_13">目录</h3>
+
+<p>在UNIX系统中，必须使用&#39;/&#39;作为文件分隔符，而在Windows中，默认使用&#39;\&#39;作为分隔符，同时支持使用&#39;/&#39;作为分隔符。    </p>
+
+<p>在PHP中可以使用DIRECTORY_SEPARATOR获取当前系统的分隔符（Windows为&#39;\&#39;，UNIX为&#39;/&#39;）</p>
+
+<ul>
+<li>basename：获取文件名部分，第二个参数可以指定扩展名，如果指定了，返回值则不带扩展名</li>
+<li>dirname：获取去掉文件名部分后的目录</li>
+<li>pathinfo：获取路径的目录部分dirname、带扩展的文件名basename、扩展extension、不带扩展的文件名filename</li>
+<li>dir：返回Directory类的实例</li>
+<li>opendir：打开目录，返回目录句柄</li>
+<li>readdir：读取目录</li>
+<li>closedir：关闭目录</li>
+<li>rewinddir：倒回目录句柄，将目录指针重置到开始处</li>
+<li>scandir：浏览目录内容</li>
+<li>glob：检索指定的目录</li>
+<li>mkdir：创建目录</li>
+<li>rmdir：删除目录</li>
+</ul>
+
+<h3 id="toc_14">上传文件</h3>
+
+<p>需要注意的点：</p>
+
+<ul>
+<li>form表单设置enctype=&quot;multipart/form-data&quot; method=&quot;data&quot;</li>
+<li>PHP使用$_FILES获取上传文件信息</li>
+<li>多文件上传，可指定name=&quot;file[]&quot;的形式</li>
+</ul>
+
+<p>处理上传文件可以用到的函数：</p>
+
+<blockquote>
+<p>is_uploaded_file：判断处理的文件是否是通过HTTP POST上传的。但参数必须是类似$_POST[&#39;file&#39;][&#39;tmp_name&#39;]的变量。</p>
+
+<p>move_uploaded_file：将上传移动到新位置，且该函数会判断文件是否为合法的通过HTTP POST上传的文件。</p>
+</blockquote>
+
+<h3 id="toc_15">下载文件</h3>
+
+<p>设置网页头部信息，以保证浏览器是下载文件而不是直接输出：</p>
+
+<pre><code class="language-php">header(&#39;Content-Type: image/gif&#39;);
+header(&#39;Content-Disposition: attachment; filename=&quot;test.gif&quot;&#39;); // 说明是附件
+header(&#39;Content-Length: 3390&#39;);
+
+readfile(&#39;test.gif&#39;);
+</code></pre>
+
+<h2 id="toc_16">图像绘制</h2>
+
+<h3 id="toc_17">创建画布</h3>
+
+<pre><code class="language-php">resource imagecreate($x_size, $y_size)          // 基于调色板
+resource imagecreatetruecolor($x_size, $y_size) // 真彩
+</code></pre>
+
+<h3 id="toc_18">设置颜色</h3>
+
+<pre><code class="language-php">int imagecolorallocate(resource $image, int $r, int $g, int $b)
+</code></pre>
+
+<h3 id="toc_19">绘制</h3>
+
+<p>图形区域填充</p>
+
+<pre><code class="language-php">bool imagefill(resource $image, int $x, int $y, int $color)
+</code></pre>
+
+<p>绘制点和线</p>
+
+<pre><code class="language-php">bool imagesetpixel(resource $image, int $x, int $y, int $color)
+bool imageline(resource $image, int $x1, int $y1, int $x2, int $y2, int $color)
+</code></pre>
+
+<p>绘制矩阵</p>
+
+<pre><code class="language-php">// 画一个矩阵
+bool imagerectangle(resource $image, int $x1, int $y1, int $x2, int $y2, int $color)
+// 画一个矩阵并填充
+bool imagefilledrectangle(resource $image, int $x1, int $y1, int $x2, int $y2, int $color)
+</code></pre>
+
+<p>绘制多边形</p>
+
+<pre><code class="language-php">bool imagepolygon(resource $image, array $point, int $num_points, int $color)
+bool imagefilledpolygon(resource $image, array $point, int $num_points, int $color)
+</code></pre>
+
+<p>绘制椭圆</p>
+
+<pre><code class="language-php">bool imageellipse(resource $image, int $cx, int $cy, int $w, int $h, int $color)
+bool imagefilledellipse(resource $image, int $cx, int $cy, int $w, int $h, int $color)
+// ($cx, $cy) 中心坐标
+// $w, $h 宽、高
+</code></pre>
+
+<p>绘制弧线</p>
+
+<pre><code class="language-php">bool imagearc(int $cx, int $cy, int $w, int $h, int $s, int $e, int $color)
+</code></pre>
+
+<p>绘制文字</p>
+
+<pre><code class="language-php">bool imagestring(resource $image, int $font, int $x, int $y, string $s, int $color) // 水平
+bool imagestringup(resource $image, int $font, int $x, int $y, string $s, int $color) // 垂直
+bool imagechar(resource $image, int $font, int $x, int $y, char $c, int $color)
+bool imagecharup(resource $image, int $font, int $x, int $y, char $c, int $color)
+// 以ttf字体绘制文本
+array imagettftext(resource $image, float $size, float $angle, int $x, int $y, int $color, string $fontfile, string $text)
+</code></pre>
+
+<h3 id="toc_20">生成图像</h3>
+
+<pre><code class="language-php">bool imagegif(resource $image [, string $filename])
+bool imagejpeg(resource $image [, string $filename [, int $quality]])
+bool imagepng(resource $image [, string $filename])
+bool imagewbmp(resource $image [, string $filename [, int $foreground]])
+</code></pre>
+
+<h3 id="toc_21">销毁图像</h3>
+
+<pre><code class="language-php">bool imagedestory(resource $img)
+</code></pre>
+
+<h2 id="toc_22">图像处理</h2>
+
+<p>以图片为背景创建图像</p>
+
+<pre><code class="language-php">resource imagecreatefromjpeg(string $file)
+resource imagecreatefrompng(string $file)
+resource imagecreatefromgif(string $file)
+</code></pre>
+
+<p>获取图片大小和类型</p>
+
+<pre><code class="language-php">array getimagesize(string $file [, array &amp;$imageinfo])
+</code></pre>
+
+<p>图片缩放、剪切</p>
+
+<pre><code class="language-php">bool imagecopyresampled (resource $dst_img, resource $src_img, int $dst_x, int $dst_y, int $src_x, int $src_y, int $dst_w, int $dst_h, int $src_w, int $src_h)
+// 该函数可以将图像中的一块正方形区域复制到另一个图像中
+</code></pre>
+
+<p>添加水印</p>
+
+<pre><code class="language-php">bool imagecopy(resource $des_img, resource $src_img, int $dst_x, int $dst_y, int $src_x, int $src_y, int $src_w, int $src_h)
+// 将源图像的(src_x, src,y)的宽src_w，高src_h的一部分复制到目标图像的(dst_x, dst_y)处
+</code></pre>
+
+<p>图片旋转、翻转</p>
+
+<pre><code class="language-php">resource imagerotate(resource $src_img, float $angle, int $bg_color [, int $ignore_transport])
+// 图片旋转angle角度，旋转后未覆盖到的部分使用bg_color填充，igno_transport为非零值，则透明色被忽略。
+</code></pre>
+
+<h2 id="toc_23">PDO</h2>
+
+<h3 id="toc_24">PDO驱动</h3>
+
+<table>
+<thead>
+<tr>
+<th>PDO驱动</th>
+<th>对应访问的数据库</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>PDO_BDLIB</td>
+<td>FreeTDS/Microsoft SQL Server/Sybase</td>
+</tr>
+<tr>
+<td>PDO_FIREBIRD</td>
+<td>Firbird/Interbase 6</td>
+</tr>
+<tr>
+<td>PDO_MYSQL</td>
+<td>MySQL 3.x/4.x/5.x</td>
+</tr>
+<tr>
+<td>PDO_OCI</td>
+<td>Oracle (OCI=Oracle Call Interface)</td>
+</tr>
+<tr>
+<td>PDO_ODBC</td>
+<td>ODBC v3</td>
+</tr>
+<tr>
+<td>PDO_PGSQL</td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td>PDO_SQLITE</td>
+<td>SQLite 2.x/3.x</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="toc_25">PDO类的方法</h3>
+
+<h4 id="toc_26">构造方法</h4>
+
+<pre><code class="language-php">__construct(string $dsn [, string $username [, string $pwd [, array $driver_options]]])
+// dsn：Data Source Name，数据源名，如：
+// mysql:dbname=test;host=127.0.0.1;port=3306;charset=utf8
+// DSN也可指定文件为参数（如果该文件中存放着DSN字符串），如：
+// uri:file:///user/local/dbconnect
+</code></pre>
+
+<h4 id="toc_27">Attribute</h4>
+
+<pre><code class="language-php">// 获取或设置一个数据库连接对象的属性
+getAttribute() // 参数：属性名
+setAttribute() // 参数：属性名，属性值
+</code></pre>
+
+<p>PDO的一些属性</p>
+
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>描述</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>PDO::ATTR_AUTOCOMMIT</td>
+<td>确定PDO是否关闭自动提交功能，设置FALSE值时关闭</td>
+</tr>
+<tr>
+<td>PDO::ATTR_CASE</td>
+<td>强制PDO获取的表字段字符大小写转换，或原样使用列信息</td>
+</tr>
+<tr>
+<td>PDO::ATTR_ERRMODE</td>
+<td>设置错误处理模式，PDO::ERRMODE_SILENT, PDO::ERRMODE_WARNING, PDO::ERRMODE_EXCEPTION</td>
+</tr>
+<tr>
+<td>PDO::ATTR_PERSISTENT</td>
+<td>确定连接是否为持久连接，默认为FALSE</td>
+</tr>
+<tr>
+<td>PDO::ATTR_ORACLE_NULLS</td>
+<td>将返回的空字符串转换为SQL的NULL</td>
+</tr>
+<tr>
+<td>PDO::ATTR_PREFETCH</td>
+<td>设置应用程序提前获取的数据大小(单位：K)</td>
+</tr>
+<tr>
+<td>PDO::ATTR_TIMEOUT</td>
+<td>设置超时之前等待的时间(单位：s)</td>
+</tr>
+<tr>
+<td>PDO::ATTR_SERVER_INFO</td>
+<td>包含与数据库特有的服务器信息</td>
+</tr>
+<tr>
+<td>PDO::ATTR_SERVER_VERSION</td>
+<td>包含与数据库服务器版本号有关的信息</td>
+</tr>
+<tr>
+<td>PDO::ATTR_CLIENT_VERSION</td>
+<td>包含与数据库客户端版本号有关的信息</td>
+</tr>
+<tr>
+<td>PDO::ATTR_CONNECTION_STATUS</td>
+<td>包含数据库特有的与连接状态有关的信息</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="toc_28">错误</h4>
+
+<pre><code class="language-php">// 获取最后一次数据库操作的错误码
+errorCode()
+// 获取最后一次数据库操作的错误信息
+errorInfo()
+</code></pre>
+
+<h4 id="toc_29">SQL</h4>
+
+<pre><code class="language-php">exec() // 执行一条SQL语句，并返回受影响的行数
+query() // 执行一条SQL语句，并返回PDOStatement对象（结果集）
+quote() // 为SQL语句中的字符串添加引号
+lastInsertId() // 获取插入到表中的最后一条数据的主键值
+prepare() // 准备要执行的SQL语句，返回PDOStatement对象
+getAvailableDrivers() // 获取有效的PDO驱动器名称
+beginTransaction() // 开始事务
+commit() //提交事务
+rollback() // 回滚事务
+</code></pre>
+
+<h3 id="toc_30">预处理语句和PDOStatement类</h3>
+
+<p>通过PDO的prepare方法传入一条预处理语句，返回一个PDOStatement查询对象，可以使用该对象传入参数，执行语句。    </p>
+
+<table>
+<thead>
+<tr>
+<th>PDOStatement类的成员方法</th>
+<th>描述</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>bindColumn()</td>
+<td>将列名绑定到一个PHP变量，这样获取到记录后，会将相应的列值赋给该变量</td>
+</tr>
+<tr>
+<td>bindParam()</td>
+<td>将参数绑定到相应的占位符</td>
+</tr>
+<tr>
+<td>bindValue()</td>
+<td>将一个值绑定到对应的一个参数中</td>
+</tr>
+<tr>
+<td>closeCursor()</td>
+<td>关闭游标，使该声明再次被执行</td>
+</tr>
+<tr>
+<td>columnCount()</td>
+<td>在结果集中返回列的数目</td>
+</tr>
+<tr>
+<td>errorCode()</td>
+<td>获取错误码</td>
+</tr>
+<tr>
+<td>errorInfo()</td>
+<td>获取错误信息</td>
+</tr>
+<tr>
+<td>execute()</td>
+<td>执行一个预处理查询</td>
+</tr>
+<tr>
+<td>fetch()</td>
+<td>获取结果集的下一行，到结尾返回false</td>
+</tr>
+<tr>
+<td>fetchAll()</td>
+<td>获取结果集的所有行</td>
+</tr>
+<tr>
+<td>fetchColumn()</td>
+<td>获取某一列的下一个值</td>
+</tr>
+<tr>
+<td>fetchObject()</td>
+<td>获取结果集的下一行，作为对象返回</td>
+</tr>
+<tr>
+<td>getAttribute()</td>
+<td>获取属性</td>
+</tr>
+<tr>
+<td>setAttribute()</td>
+<td>设置属性</td>
+</tr>
+<tr>
+<td>nextRowset()</td>
+<td>获取下一行结果集</td>
+</tr>
+<tr>
+<td>rowCount()</td>
+<td>获取结果集的行数</td>
+</tr>
+<tr>
+<td>getColumnMeta()</td>
+<td>获取某一列的信息</td>
+</tr>
+<tr>
+<td>setFetchMode()</td>
+<td>设置获取结果集的类型</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="toc_31">MemCached</h2>
+
+<h3 id="toc_32">MemCached命令</h3>
+
+<blockquote>
+<p>stats: 当前所有memcached服务器运行的状态信息<br/>
+add: 添加一个数据到服务器<br/>
+set: 替换一个已经存在的数据，如果数据不存在，则与add命令相同<br/>
+get: 从服务器端获取指定的数据<br/>
+delete: 删除指定的单个数据<br/>
+flush_all: 删除所有数据</p>
+</blockquote>
+
+<h3 id="toc_33">在PHP中使用MemCached</h3>
+
+<p>需要安装memcached扩展包</p>
+
+<pre><code class="language-php">Memcached::connect  // 打开一个到memcached的连接
+Memcached::pconnect  // 打开一个到memcached的长连接
+Memcached::addServer  // 分布式服务器添加一个服务器
+Memcached::close  // 关闭一个memcached的连接
+Memcached::getStats // 获取当前memcached服务器的状态
+Memcached::add  // 添加一个值，若存在，返回false
+Memcached::set  // 添加一个值，若存在，覆盖
+Memcached::replace  // 替换一个值，类似于set                               
+Memcached::get  // 获取一个数据                
+Memcached::delete  // 删除一个数据
+Memcached::flush   // 清空所有数据
+</code></pre>
+
+<h2 id="toc_34">框架</h2>
+
+<p>一个框架需要的功能：</p>
+
+<ul>
+<li>目录组织结构</li>
+<li>类加载</li>
+<li>基础类</li>
+<li>URL处理</li>
+<li>输入处理</li>
+<li>错误异常处理</li>
+<li>扩展类</li>
+</ul>
+
+<h2 id="toc_35">PHP安全和优化</h2>
+
+<ul>
+<li>不信任用户输入、验证用户数据</li>
+<li>及时修补漏洞</li>
+<li>隐藏Apache和PHP（Apache的ServerSignature、ServerToken指令、PHP的expose_php()函数）</li>
+<li>删除phpinfo()调用的所有实例</li>
+<li>修改文档扩展名</li>
+<li>拒绝访问某些类型的文件</li>
+</ul>
+
+<p>优化</p>
+
+<ul>
+<li>使用循环时，应该先计算长度，不要每次都计算一遍</li>
+<li>使用<code>isset($str{10})</code>比<code>strlen($str) &gt; 10</code>更快，对于数组也一样</li>
+<li><code>$i++</code>比<code>++$i</code>稍慢（仅适用PHP）</li>
+</ul>
+
+<p><em>Mission Complete!</em></p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15460831337649.html" 
+          title="Previous Post: 读《计算广告》">&laquo; 读《计算广告》</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15446761791149.html" 
+          title="Next Post: 读《沟通圣经》">读《沟通圣经》 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          <script 
+    src="https://utteranc.es/client.js"
+    repo="AlanAlbert/personal-blog-comments"
+    issue-term="pathname"     
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="https://tvax4.sinaimg.cn/crop.0.0.664.664.180/006k9NITly8fejxhyoc3aj30ig0igmy3.jpg?Expires=1562496252&ssig=LhZKVSOY7F&KID=imgbed,tva" /></div>
+            
+                <h1>Alan的进阶日志</h1>
+                <div class="site-des">与有肝胆人共事，从无字句处读书。</div>
+                <div class="social">
+
+
+<a target="_blank" class="stackoverflow" href="https://stackoverflow.com/users/9723854/alan" title="StackOverflow"></a>
+
+
+
+
+<a target="_blank" class="weibo" href="https://weibo.com/u/5794659803" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/Alan_Albert_" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/AlanAlbert" title="GitHub">GitHub</a>
+<a target="_blank" class="email" href="mailto:alan1766447919@gmail.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+               
+             <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Important</h2>
+                </div>
+                <div class="side-content">
+                  <div style="color:#ff0000; text-align:center; padding:8px;" class="bg-info site_notice">
+                    ① 可以使用GitHub账号登录进行评论哦😁<br/><br/>② 欢迎关注我的个人公众号，一起交流学习~<br/ ><img src="https://mp.weixin.qq.com/mp/qrcode?scene=10000005&size=102&__biz=MzIzNDU0NTc4OA==&mid=100000001&idx=1&sn=34f05b9196beb41e8561cbdfc5de26f5&send_time=1566403069" />
+                  </div>
+                </div>
+            </div>
+    
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="php.html"><strong>PHP</strong></a>
+        
+            <a href="interview.html"><strong>面试</strong></a>
+        
+            <a href="security.html"><strong>安全</strong></a>
+        
+            <a href="linux.html"><strong>Linux</strong></a>
+        
+            <a href="mysql.html"><strong>MySQL</strong></a>
+        
+            <a href="redis.html"><strong>Redis</strong></a>
+        
+            <a href="data-struct-and-algorithm.html"><strong>数据结构及算法</strong></a>
+        
+            <a href="computer-network.html"><strong>计算机网络</strong></a>
+        
+            <a href="version-control-tool.html"><strong>版本控制工具</strong></a>
+        
+            <a href="read.html"><strong>读书</strong></a>
+        
+            <a href="javascript.html"><strong>JavaScript</strong></a>
+        
+            <a href="web-server.html"><strong>Web服务器</strong></a>
+        
+            <a href="hackintosh.html"><strong>黑苹果</strong></a>
+        
+            <a href="markdown.html"><strong>Markdown</strong></a>
+        
+            <a href="other.html"><strong>其它</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15810423370557.html">初探Docker---使用Docker Compose编排容器</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15714902755948.html">初探Docker---编写Dockerfile搭建PHP开发环境</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704551543845.html">初探Docker---Docker及Dockerfile</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15685386915043.html">百万级数据迁移、汇总</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15657597684450.html">PHP实现异步回调的总结</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="asset/prism.js"></script>
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+
+
+  </body>
+</html>

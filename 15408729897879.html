@@ -1,0 +1,669 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  Node篇---（一）特点 - Alan的进阶日志
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="Alan的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+ 
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:alanalbert.github.io ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">博客</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">归档</a></li>
+        
+        <li id=""><a target="_self" href="about.html">关于</a></li>
+        
+        <li id=""><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Alan的进阶日志</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="_self" href="index.html">博客</a></li>
+        
+        <li><a target="_self" href="archives.html">归档</a></li>
+        
+        <li><a target="_self" href="about.html">关于</a></li>
+        
+        <li><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="php.html">PHP</a></li>
+        
+            <li><a href="interview.html">面试</a></li>
+        
+            <li><a href="security.html">安全</a></li>
+        
+            <li><a href="linux.html">Linux</a></li>
+        
+            <li><a href="mysql.html">MySQL</a></li>
+        
+            <li><a href="redis.html">Redis</a></li>
+        
+            <li><a href="data-struct-and-algorithm.html">数据结构及算法</a></li>
+        
+            <li><a href="computer-network.html">计算机网络</a></li>
+        
+            <li><a href="version-control-tool.html">版本控制工具</a></li>
+        
+            <li><a href="read.html">读书</a></li>
+        
+            <li><a href="javascript.html">JavaScript</a></li>
+        
+            <li><a href="web-server.html">Web服务器</a></li>
+        
+            <li><a href="hackintosh.html">黑苹果</a></li>
+        
+            <li><a href="markdown.html">Markdown</a></li>
+        
+            <li><a href="other.html">其它</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+              <div class="f-img"><img src="https://source.unsplash.com/random/1024x399" /></div>
+          
+          <h1>Node篇---（一）特点</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2018/10/30</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='node.html'>Node</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<h2 id="toc_0">1、异步I/O</h2>
+
+<p>异步在前端JavaScript是很常见的，例如使用JQuery发起ajax请求：</p>
+
+<pre><code class="language-javascript">$.ajax({
+  url: &#39;/url&#39;,
+  data: {},
+  type: post,
+  dataType: json,
+  success: function (data) {
+    console.log(&#39;数据请求成功：&#39;, data);
+  }
+});
+</code></pre>
+
+<p>异步I/O相对于同步I/O来说，其优势在于可以大大缩短多个I/O需要的时间，例如：</p>
+
+<pre><code class="language-javascript">let fs = require(&#39;fs&#39;);
+
+fs.readFile(&#39;./file1&#39;, function (error, file) {
+  console.log(&#39;file1读取完成&#39;);
+});
+fs.readFile(&#39;./file2&#39;, funciton (error, file) {
+  console.log(&#39;file2读取完成&#39;);
+});
+// 这段脚本的耗时取决于两个文件之间读取耗时最多的那个
+// 而在同步I/O中，相同功能的脚本耗时为两个文件读取耗时之和
+</code></pre>
+
+<p>由此可见异步I/O的优势是很大的。</p>
+
+<h2 id="toc_1">2、单线程</h2>
+
+<p>Node是单线程的，不用像多线程编程一样在意状态的同步问题，也无法像多线程一样利用多核的CPU。   </p>
+
+<p>另外的问题在于，大量计算占用CPU将导致无法继续调用异步I/O。在Node中的解决方案是通过使用Master-Worker模型，将大量计算拆分为小量的计算，并分发给工作线程进行处理。</p>
+
+<h2 id="toc_2">3、跨平台</h2>
+
+<p>Node在操作系统之上搭建了一层平台层---libuv，其与不同的操作系统进行交互，向上层的Node模块提供统一的接口，如图：</p>
+
+<pre><code class="language-mermaid">graph TB;
+  A[Node.js]--&gt;B[libuv]
+  B--&gt;C[Linux或Unix]
+  B--&gt;D[Windows]
+</code></pre>
+
+<h2 id="toc_3">4、C/C++扩展</h2>
+
+<p>在Node中，可以像PHP一样，通过C/C++编写Node扩展，来提高性能。</p>
+
+<p><em>Mission Complete!</em></p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15408784493778.html" 
+          title="Previous Post: Node篇---（二）模块">&laquo; Node篇---（二）模块</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15396083897489.html" 
+          title="Next Post: Nginx服务器配置详解">Nginx服务器配置详解 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          <script 
+    src="https://utteranc.es/client.js"
+    repo="AlanAlbert/personal-blog-comments"
+    issue-term="pathname"     
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="https://tvax4.sinaimg.cn/crop.0.0.664.664.180/006k9NITly8fejxhyoc3aj30ig0igmy3.jpg?Expires=1562496252&ssig=LhZKVSOY7F&KID=imgbed,tva" /></div>
+            
+                <h1>Alan的进阶日志</h1>
+                <div class="site-des">与有肝胆人共事，从无字句处读书。</div>
+                <div class="social">
+
+
+<a target="_blank" class="stackoverflow" href="https://stackoverflow.com/users/9723854/alan" title="StackOverflow"></a>
+
+
+
+
+<a target="_blank" class="weibo" href="https://weibo.com/u/5794659803" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/Alan_Albert_" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/AlanAlbert" title="GitHub">GitHub</a>
+<a target="_blank" class="email" href="mailto:alan1766447919@gmail.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+               
+             <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Important</h2>
+                </div>
+                <div class="side-content">
+                  <div style="color:#ff0000; text-align:center; padding:8px;" class="bg-info site_notice">
+                    ① 可以使用GitHub账号登录进行评论哦😁<br/><br/>② 欢迎关注我的个人公众号，一起交流学习~<br/ ><img src="https://mp.weixin.qq.com/mp/qrcode?scene=10000005&size=102&__biz=MzIzNDU0NTc4OA==&mid=100000001&idx=1&sn=34f05b9196beb41e8561cbdfc5de26f5&send_time=1566403069" />
+                  </div>
+                </div>
+            </div>
+    
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="php.html"><strong>PHP</strong></a>
+        
+            <a href="interview.html"><strong>面试</strong></a>
+        
+            <a href="security.html"><strong>安全</strong></a>
+        
+            <a href="linux.html"><strong>Linux</strong></a>
+        
+            <a href="mysql.html"><strong>MySQL</strong></a>
+        
+            <a href="redis.html"><strong>Redis</strong></a>
+        
+            <a href="data-struct-and-algorithm.html"><strong>数据结构及算法</strong></a>
+        
+            <a href="computer-network.html"><strong>计算机网络</strong></a>
+        
+            <a href="version-control-tool.html"><strong>版本控制工具</strong></a>
+        
+            <a href="read.html"><strong>读书</strong></a>
+        
+            <a href="javascript.html"><strong>JavaScript</strong></a>
+        
+            <a href="web-server.html"><strong>Web服务器</strong></a>
+        
+            <a href="hackintosh.html"><strong>黑苹果</strong></a>
+        
+            <a href="markdown.html"><strong>Markdown</strong></a>
+        
+            <a href="other.html"><strong>其它</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15810423370557.html">初探Docker---使用Docker Compose编排容器</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15714902755948.html">初探Docker---编写Dockerfile搭建PHP开发环境</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704551543845.html">初探Docker---Docker及Dockerfile</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15685386915043.html">百万级数据迁移、汇总</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15657597684450.html">PHP实现异步回调的总结</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+
+  
+
+
+
+
+
+
+
+
+  	<script>!function(){var deflate=function(){var e,n,r,t,i,o,a,f,d,l,c,u,h,w,m,s,g,p,y,_,v,x,A,C,b,V,E,z,I,S,B,G,L,M,O,D,N,q,T,k,H,U,j,F,P,R,J,K,Q,W,X,Y,Z,$,ee,ne,re=32768,te=0,ie=1,oe=2,ae=6,fe=!0,de=32768,le=64,ce=8192,ue=2*re,he=3,we=258,me=16,se=8192,ge=se,pe=8192,ye=pe-1,_e=re-1,ve=0,xe=4096,Ae=we+he+1,Ce=re-Ae,be=1,Ve=15,Ee=7,ze=29,Ie=256,Se=256,Be=Ie+1+ze,Ge=30,Le=19,Me=16,Oe=17,De=18,Ne=2*Be+1,qe=parseInt((13+he-1)/he),Te=null;function ke(){this.fc=0,this.dl=0}function He(){this.dyn_tree=null,this.static_tree=null,this.extra_bits=null,this.extra_base=0,this.elems=0,this.max_length=0,this.max_code=0}function Ue(e,n,r,t){this.good_length=e,this.max_lazy=n,this.nice_length=r,this.max_chain=t}var je=[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0],Fe=[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13],Pe=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,7],Re=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15],Je=[new Ue(0,0,0,0),new Ue(4,4,8,4),new Ue(4,5,16,8),new Ue(4,6,32,32),new Ue(4,4,16,16),new Ue(8,16,32,32),new Ue(8,16,128,128),new Ue(8,32,128,256),new Ue(32,128,258,1024),new Ue(32,258,258,4096)];function Ke(){var n;return null!=e?(n=e,e=e.next):n=new function(){this.next=null,this.len=0,this.ptr=new Array(ce),this.off=0},n.next=null,n.len=n.off=0,n}function Qe(e){return c[re+e]}function We(e,n){return c[re+e]=n}function Xe(e){Te[o+i++]=e,o+i==ce&&function(){if(0!=i){var e,t;for(e=Ke(),null==n?n=r=e:r=r.next=e,e.len=i-o,t=0;t<e.len;t++)e.ptr[t]=Te[o+t];i=o=0}}()}function Ye(e){e&=65535,o+i<ce-2?(Te[o+i++]=255&e,Te[o+i++]=e>>>8):(Xe(255&e),Xe(e>>>8))}function Ze(){m=(m<<qe^255&f[v+he-1])&ye,s=Qe(m),c[v&_e]=s,We(m,v)}function $e(e,n){_n(n[e].fc,n[e].dl)}function en(e){return 255&(e<256?F[e]:F[256+(e>>7)])}function nn(e,n,r){return e[n].fc<e[r].fc||e[n].fc==e[r].fc&&U[n]<=U[r]}function rn(e,n,r){var t;for(t=0;t<r&&ne<ee.length;t++)e[n+t]=255&ee.charCodeAt(ne++);return t}function tn(e){var n,r,t=b,i=v,o=_,a=v>Ce?v-Ce:ve,d=v+we,l=f[i+o-1],u=f[i+o];_>=z&&(t>>=2);do{if(f[(n=e)+o]==u&&f[n+o-1]==l&&f[n]==f[i]&&f[++n]==f[i+1]){i+=2,n++;do{}while(f[++i]==f[++n]&&f[++i]==f[++n]&&f[++i]==f[++n]&&f[++i]==f[++n]&&f[++i]==f[++n]&&f[++i]==f[++n]&&f[++i]==f[++n]&&f[++i]==f[++n]&&i<d);if(r=we-(d-i),i=d-we,r>o){if(x=e,o=r,fe){if(r>=we)break}else if(r>=I)break;l=f[i+o-1],u=f[i+o]}}}while((e=c[e&_e])>a&&0!=--t);return o}function on(){var e,n,r=ue-C-v;if(-1==r)r--;else if(v>=re+Ce){for(e=0;e<re;e++)f[e]=f[e+re];for(x-=re,v-=re,w-=re,e=0;e<pe;e++)We(e,(n=Qe(e))>=re?n-re:ve);for(e=0;e<re;e++)n=c[e],c[e]=n>=re?n-re:ve;r+=re}A||((e=rn(f,v+C,r))<=0?A=!0:C+=e)}function an(){A||(u=0,h=0,function(){var e,n,r,t,i;if(0!=L[0].dl)return;for(O.dyn_tree=S,O.static_tree=G,O.extra_bits=je,O.extra_base=Ie+1,O.elems=Be,O.max_length=Ve,O.max_code=0,D.dyn_tree=B,D.static_tree=L,D.extra_bits=Fe,D.extra_base=0,D.elems=Ge,D.max_length=Ve,D.max_code=0,N.dyn_tree=M,N.static_tree=null,N.extra_bits=Pe,N.extra_base=0,N.elems=Le,N.max_length=Ee,N.max_code=0,r=0,t=0;t<ze-1;t++)for(P[t]=r,e=0;e<1<<je[t];e++)j[r++]=t;for(j[r-1]=t,i=0,t=0;t<16;t++)for(R[t]=i,e=0;e<1<<Fe[t];e++)F[i++]=t;for(i>>=7;t<Ge;t++)for(R[t]=i<<7,e=0;e<1<<Fe[t]-7;e++)F[256+i++]=t;for(n=0;n<=Ve;n++)q[n]=0;e=0;for(;e<=143;)G[e++].dl=8,q[8]++;for(;e<=255;)G[e++].dl=9,q[9]++;for(;e<=279;)G[e++].dl=7,q[7]++;for(;e<=287;)G[e++].dl=8,q[8]++;for(un(G,Be+1),e=0;e<Ge;e++)L[e].dl=5,L[e].fc=vn(e,5);ln()}(),function(){var e;for(e=0;e<pe;e++)c[re+e]=0;if(V=Je[E].max_lazy,z=Je[E].good_length,fe||(I=Je[E].nice_length),b=Je[E].max_chain,v=0,w=0,(C=rn(f,0,2*re))<=0)return A=!0,void(C=0);for(A=!1;C<Ae&&!A;)on();for(m=0,e=0;e<he-1;e++)m=(m<<qe^255&f[e])&ye}(),n=null,i=0,o=0,E<=3?(_=he-1,y=0):(y=he-1,p=0),a=!1)}function fn(e,r,i){var o;return t||(an(),t=!0,0!=C)?(o=dn(e,r,i))==i?i:a?o:(E<=3?function(){for(;0!=C&&null==n;){var e;if(Ze(),s!=ve&&v-s<=Ce&&(y=tn(s))>C&&(y=C),y>=he)if(e=gn(v-x,y-he),C-=y,y<=V){y--;do{v++,Ze()}while(0!=--y);v++}else v+=y,y=0,m=((m=255&f[v])<<qe^255&f[v+1])&ye;else e=gn(0,255&f[v]),C--,v++;for(e&&(sn(0),w=v);C<Ae&&!A;)on()}}():function(){for(;0!=C&&null==n;){if(Ze(),_=y,g=x,y=he-1,s!=ve&&_<V&&v-s<=Ce&&((y=tn(s))>C&&(y=C),y==he&&v-x>xe&&y--),_>=he&&y<=_){var e;e=gn(v-1-g,_-he),C-=_-1,_-=2;do{v++,Ze()}while(0!=--_);p=0,y=he-1,v++,e&&(sn(0),w=v)}else 0!=p?(gn(0,255&f[v-1])&&(sn(0),w=v),v++,C--):(p=1,v++,C--);for(;C<Ae&&!A;)on()}}(),0==C&&(0!=p&&gn(0,255&f[v-1]),sn(1),a=!0),o+dn(e,o+r,i-o)):(a=!0,0)}function dn(r,t,a){var f,d,l,c;for(f=0;null!=n&&f<a;){for((d=a-f)>n.len&&(d=n.len),l=0;l<d;l++)r[t+f+l]=n.ptr[n.off+l];var u;if(n.off+=d,n.len-=d,f+=d,0==n.len)u=n,n=n.next,(c=u).next=e,e=c}if(f==a)return f;if(o<i){for((d=a-f)>i-o&&(d=i-o),l=0;l<d;l++)r[t+f+l]=Te[o+l];f+=d,i==(o+=d)&&(i=o=0)}return f}function ln(){var e;for(e=0;e<Be;e++)S[e].fc=0;for(e=0;e<Ge;e++)B[e].fc=0;for(e=0;e<Le;e++)M[e].fc=0;S[Se].fc=1,Z=$=0,K=Q=W=0,X=0,Y=1}function cn(e,n){for(var r=T[n],t=n<<1;t<=k&&(t<k&&nn(e,T[t+1],T[t])&&t++,!nn(e,r,T[t]));)T[n]=T[t],n=t,t<<=1;T[n]=r}function un(e,n){var r,t,i=new Array(Ve+1),o=0;for(r=1;r<=Ve;r++)o=o+q[r-1]<<1,i[r]=o;for(t=0;t<=n;t++){var a=e[t].dl;0!=a&&(e[t].fc=vn(i[a]++,a))}}function hn(e){var n,r,t=e.dyn_tree,i=e.static_tree,o=e.elems,a=-1,f=o;for(k=0,H=Ne,n=0;n<o;n++)0!=t[n].fc?(T[++k]=a=n,U[n]=0):t[n].dl=0;for(;k<2;){var d=T[++k]=a<2?++a:0;t[d].fc=1,U[d]=0,Z--,null!=i&&($-=i[d].dl)}for(e.max_code=a,n=k>>1;n>=1;n--)cn(t,n);do{n=T[be],T[be]=T[k--],cn(t,be),r=T[be],T[--H]=n,T[--H]=r,t[f].fc=t[n].fc+t[r].fc,U[n]>U[r]+1?U[f]=U[n]:U[f]=U[r]+1,t[n].dl=t[r].dl=f,T[be]=f++,cn(t,be)}while(k>=2);T[--H]=T[be],function(e){var n,r,t,i,o,a,f=e.dyn_tree,d=e.extra_bits,l=e.extra_base,c=e.max_code,u=e.max_length,h=e.static_tree,w=0;for(i=0;i<=Ve;i++)q[i]=0;for(f[T[H]].dl=0,n=H+1;n<Ne;n++)(i=f[f[r=T[n]].dl].dl+1)>u&&(i=u,w++),f[r].dl=i,r>c||(q[i]++,o=0,r>=l&&(o=d[r-l]),a=f[r].fc,Z+=a*(i+o),null!=h&&($+=a*(h[r].dl+o)));if(0!=w){do{for(i=u-1;0==q[i];)i--;q[i]--,q[i+1]+=2,q[u]--,w-=2}while(w>0);for(i=u;0!=i;i--)for(r=q[i];0!=r;)(t=T[--n])>c||(f[t].dl!=i&&(Z+=(i-f[t].dl)*f[t].fc,f[t].fc=i),r--)}}(e),un(t,a)}function wn(e,n){var r,t,i=-1,o=e[0].dl,a=0,f=7,d=4;for(0==o&&(f=138,d=3),e[n+1].dl=65535,r=0;r<=n;r++)t=o,o=e[r+1].dl,++a<f&&t==o||(a<d?M[t].fc+=a:0!=t?(t!=i&&M[t].fc++,M[Me].fc++):a<=10?M[Oe].fc++:M[De].fc++,a=0,i=t,0==o?(f=138,d=3):t==o?(f=6,d=3):(f=7,d=4))}function mn(e,n){var r,t,i=-1,o=e[0].dl,a=0,f=7,d=4;for(0==o&&(f=138,d=3),r=0;r<=n;r++)if(t=o,o=e[r+1].dl,!(++a<f&&t==o)){if(a<d)do{$e(t,M)}while(0!=--a);else 0!=t?(t!=i&&($e(t,M),a--),$e(Me,M),_n(a-3,2)):a<=10?($e(Oe,M),_n(a-3,3)):($e(De,M),_n(a-11,7));a=0,i=t,0==o?(f=138,d=3):t==o?(f=6,d=3):(f=7,d=4)}}function sn(e){var n,r,t,i,o;if(i=v-w,J[W]=X,hn(O),hn(D),t=function(){var e;for(wn(S,O.max_code),wn(B,D.max_code),hn(N),e=Le-1;e>=3&&0==M[Re[e]].dl;e--);return Z+=3*(e+1)+5+5+4,e}(),(r=$+3+7>>3)<=(n=Z+3+7>>3)&&(n=r),i+4<=n&&w>=0)for(_n((te<<1)+e,3),xn(),Ye(i),Ye(~i),o=0;o<i;o++)Xe(f[w+o]);else r==n?(_n((ie<<1)+e,3),pn(G,L)):(_n((oe<<1)+e,3),function(e,n,r){var t;for(_n(e-257,5),_n(n-1,5),_n(r-4,4),t=0;t<r;t++)_n(M[Re[t]].dl,3);mn(S,e-1),mn(B,n-1)}(O.max_code+1,D.max_code+1,t+1),pn(S,B));ln(),0!=e&&xn()}function gn(e,n){if(l[K++]=n,0==e?S[n].fc++:(e--,S[j[n]+Ie+1].fc++,B[en(e)].fc++,d[Q++]=e,X|=Y),Y<<=1,0==(7&K)&&(J[W++]=X,X=0,Y=1),E>2&&0==(4095&K)){var r,t=8*K,i=v-w;for(r=0;r<Ge;r++)t+=B[r].fc*(5+Fe[r]);if(t>>=3,Q<parseInt(K/2)&&t<parseInt(i/2))return!0}return K==se-1||Q==ge}function pn(e,n){var r,t,i,o,a=0,f=0,c=0,u=0;if(0!=K)do{0==(7&a)&&(u=J[c++]),t=255&l[a++],0==(1&u)?$e(t,e):($e((i=j[t])+Ie+1,e),0!=(o=je[i])&&_n(t-=P[i],o),$e(i=en(r=d[f++]),n),0!=(o=Fe[i])&&_n(r-=R[i],o)),u>>=1}while(a<K);$e(Se,e)}var yn=16;function _n(e,n){h>yn-n?(Ye(u|=e<<h),u=e>>yn-h,h+=n-yn):(u|=e<<h,h+=n)}function vn(e,n){var r=0;do{r|=1&e,e>>=1,r<<=1}while(--n>0);return r>>1}function xn(){h>8?Ye(u):h>0&&Xe(u),u=0,h=0}return function(i,o){var a,u;ee=i,ne=0,void 0===o&&(o=ae),function(i){var o;if(i?i<1?i=1:i>9&&(i=9):i=ae,E=i,t=!1,A=!1,null==Te){for(e=n=r=null,Te=new Array(ce),f=new Array(ue),d=new Array(ge),l=new Array(de+le),c=new Array(1<<me),S=new Array(Ne),o=0;o<Ne;o++)S[o]=new ke;for(B=new Array(2*Ge+1),o=0;o<2*Ge+1;o++)B[o]=new ke;for(G=new Array(Be+2),o=0;o<Be+2;o++)G[o]=new ke;for(L=new Array(Ge),o=0;o<Ge;o++)L[o]=new ke;for(M=new Array(2*Le+1),o=0;o<2*Le+1;o++)M[o]=new ke;O=new He,D=new He,N=new He,q=new Array(Ve+1),T=new Array(2*Be+1),U=new Array(2*Be+1),j=new Array(we-he+1),F=new Array(512),P=new Array(ze),R=new Array(Ge),J=new Array(parseInt(se/8))}}(o);for(var h=new Array(1024),w=[];(a=fn(h,0,h.length))>0;){var m=new Array(a);for(u=0;u<a;u++)m[u]=String.fromCharCode(h[u]);w[w.length]=m.join("")}return ee=null,w.join("")}}();function encode64(e){for(r="",i=0;i<e.length;i+=3)i+2==e.length?r+=append3bytes(e.charCodeAt(i),e.charCodeAt(i+1),0):i+1==e.length?r+=append3bytes(e.charCodeAt(i),0,0):r+=append3bytes(e.charCodeAt(i),e.charCodeAt(i+1),e.charCodeAt(i+2));return r}function append3bytes(e,n,t){return c1=e>>2,c2=(3&e)<<4|n>>4,c3=(15&n)<<2|t>>6,c4=63&t,r="",r+=encode6bit(63&c1),r+=encode6bit(63&c2),r+=encode6bit(63&c3),r+=encode6bit(63&c4),r}function encode6bit(e){return e<10?String.fromCharCode(48+e):(e-=10)<26?String.fromCharCode(65+e):(e-=26)<26?String.fromCharCode(97+e):0==(e-=26)?"-":1==e?"_":"?"}function insertAfter(e,n){e.parentNode.insertBefore(n,e.nextSibling)}var mwebChartEleId="mweb-chart-ele-",glNumber=0;function drawOldSeq(e,n){Diagram.parse(n).drawSVG(e,{theme:"simple"})}function drawOldFlow(e,n){flowchart.parse(n).drawSVG(e)}function drawMermaid(e,n){var r=document.getElementById(e);r.className="mermaid",r.innerHTML=n}function drawPlantUML(e,n){var r=document.getElementById(e),t=unescape(encodeURIComponent(n)),i="https://www.plantuml.com/plantuml/svg/"+encode64(deflate(t,9));r.innerHTML='<a target="_blank" href="'+i+'"><img src="'+i+'" /></a>'}function drawViz_circo(e,n){(new Viz).renderSVGElement(n,{engine:"circo"}).then(function(n){document.getElementById(e).appendChild(n)})}function drawViz_dot(e,n){(new Viz).renderSVGElement(n,{engine:"dot"}).then(function(n){document.getElementById(e).appendChild(n)})}function drawViz_fdp(e,n){(new Viz).renderSVGElement(n,{engine:"fdp"}).then(function(n){document.getElementById(e).appendChild(n)})}function drawViz_neato(e,n){(new Viz).renderSVGElement(n,{engine:"neato"}).then(function(n){document.getElementById(e).appendChild(n)})}function drawViz_osage(e,n){(new Viz).renderSVGElement(n,{engine:"osage"}).then(function(n){document.getElementById(e).appendChild(n)})}function drawViz_twopi(e,n){(new Viz).renderSVGElement(n,{engine:"twopi"}).then(function(n){document.getElementById(e).appendChild(n)})}function drawECharts(eleIID,txt){var ele=document.getElementById(eleIID);try{eval(txt);var myoption=option;myoption.animation=!1,void 0!==myoption.width?ele.style.width=myoption.width+10+"px":ele.style.width="100%",void 0!==myoption.height?ele.style.height=myoption.height+10+"px":ele.style.height="350px";var myChart=echarts.init(ele);myChart.setOption(myoption)}catch(e){}}var init=function(){var e=[[".language-plantuml",drawPlantUML]];"undefined"!=typeof Diagram&&e.push([".language-sequence",drawOldSeq]),"undefined"!=typeof flowchart&&e.push([".language-flow",drawOldFlow]),"undefined"!=typeof mermaid&&e.push([".language-mermaid",drawMermaid]),"undefined"!=typeof Viz&&(e.push([".language-circo",drawViz_circo]),e.push([".language-dot",drawViz_dot]),e.push([".language-fdp",drawViz_fdp]),e.push([".language-neato",drawViz_neato]),e.push([".language-osage",drawViz_osage]),e.push([".language-twopi",drawViz_twopi])),"undefined"!=typeof echarts&&e.push([".language-echarts",drawECharts]);for(var n=0;n<e.length;n++)for(var r=e[n][0],t=e[n][1],i=document.querySelectorAll(r),o=0;o<i.length;o++){var a=i[o],f=a.innerText||a.textContent;a=a.parentElement;var d=document.createElement("div"),l=mwebChartEleId+glNumber;glNumber++,d.innerHTML='<div id="'+l+'"></div>',insertAfter(a,d),a.parentElement.removeChild(a),t(l,f)}"undefined"!=typeof mermaid&&mermaid.initialize({startOnLoad:!0})};document.addEventListener("DOMContentLoaded",function(e){init()})}();</script>
+
+
+
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.3/mermaid.min.js"></script>
+
+
+
+
+<script src="asset/prism.js"></script>
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+
+
+  </body>
+</html>

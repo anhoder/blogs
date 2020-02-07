@@ -1,0 +1,755 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  Lumen框架下安装dingo/api和tymon/jwt-auth - Alan的进阶日志
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="Alan的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+ 
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:alanalbert.github.io ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">博客</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">归档</a></li>
+        
+        <li id=""><a target="_self" href="about.html">关于</a></li>
+        
+        <li id=""><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Alan的进阶日志</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="_self" href="index.html">博客</a></li>
+        
+        <li><a target="_self" href="archives.html">归档</a></li>
+        
+        <li><a target="_self" href="about.html">关于</a></li>
+        
+        <li><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="php.html">PHP</a></li>
+        
+            <li><a href="interview.html">面试</a></li>
+        
+            <li><a href="security.html">安全</a></li>
+        
+            <li><a href="linux.html">Linux</a></li>
+        
+            <li><a href="mysql.html">MySQL</a></li>
+        
+            <li><a href="redis.html">Redis</a></li>
+        
+            <li><a href="data-struct-and-algorithm.html">数据结构及算法</a></li>
+        
+            <li><a href="computer-network.html">计算机网络</a></li>
+        
+            <li><a href="version-control-tool.html">版本控制工具</a></li>
+        
+            <li><a href="read.html">读书</a></li>
+        
+            <li><a href="javascript.html">JavaScript</a></li>
+        
+            <li><a href="web-server.html">Web服务器</a></li>
+        
+            <li><a href="hackintosh.html">黑苹果</a></li>
+        
+            <li><a href="markdown.html">Markdown</a></li>
+        
+            <li><a href="other.html">其它</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+              <div class="f-img"><img src="https://source.unsplash.com/random/1024x402" /></div>
+          
+          <h1>Lumen框架下安装dingo/api和tymon/jwt-auth</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/2/18</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='laravel.html'>Laravel</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<h2 id="toc_0">一、安装Lumen框架</h2>
+
+<p>使用composer命令基于Lumen框架创建项目：</p>
+
+<pre><code class="language-bash">composer create-project laravel/lumen:&quot;5.6.*&quot; Lumen-Project --prefer-dist
+</code></pre>
+
+<p>在.env文件中配置32位的APP_KEY以及数据库的相关配置。</p>
+
+<h2 id="toc_1">二、安装dingo/api(<a href="https://github.com/dingo/api">https://github.com/dingo/api</a>)</h2>
+
+<p>① 使用composer命令安装dingo/api：</p>
+
+<pre><code class="language-bash">composer require dingo/api:&quot;2.0.0-alpha2&quot;
+</code></pre>
+
+<p>② 配置dingo/api：</p>
+
+<p>在.env文件中配置：</p>
+
+<pre><code class="language-ini"># dingo api
+API_NAME=Lumen
+API_STANDARDS_TREE=x
+API_PREFIX=api
+API_STRICT=false
+API_DEBUG=true
+API_VERSION=v1
+API_SUBTYPE=lumen
+</code></pre>
+
+<p>③ 注册dingo/api服务到Lumen：</p>
+
+<p>在App\Providers\AppServiceProvider类的register方法中添加以下代码：</p>
+
+<pre><code class="language-php">$this-&gt;app-&gt;register(\Dingo\Api\Provider\LumenServiceProvider);
+</code></pre>
+
+<p>④ 创建dingo/api的配置文件config/api.php</p>
+
+<blockquote>
+<p>Lumen框架不自带config目录，需要自行在项目根目录下创建。</p>
+</blockquote>
+
+<p>api.php可以在vendor/dingo/api/config目录下找到，同理，Lumen框架的配置文件也可在Lumen框架源码中找到。</p>
+
+<p>⑤ 完成以上步骤，可以在routes/web.php中添加以下代码测试是否安装成功：</p>
+
+<pre><code class="language-php">$api = $app[&#39;Dingo\Api\Routing\Router&#39;];
+$api-&gt;version(&#39;v1&#39;, function ($api) {
+    $api-&gt;get(&#39;/&#39;, function () {
+        return [
+            &#39;status&#39; =&gt; &#39;200&#39;,
+            &#39;msg&#39; =&gt; &#39;成功&#39;,
+            &#39;data&#39; =&gt; [
+                &#39;name&#39; =&gt; &#39;Alan&#39;,
+                &#39;age&#39; =&gt; 18
+            ],
+        ];
+    });
+})；
+</code></pre>
+
+<h2 id="toc_2">三、安装tymon/jwt-auth</h2>
+
+<p>① 使用composer安装：</p>
+
+<pre><code class="language-bash">composer require tymon/jwt-auth:&quot;1.0.0-rc.2&quot;
+</code></pre>
+
+<blockquote>
+<p>注意：jwt-auth稳定版为0.5，其对lumen高版本不太兼容，所以采用jwt-auth 1.0版</p>
+</blockquote>
+
+<p>② 修改bootstrap/app.php文件：</p>
+
+<p>去除以下行的注释：</p>
+
+<pre><code class="language-php">$app-&gt;withFacades();
+$app-&gt;withEloqent();
+
+$app-&gt;routeMiddleware([
+    &#39;auth&#39; =&gt; App\Http\Middleware\Authenticate::class,
+]);
+
+$app-&gt;register(App\Providers\AppServiceProvider::class);
+$app-&gt;register(App\Providers\AuthServiceProvider::class);
+</code></pre>
+
+<p>③ 修改app/Providers/AppServiceProvider.php文件：</p>
+
+<p>在AppServiceProvider类中的register方法里添加以下代码：</p>
+
+<pre><code class="language-php">$this-&gt;app
+-&gt;register(\Tymon\JWTAuth\Providers\LumenServiceProvider::class);
+</code></pre>
+
+<p>④ 将Lumen框架的配置文件auth.php复制到config/auth.php，并修改内容为：</p>
+
+<pre><code class="language-php">&lt;?php
+
+return [
+    &#39;defaults&#39; =&gt; [
+        &#39;guard&#39; =&gt; env(&#39;AUTH_GUARD&#39;, &#39;api&#39;),
+        &#39;passwords&#39; =&gt; &#39;users&#39;,
+    ],
+    
+    &#39;guards&#39; =&gt; [
+        &#39;api&#39; =&gt; [
+            &#39;driver&#39; =&gt; &#39;jwt&#39;,
+            &#39;provider&#39; =&gt; &#39;users&#39;
+        ],
+    ],
+
+    &#39;providers&#39; =&gt; [
+        &#39;users&#39; =&gt; [
+            &#39;driver&#39; =&gt; &#39;eloquent&#39;,
+            &#39;model&#39;  =&gt; App\User::class,
+        ],
+    ],
+
+    &#39;passwords&#39; =&gt; [
+        //
+    ],
+];
+</code></pre>
+
+<p>⑤ 修改配置文件，将dingo/api和tymon/jwt-auth关联：</p>
+
+<p>修改dingo/api的配置文件config/api.php:</p>
+
+<pre><code class="language-php">&#39;auth&#39; =&gt; [
+    &#39;jwt&#39; =&gt; &#39;Dingo\Api\Auth\Provider\JWT&#39;,
+],
+</code></pre>
+
+<p>完成以上步骤就完成了在Lumen框架下dingo/api和tymon/jwt-auth的安装。</p>
+
+<p>⑥ 生成jwt的secret：</p>
+
+<pre><code class="language-bash">php artisan jwt:secret
+</code></pre>
+
+<p><em>Mission Complete!</em></p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15533478923246.html" 
+          title="Previous Post: Daemon守护进程">&laquo; Daemon守护进程</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15465740480742.html" 
+          title="Next Post: 初探Laravel---round 9 视图">初探Laravel---round 9 视图 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          <script 
+    src="https://utteranc.es/client.js"
+    repo="AlanAlbert/personal-blog-comments"
+    issue-term="pathname"     
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="https://tvax4.sinaimg.cn/crop.0.0.664.664.180/006k9NITly8fejxhyoc3aj30ig0igmy3.jpg?Expires=1562496252&ssig=LhZKVSOY7F&KID=imgbed,tva" /></div>
+            
+                <h1>Alan的进阶日志</h1>
+                <div class="site-des">与有肝胆人共事，从无字句处读书。</div>
+                <div class="social">
+
+
+<a target="_blank" class="stackoverflow" href="https://stackoverflow.com/users/9723854/alan" title="StackOverflow"></a>
+
+
+
+
+<a target="_blank" class="weibo" href="https://weibo.com/u/5794659803" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/Alan_Albert_" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/AlanAlbert" title="GitHub">GitHub</a>
+<a target="_blank" class="email" href="mailto:alan1766447919@gmail.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+               
+             <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Important</h2>
+                </div>
+                <div class="side-content">
+                  <div style="color:#ff0000; text-align:center; padding:8px;" class="bg-info site_notice">
+                    ① 可以使用GitHub账号登录进行评论哦😁<br/><br/>② 欢迎关注我的个人公众号，一起交流学习~<br/ ><img src="https://mp.weixin.qq.com/mp/qrcode?scene=10000005&size=102&__biz=MzIzNDU0NTc4OA==&mid=100000001&idx=1&sn=34f05b9196beb41e8561cbdfc5de26f5&send_time=1566403069" />
+                  </div>
+                </div>
+            </div>
+    
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="php.html"><strong>PHP</strong></a>
+        
+            <a href="interview.html"><strong>面试</strong></a>
+        
+            <a href="security.html"><strong>安全</strong></a>
+        
+            <a href="linux.html"><strong>Linux</strong></a>
+        
+            <a href="mysql.html"><strong>MySQL</strong></a>
+        
+            <a href="redis.html"><strong>Redis</strong></a>
+        
+            <a href="data-struct-and-algorithm.html"><strong>数据结构及算法</strong></a>
+        
+            <a href="computer-network.html"><strong>计算机网络</strong></a>
+        
+            <a href="version-control-tool.html"><strong>版本控制工具</strong></a>
+        
+            <a href="read.html"><strong>读书</strong></a>
+        
+            <a href="javascript.html"><strong>JavaScript</strong></a>
+        
+            <a href="web-server.html"><strong>Web服务器</strong></a>
+        
+            <a href="hackintosh.html"><strong>黑苹果</strong></a>
+        
+            <a href="markdown.html"><strong>Markdown</strong></a>
+        
+            <a href="other.html"><strong>其它</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15810423370557.html">初探Docker---使用Docker Compose编排容器</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15714902755948.html">初探Docker---编写Dockerfile搭建PHP开发环境</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704551543845.html">初探Docker---Docker及Dockerfile</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15685386915043.html">百万级数据迁移、汇总</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15657597684450.html">PHP实现异步回调的总结</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="asset/prism.js"></script>
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+
+
+  </body>
+</html>

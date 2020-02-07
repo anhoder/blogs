@@ -1,0 +1,819 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  PHP扩展编写 - Alan的进阶日志
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="Alan的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+ 
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:alanalbert.github.io ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">博客</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">归档</a></li>
+        
+        <li id=""><a target="_self" href="about.html">关于</a></li>
+        
+        <li id=""><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Alan的进阶日志</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="_self" href="index.html">博客</a></li>
+        
+        <li><a target="_self" href="archives.html">归档</a></li>
+        
+        <li><a target="_self" href="about.html">关于</a></li>
+        
+        <li><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="php.html">PHP</a></li>
+        
+            <li><a href="interview.html">面试</a></li>
+        
+            <li><a href="security.html">安全</a></li>
+        
+            <li><a href="linux.html">Linux</a></li>
+        
+            <li><a href="mysql.html">MySQL</a></li>
+        
+            <li><a href="redis.html">Redis</a></li>
+        
+            <li><a href="data-struct-and-algorithm.html">数据结构及算法</a></li>
+        
+            <li><a href="computer-network.html">计算机网络</a></li>
+        
+            <li><a href="version-control-tool.html">版本控制工具</a></li>
+        
+            <li><a href="read.html">读书</a></li>
+        
+            <li><a href="javascript.html">JavaScript</a></li>
+        
+            <li><a href="web-server.html">Web服务器</a></li>
+        
+            <li><a href="hackintosh.html">黑苹果</a></li>
+        
+            <li><a href="markdown.html">Markdown</a></li>
+        
+            <li><a href="other.html">其它</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+              <div class="f-img"><img src="https://source.unsplash.com/random/1024x403" /></div>
+          
+          <h1>PHP扩展编写</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2018/7/23</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='extension.html'>扩展</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<p>PHP的扩展分为两类：PHP扩展、Zend扩展，在内核中分别称为module、extension，以下的主要是关于module的内容。    </p>
+
+<p>扩展可以在编译PHP时一起编译（静态编译），也可以将扩展编译为共享库，然后在配置文件php.ini中加入进去。</p>
+
+<h2 id="toc_0">加载PHP扩展的过程</h2>
+
+<p><a href="https://blog.alan123.xyz/php/592.html">PHP生命周期</a>有5个阶段：模块初始化阶段（php_module_startup）、请求初始化阶段（php_request_startup）、脚本执行阶段（script execute）、请求关闭阶段（php_request_shutdown()）、模块关闭阶段（php_module_shutdown()）。    </p>
+
+<blockquote>
+<p>① PHP扩展会在模块初始化阶段解析php.ini配置文件，将相对应的扩展共享库加载到PHP中，保存在全局变量extension_lists中；<br/><br/>
+② 在php_ini_register_extensions()中依次遍历php_extension_lists.engine、php_extension_lists.functions，然后分别调用php_load_zend_extension_cb()、php_load_php_extension_cb()完成Zend扩展、PHP扩展的注册加载。</p>
+</blockquote>
+
+<h2 id="toc_1">扩展的组成</h2>
+
+<p>① 通过zend_module_entry结构体来定义扩展的相关信息，包括扩展名称、版本号、hook函数等。且zend_module_entry结构体声明的变量名称需要遵循modulename_module_entry的格式。    </p>
+
+<blockquote>
+<ul>
+<li><strong>name</strong>: 扩展名称</li>
+<li><strong>functions</strong>: 扩展定义的内部函数entry</li>
+<li><strong>module_startup_func</strong>: 在模块初始化阶段回调的hook函数</li>
+<li><strong>module_shutdown_func</strong>: 在模块关闭阶段回调的hook函数</li>
+<li><strong>request_startup_func</strong>: 在请求初始化阶段回调的hook函数</li>
+<li><strong>request_shutdown_func</strong>: 在请求关闭阶段回调的hook函数</li>
+<li><strong>info_func</strong>: php_info()函数时调用</li>
+<li><strong>version</strong>: 扩展的版本信息</li>
+</ul>
+</blockquote>
+
+<p>② 定义宏ZEND_GET_MODULE(extension_name)以获取扩展的zend_module_entry结构地址：    </p>
+
+<pre><code class="language-c">ZEND_GET_MODULE(extension_name)
+</code></pre>
+<br />
+<p>在PHP中，ZEND_GET_MODULE宏的定义如下：</p>
+
+<pre><code class="language-c">#define ZEND_GET_MODULE(name) \
+    BEGIN_EXTERN_C() \
+    ZEND_DLEXPORT zend_module_entry *get_module(void) { return &amp;name##_module_entry; } \    // ##起到拼接字符串的作用
+    END_EXTERN_C()
+</code></pre>
+
+<h2 id="toc_2">开发PHP扩展的步骤</h2>
+
+<h3 id="toc_3">1、ext_skel生成扩展基本框架</h3>
+
+<p>通过ext_skel脚本生成扩展的基本框架，ext_skel在PHP源码的ext目录下，使用方法：    </p>
+
+<pre><code class="language-bash">./ext_skel --extname=extension_name
+</code></pre>
+
+<p>生成的目录框架如下：    </p>
+
+<pre><code class="language-bash">$ ./ext_skel --extname=TestExtension
+
+TestExtension
+├── CREDITS
+├── EXPERIMENTAL
+├── TestExtension.c     // 扩展源码
+├── TestExtension.php   // 用于在PHP中测试扩展是否可用，可去除
+├── config.m4           // 扩展编译时的配置文件，用于phpize脚本生成configure文件
+├── config.w32          // windows环境的配置
+├── php_TestExtension.h // 头文件
+└── tests               // 测试用例，用于make test的测试
+    └── 001.phpt
+</code></pre>
+
+<h3 id="toc_4">2、修改config.m4配置</h3>
+
+<p><a href="15629867837001.html">config.m4详解</a><br/>
+<a href="https://www.php.net/manual/zh/internals2.buildsys.configunix.php">PHP官网</a></p>
+
+<p>以下为PHP官方文档给出的config.m4样例</p>
+
+<pre><code class="language-m4">dnl $Id$
+dnl config.m4 for extension example
+PHP_ARG_WITH(example, for example support,
+[  --with-example[=FILE]       Include example support. File is the optional path to example-config])
+PHP_ARG_ENABLE(example-debug, whether to enable debugging support in example,
+[  --enable-example-debug        example: Enable debugging support in example], no, no)
+PHP_ARG_WITH(example-extra, for extra libraries for example,
+[  --with-example-extra=DIR      example: Location of extra libraries for example], no, no)
+
+dnl 检测扩展是否已启用
+if test &quot;$PHP_EXAMPLE&quot; != &quot;no&quot;; then
+  
+  dnl 检测 example-config。首先尝试所给出的路径，然后在 $PATH 中寻找
+  AC_MSG_CHECKING([for example-config])
+  EXAMPLE_CONFIG=&quot;example-config&quot;
+  if test &quot;$PHP_EXAMPLE&quot; != &quot;yes&quot;; then
+    EXAMPLE_PATH=$PHP_EXAMPLE
+  else
+    EXAMPLE_PATH=`$php_shtool path $EXAMPLE_CONFIG`
+  fi
+  
+  dnl 如果找到可用的 example-config，就使用它（检测文件是否存在，是否可执行以及执行的结果）
+  if test -f &quot;$EXAMPLE_PATH&quot; &amp;&amp; test -x &quot;$EXAMPLE_PATH&quot; &amp;&amp; $EXAMPLE_PATH --version &gt; /dev/null 2&gt;&amp;1; then
+    AC_MSG_RESULT([$EXAMPLE_PATH]) dnl 结束check，继续执行
+    EXAMPLE_LIB_NAME=`$EXAMPLE_PATH --libname`
+    EXAMPLE_INCDIRS=`$EXAMPLE_PATH --incdirs`
+    EXAMPLE_LIBS=`$EXAMPLE_PATH --libs`
+    
+    dnl 检测扩展库是否工作正常
+    dnl PHP_CHECK_LIBRARY() 尝试编译、链接和执行程序，
+    dnl 在第一个参数指定的库中调用由第二个参数指定的符号，使用第五个参数给出的字符串作为额外的链接选项。
+    dnl 如果尝试成功了，则运行第三个参数所给出的脚本。此脚本从 example-config 所提供的原始的选项字符串中取出头文件路径、库文件路径和库名称，告诉 PHP 构建系统。
+    dnl 如果尝试失败，脚本则运行第四个参数中的脚本。此时调用 AC_MSG_ERROR() 来中断程序执行。
+    PHP_CHECK_LIBRARY($EXAMPLE_LIB_NAME, example_critical_function,
+    [
+      dnl 添加所需的 include 目录
+      PHP_EVAL_INCLINE($EXAMPLE_INCDIRS)
+      dnl 添加所需的扩展库及扩展库所在目录
+      PHP_EVAL_LIBLINE($EXAMPLE_LIBS, EXAMPLE_SHARED_LIBADD)
+    ],[
+      dnl 跳出
+      AC_MSG_ERROR([example library not found. Check config.log for more information.])
+    ],[$EXAMPLE_LIBS]
+    )
+  else
+    dnl 没有可用的 example-config，跳出
+    AC_MSG_RESULT([not found])   dnl 结束check
+    AC_MSG_ERROR([Please check your example installation.]) dnl 报错
+  fi
+  
+  dnl 检测是否启用调试
+  if test &quot;$PHP_EXAMPLE_DEBUG&quot; != &quot;no&quot;; then
+    dnl 是，则设置 C 语言宏指令
+    AC_DEFINE(USE_EXAMPLE_DEBUG,1,[Include debugging support in example])
+  fi
+  
+  dnl 检测额外的支持
+  if test &quot;$PHP_EXAMPLE_EXTRA&quot; != &quot;no&quot;; then
+    if test &quot;$PHP_EXAMPLE_EXTRA&quot; == &quot;yes&quot;; then
+      AC_MSG_ERROR([You must specify a path when using --with-example-extra])
+    fi
+    
+    PHP_CHECK_LIBRARY(example-extra, example_critical_extra_function,
+    [
+      dnl 添加所需路径
+      PHP_ADD_INCLUDE($PHP_EXAMPLE_EXTRA/include)
+      PHP_ADD_LIBRARY_WITH_PATH(example-extra, $PHP_EXAMPLE_EXTRA/lib, EXAMPLE_SHARED_LIBADD)
+      AC_DEFINE(HAVE_EXAMPLEEXTRALIB,1,[Whether example-extra support is present and requested])
+      EXAMPLE_SOURCES=&quot;$EXAMPLE_SOURCES example_extra.c&quot;
+    ],[
+      AC_MSG_ERROR([example-extra lib not found. See config.log for more information.])
+    ],[-L$PHP_EXAMPLE_EXTRA/lib]
+    )
+  fi
+  
+  dnl 最后，将扩展及其所需文件等信息传给构建系统
+  dnl PHP_NEW_EXTENSION
+  dnl 第一个参数是扩展的名称，和包含它的目录同名。
+  dnl 第二个参数是做为扩展的一部分的所有源文件的列表。参见 PHP_ADD_BUILD_DIR() 以获取将在子目录中源文件添加到构建过程的相关信息。
+  dnl 第三个参数总是 $ext_shared， 当为了 --with-example[=FILE] 而调用 PHP_ARG_WITH()时，由 configure 决定参数的值。
+  dnl 第四个参数指定一个“SAPI 类”，仅用于专门需要 CGI 或 CLI SAPI 的扩展。其他情况下应留空。
+  dnl 第五个参数指定了构建时要加入 CFLAGS 的标志列表。
+  dnl 第六个参数是一个布尔值，为 &quot;yes&quot; 时会强迫整个扩展使用 $CXX 代替 $CC 来构建。
+  dnl 第三个以后的所有参数都是可选的。
+  PHP_NEW_EXTENSION(example, example.c $EXAMPLE_SOURCES, $ext_shared)
+  dnl PHP_SUBST() 来启用扩展的共享构建
+  PHP_SUBST(EXAMPLE_SHARED_LIBADD)
+fi
+
+</code></pre>
+
+<h3 id="toc_5">3、编写扩展的功能</h3>
+
+<p>在TestExtension.c文件中编写扩展实现的具体功能。</p>
+
+<h2 id="toc_6">编译安装扩展的步骤</h2>
+
+<h3 id="toc_7">1、使用phpize解析config.m4，生成configure及其他配置文件</h3>
+
+<p>当代码量较少，结构简单的项目中，我们往往会手动编写Makefile文件，但是在大型项目中编写Makefile是很难的，于是出现了autoconf/automake/autoheader/autolocal等一系列用于生成configure的自动化工具。    </p>
+
+<p>而phpize就是一款操作这一系列复杂工具的脚本，它会读取并解析config.m4文件，并以此生成configure及其他文件。    </p>
+
+<p>使用方式：    </p>
+
+<blockquote>
+<p>在待编译的扩展目录使用 phpize 即可，如：</p>
+
+<pre><code class="language-text">$ phpize
+Configuring for:
+PHP Api Version:        
+Zend Module Api No:     
+Zend Extension Api No:
+</code></pre>
+</blockquote>
+
+<h3 id="toc_8">2、编译安装</h3>
+
+<p>使用上一步生成的configure文件检测安装平台的特征：    </p>
+
+<pre><code class="language-bash">./configure
+</code></pre>
+
+<p>你可以加上一些参数，例如：    </p>
+
+<pre><code class="language-bash">./configure --with-php-config=php-config_path   
+// php-config是在PHP安装时保存PHP安装信息的脚本，指定php-config更好
+</code></pre>
+
+<p>最后，使用make、make install命令完成扩展的安装。</p>
+
+<p><em>Mission Complete!</em></p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15368974333374.html" 
+          title="Previous Post: 黑苹果(Hackintosh)的相关">&laquo; 黑苹果(Hackintosh)的相关</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15294218855841.html" 
+          title="Next Post: Git补坑">Git补坑 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          <script 
+    src="https://utteranc.es/client.js"
+    repo="AlanAlbert/personal-blog-comments"
+    issue-term="pathname"     
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="https://tvax4.sinaimg.cn/crop.0.0.664.664.180/006k9NITly8fejxhyoc3aj30ig0igmy3.jpg?Expires=1562496252&ssig=LhZKVSOY7F&KID=imgbed,tva" /></div>
+            
+                <h1>Alan的进阶日志</h1>
+                <div class="site-des">与有肝胆人共事，从无字句处读书。</div>
+                <div class="social">
+
+
+<a target="_blank" class="stackoverflow" href="https://stackoverflow.com/users/9723854/alan" title="StackOverflow"></a>
+
+
+
+
+<a target="_blank" class="weibo" href="https://weibo.com/u/5794659803" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/Alan_Albert_" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/AlanAlbert" title="GitHub">GitHub</a>
+<a target="_blank" class="email" href="mailto:alan1766447919@gmail.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+               
+             <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Important</h2>
+                </div>
+                <div class="side-content">
+                  <div style="color:#ff0000; text-align:center; padding:8px;" class="bg-info site_notice">
+                    ① 可以使用GitHub账号登录进行评论哦😁<br/><br/>② 欢迎关注我的个人公众号，一起交流学习~<br/ ><img src="https://mp.weixin.qq.com/mp/qrcode?scene=10000005&size=102&__biz=MzIzNDU0NTc4OA==&mid=100000001&idx=1&sn=34f05b9196beb41e8561cbdfc5de26f5&send_time=1566403069" />
+                  </div>
+                </div>
+            </div>
+    
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="php.html"><strong>PHP</strong></a>
+        
+            <a href="interview.html"><strong>面试</strong></a>
+        
+            <a href="security.html"><strong>安全</strong></a>
+        
+            <a href="linux.html"><strong>Linux</strong></a>
+        
+            <a href="mysql.html"><strong>MySQL</strong></a>
+        
+            <a href="redis.html"><strong>Redis</strong></a>
+        
+            <a href="data-struct-and-algorithm.html"><strong>数据结构及算法</strong></a>
+        
+            <a href="computer-network.html"><strong>计算机网络</strong></a>
+        
+            <a href="version-control-tool.html"><strong>版本控制工具</strong></a>
+        
+            <a href="read.html"><strong>读书</strong></a>
+        
+            <a href="javascript.html"><strong>JavaScript</strong></a>
+        
+            <a href="web-server.html"><strong>Web服务器</strong></a>
+        
+            <a href="hackintosh.html"><strong>黑苹果</strong></a>
+        
+            <a href="markdown.html"><strong>Markdown</strong></a>
+        
+            <a href="other.html"><strong>其它</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15810423370557.html">初探Docker---使用Docker Compose编排容器</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15714902755948.html">初探Docker---编写Dockerfile搭建PHP开发环境</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704551543845.html">初探Docker---Docker及Dockerfile</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15685386915043.html">百万级数据迁移、汇总</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15657597684450.html">PHP实现异步回调的总结</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="asset/prism.js"></script>
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+
+
+  </body>
+</html>

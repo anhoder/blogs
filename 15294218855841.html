@@ -1,0 +1,1324 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  Git补坑 - Alan的进阶日志
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="Alan的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+ 
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:alanalbert.github.io ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">博客</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">归档</a></li>
+        
+        <li id=""><a target="_self" href="about.html">关于</a></li>
+        
+        <li id=""><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Alan的进阶日志</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="_self" href="index.html">博客</a></li>
+        
+        <li><a target="_self" href="archives.html">归档</a></li>
+        
+        <li><a target="_self" href="about.html">关于</a></li>
+        
+        <li><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="php.html">PHP</a></li>
+        
+            <li><a href="interview.html">面试</a></li>
+        
+            <li><a href="security.html">安全</a></li>
+        
+            <li><a href="linux.html">Linux</a></li>
+        
+            <li><a href="mysql.html">MySQL</a></li>
+        
+            <li><a href="redis.html">Redis</a></li>
+        
+            <li><a href="data-struct-and-algorithm.html">数据结构及算法</a></li>
+        
+            <li><a href="computer-network.html">计算机网络</a></li>
+        
+            <li><a href="version-control-tool.html">版本控制工具</a></li>
+        
+            <li><a href="read.html">读书</a></li>
+        
+            <li><a href="javascript.html">JavaScript</a></li>
+        
+            <li><a href="web-server.html">Web服务器</a></li>
+        
+            <li><a href="hackintosh.html">黑苹果</a></li>
+        
+            <li><a href="markdown.html">Markdown</a></li>
+        
+            <li><a href="other.html">其它</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+              <div class="f-img"><img src="https://source.unsplash.com/random/1024x402" /></div>
+          
+          <h1>Git补坑</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2018/6/19</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='git.html'>Git</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <span id="more"></span><!-- more -->
+
+<p>这段时间一直忙着写作业和论文，心力交瘁，今天突然发现好久没写博客了（心痛的感觉QAQ），所以来给网站擦擦灰。。</p>
+
+<p><em>Mission Start!</em></p>
+
+<p>其实以前是很耐心学过Git的，只是没有写博客记录相关内容，现在来补上这个坑 :)   </p>
+
+<p><span style="color:red;"><strong>值得注意的是：Git只能跟踪文本文件的内容变化，而不能跟踪二进制文件的内容变化（包括Word文档）</strong></span></p>
+
+<h2 id="toc_0">一、安装Git</h2>
+
+<blockquote>
+<h3 id="toc_1">Windows</h3>
+
+<p>在Windows下，可以在<a href="https://git-scm.com/downloads">官网</a>上下载Windows的安装程序进行安装，安装完成打开Git Bash即可。</p>
+
+<h3 id="toc_2">Mac</h3>
+
+<p>第一种方法：使用Homebrew进行安装（如果已经安装了<a href="https://brew.sh/index_zh-cn">Homebrew</a>的话），使用命令进行安装：</p>
+
+<pre><code class="language-bash">brew install git
+</code></pre>
+
+<p>第二种方法：安装Xcode，Xcode集成了Git，但是默认未安装，你可以在Xcode的Preferences-&gt;Download中安装Command Line Tools。</p>
+
+<h3 id="toc_3">Linux</h3>
+
+<p>Linux不同的发行版有不同的安装方式，可以尝试使用以下方法：</p>
+
+<pre><code class="language-bash">sudo apt-get install git
+</code></pre>
+
+<p>或者</p>
+
+<pre><code class="language-bash">sudo yum install git
+</code></pre>
+</blockquote>
+
+<p>安装完成后，使用</p>
+
+<pre><code class="language-bash">git config --global user.name &quot;Your Name&quot;
+git config --global user.email &quot;user@example.com&quot;
+</code></pre>
+
+<p>配置用户名和邮箱。</p>
+
+<h2 id="toc_4">二、Git相关操作</h2>
+
+<h3 id="toc_5">1.创建版本库(仓库，Repository)</h3>
+
+<pre><code class="language-bash">$ mkdir Test  
+$ cd Test
+$ git init    // 创建仓库
+Initialized empty Git repository in /Volumes/办公/Alan/Test/.git/
+</code></pre>
+
+<p>OK, 仓库已经建好，Git会在该目录下生成一个目录.git（.开头为隐藏目录），其用于跟踪管理这个仓库。   </p>
+
+<p>如果使用的是某些特殊的shell，当切换到该目录时，可能会出现明显的变化，例如我使用的zsh，当执行git init创建好仓库后，切换到该目录下时（即Test），路径显示变成</p>
+
+<pre><code class="language-bash">Test git:(master) ✗ $
+</code></pre>
+
+<h3 id="toc_6">2.添加文件到版本库</h3>
+
+<p>添加文件到仓库，让Git跟踪该文件：</p>
+
+<pre><code class="language-bash">$ touch readme.md     // 创建readme.md文件
+$ git add readme.md   // 添加readme.md到仓库
+$ git add test.php    // 添加test.php到仓库
+</code></pre>
+
+<h3 id="toc_7">3.提交文件到版本库</h3>
+
+<pre><code class="language-bash">$ git commit -m &quot;add readme.me test.php&quot; // 提交到仓库（-m参数是提交的相关说明，添加提交说明至关重要）
+</code></pre>
+
+<p>可多次使用git add添加多个文件，然后使用git commit一次进行提交。每次的git commit都会生成一个新的版本。</p>
+
+<h3 id="toc_8">4.查看提交日志</h3>
+
+<pre><code class="language-bash">$ git log
+</code></pre>
+
+<p>显示结果为：</p>
+
+<pre><code class="language-bash">commit bc916412b5b6ca835a21c72a530598db3ae38fb0 (HEAD -&gt; master)
+Author: AlanAlbert &lt;1766447919@qq.com&gt;
+Date:   Thu Jun 21 09:27:42 2018 +0800
+
+    upload Sort
+
+commit ee45db03f09b212562520be5c1a4e1d853064a2e
+Author: AlanAlbert &lt;1766447919@qq.com&gt;
+Date:   Thu Jun 21 09:17:41 2018 +0800
+
+    upload readme.md test.php
+</code></pre>
+
+<p>git log会根据时间倒序显示每条提交记录，包括提交者、提交时间以及提交说明，也可以给git log加上参数--pretty=oneline让其只显示一行，只包括提交说明：</p>
+
+<pre><code class="language-bash">bc916412b5b6ca835a21c72a530598db3ae38fb0 (HEAD -&gt; master) upload Sort
+ee45db03f09b212562520be5c1a4e1d853064a2e upload readme.md test.php
+</code></pre>
+
+<p>上面两次都出现的很长一串的字符串是每次提交的id，其通过SHA1计算出来的十六进制数字，保证唯一性。</p>
+
+<h3 id="toc_9">5.重置版本</h3>
+
+<p>当前版本可以在git log的结果中看到，其用HEAD指向当前版本。上一个版本则为<code>HEAD^</code>，上上个版本为<code>HEAD^^</code>，上5个版本可以表示为<code>HEAD~5</code>。重置到上一个版本为：</p>
+
+<pre><code class="language-bash">$ git reset --hard HEAD^
+HEAD is now at ee45db0 upload readme.md test.php
+</code></pre>
+
+<p>使用git log --pretty=oneline显示结果：</p>
+
+<pre><code class="language-bash">ee45db03f09b212562520be5c1a4e1d853064a2e (HEAD -&gt; master) upload readme.md test.php
+</code></pre>
+
+<p>可见HEAD指向了上一个commit版本。</p>
+
+<blockquote>
+<p>git reset命令将HEAD指向另一个commit版本，并将工作目录进行更新。</p>
+
+<p>那么--hard参数是干什么的呢？git reset的参数有三个：--soft、--hard、--mixed，默认为mixed。</p>
+
+<p>① <strong>--soft</strong>: HEAD指向另一个commit版本，而工作区和暂存区不发生变化。即，将HEAD头指针恢复，而add的缓存和工作区的所有东西都不变。</p>
+
+<p>② <strong>--mixed</strong>: HEAD的指向、暂存区都发生变化，工作区不发生变化。即，将HEAD头指针恢复，add的缓存也会丢失，但工作区文件不变。</p>
+
+<p>③ <strong>--hard</strong>: HEAD的指向、暂存区、工作区都发生变化。即，HEAD头指针恢复、add的缓存丢失、工作区的代码修改将恢复。</p>
+</blockquote>
+
+<p>在回退到上一个版本后，最新的那个版本不见了，如果又想回到最新的版本怎么办？<br/>
+办法是有的，只要你知道最新版本的commit id，可以使用：</p>
+
+<pre><code class="language-bash">$ git reset --hard bc91641
+HEAD is now at bc91641 upload Sort
+</code></pre>
+
+<p>commit id并不需要输入完整，只要能够唯一区分目标版本即可。</p>
+
+<blockquote>
+<p>如果实在不记得版本的id，有两种方法可以进行查找，</p>
+
+<p>第一种较简单：使用命令git reflog，第一列显示就是版本id</p>
+
+<p>第二种比较麻烦：在日志文件.git/logs/refs/heads/master中查看，其内容如下：</p>
+
+<pre><code class="language-bash">0000000000000000000000000000000000000000 ee45db03f09b212562520be5c1a4e1d853064a2e username &lt;user@example.com&gt; 1529543861 +0800    commit (initial): upload readme.md test.php
+ee45db03f09b212562520be5c1a4e1d853064a2e bc916412b5b6ca835a21c72a530598db3ae38fb0 username &lt;user@example.com&gt; 1529544462 +0800    commit: upload Sort
+/*结构组成如下：
+上一个版本id 当前版本id 用户名 用户邮箱 时间戳 时区(+0800表示正8时区，北京所在时区) 执行的操作: 操作说明
+</code></pre>
+</blockquote>
+
+<h3 id="toc_10">6.工作区 （working copy）和暂存区（staging copy）</h3>
+
+<p>工作区不用多说，其就是我们可见的目录。<br/>
+而在工作区下的隐藏文件夹.git下包含一个叫做stage或index的暂存区、第一个分支master以及指向master的指针HEAD，git add就是将文件添加至暂存区，git commit将暂存区的所有内容提交到当前分支，提交后暂存区的内容清空。   </p>
+
+<h3 id="toc_11">7.查看状态</h3>
+
+<p>使用git status可以查看状态：</p>
+
+<pre><code class="language-bash">$ git status
+On branch master
+Changes to be committed:
+  (use &quot;git reset HEAD &lt;file&gt;...&quot; to unstage)
+
+  new file:   test1.php
+    modified:   test2.php
+    
+Changes not staged for commit:
+  (use &quot;git add &lt;file&gt;...&quot; to update what will be committed)
+  (use &quot;git checkout -- &lt;file&gt;...&quot; to discard changes in working directory)
+
+    modified:   test3.php
+
+Untracked files:
+  (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)
+  
+    test4.php
+
+no changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)
+</code></pre>
+
+<p>master分支下状态结果显示分三个状态：<br/><br/>
+① Changes to be committed表示已添加到暂存区但未提交的修改<br/><br/>
+② Changes not staged for commit表示被修改但未未添加到暂存区的修改，执行git add filename后该修改便会出现在状态① Changes to be committed中，并显示为modified: filename<br/><br/>
+③ Untracked files表示未跟踪的文件，执行git add filename后该文件便会出现在状态① Changes to be committed中，并显示为new file: filename   </p>
+
+<h3 id="toc_12">8.查看差异</h3>
+
+<p>使用git diff HEAD可以显示最新提交版本和工作区的差异：</p>
+
+<pre><code class="language-bash">$ git diff HEAD
+diff --git a/test.php b/test.php
+index 94fd6d7..46a8d83 100644
+--- a/test.php
++++ b/test.php
+@@ -1,7 +1,6 @@
+ &lt;?php
+ /**
+- * add line
++ * test line
+  */
+    
+diff --git a/test2.php b/test2.php
+index 10d6ee9..4a3f8ca 100644
+--- a/test2.php
++++ b/test2.php
+@@ -1,6 +1,6 @@
+ &lt;?php
+-
++// test.line
+</code></pre>
+
+<p>因此，git diff HEAD会显示工作区和最新版本之间所有的差异，如果要检查某一个文件在工作区和最新提交版本之间的差异则使用git diff HEAD -- test.php：</p>
+
+<pre><code class="language-bash">$git diff HEAD -- test.php
+diff --git a/test.php b/test.php
+index 94fd6d7..46a8d83 100644
+--- a/test.php
++++ b/test.php
+@@ -1,7 +1,6 @@
+ &lt;?php
+ /**
+- * add line
++ * test line
+  */
+</code></pre>
+
+<h3 id="toc_13">9.撤销修改</h3>
+
+<p>对工作区进行修改后，如果想要放弃这次的修改可以使用：</p>
+
+<pre><code class="language-bash">$ git checkout -- test.php
+</code></pre>
+
+<p>该命令会让工作区的文件回到最近一次git commit或git add时的状态。</p>
+
+<h3 id="toc_14">10.删除文件</h3>
+
+<p>当删除工作区的文件后，使用git status查看状态：</p>
+
+<pre><code class="language-bash">$ git status 
+Changes not staged for commit:
+  (use &quot;git add/rm &lt;file&gt;...&quot; to update what will be committed)
+  (use &quot;git checkout -- &lt;file&gt;...&quot; to discard changes in working directory)
+
+    deleted:    readme.md
+    
+</code></pre>
+
+<p>可以使用以下命令删除版本库的filename文件：</p>
+
+<pre><code class="language-bash">$ git rm filename
+</code></pre>
+
+<p>然后使用git commit将修改提交到版本库。</p>
+
+<h3 id="toc_15">11.添加远程仓库</h3>
+
+<p>以使用的较多的GitHub为例。<br/><br/>
+首先，需要在GitHub上为你的账户配置ssh密钥，确保在电脑上可以通过GitHub的验证，可以在命令行或终端使用如下命令进行测试：</p>
+
+<pre><code class="language-bash">$ ssh git@github.com
+</code></pre>
+
+<p>若结果显示为：</p>
+
+<pre><code class="language-bash">PTY allocation request failed on channel 0
+Hi username! You&#39;ve successfully authenticated, but GitHub does not provide shell access.
+Connection to github.com closed.
+</code></pre>
+
+<p>则表示通过GitHub的验证；   </p>
+
+<p>然后，使用命令关联远程仓库：</p>
+
+<pre><code class="language-bash">$ git remote add origin git@github.com:username/test.git 
+</code></pre>
+
+<p>其中，origin为远程库的名字，然后使用git push将本地库内容推送到远程库：</p>
+
+<pre><code class="language-bash">$ git push -u origin master
+</code></pre>
+
+<p>第一次推送时加上-u参数，Git不但会把master分支内容推送给远程新的master分支，还会把本地master分支和远程master分支关联起来。在以后将本地内容推送到远程仓库时，只需要使用以下命令即可：</p>
+
+<pre><code class="language-bash">$ git push origin master
+</code></pre>
+
+<p>将远程库的更改合并至当前库：</p>
+
+<pre><code class="language-bash">$ git pull origin master:test // 远程master与test分支合并
+$ git pull origin master // 远程master和当前分支合并
+</code></pre>
+
+<h3 id="toc_16">11.从远程仓库克隆</h3>
+
+<p>远程仓库的内容克隆到本地：</p>
+
+<pre><code class="language-bash">$ git clone git@github.com:username/test.git
+</code></pre>
+
+<p>然后，Git就会下载远程仓库的内容到本地。<br/><br/>
+Git默认使用的是ssh协议，除此之外还可以使用https等协议，例如：</p>
+
+<pre><code class="language-bash">$ git clone https://github.com/username/test.git
+</code></pre>
+
+<h3 id="toc_17">12.分支管理</h3>
+
+<p>首先了解一下分支是什么？每个分支都是一条timeline(时间线)，前面用到的分支就是master主分支，用户可以在分支上单独操作互不影响。<br/><br/>
+创建test分支：</p>
+
+<pre><code class="language-bash">$ git branch test
+</code></pre>
+
+<p>切换到test分支：</p>
+
+<pre><code class="language-bash">$ git checkout test
+Switched to branch &#39;test&#39;
+</code></pre>
+
+<p>以上两步也可以使用一个命令完成：</p>
+
+<pre><code class="language-bash">$ git checkout -b test
+</code></pre>
+
+<p>查看所有分支（*号表示当前分支）：</p>
+
+<pre><code class="language-bash">$ git branch
+  master
+* test
+</code></pre>
+
+<p>合并分支：</p>
+
+<pre><code class="language-bash">$ git checkout master
+$ git merge test
+Updating 8d8593e..4b01548
+Fast-forward
+ google.md | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 google.md
+</code></pre>
+
+<p>删除分支：</p>
+
+<pre><code class="language-bash">$ git branch -d test
+Deleted branch test (was cfc8d84).
+</code></pre>
+
+<p>为了更好的理解Git的分支，我们做一个小试验：</p>
+
+<blockquote>
+<p>① git init创建一个仓库</p>
+
+<p>② 在master分支中新建readme.md，使用git add和git commit提交至仓库</p>
+
+<p>③ 使用git checkout -b test1新建并切换至test1分支，在test1分支中新建并提交test1.md</p>
+
+<p>④ 使用git checkout -b test2新建并切换至test2分支，在test2分支中新建并提交test2.md</p>
+
+<p>⑤ 使用git checkout master切换至master分支，在master分支中新建test.md文件，并提交   </p>
+
+<p>⑥ 此时，各分支状况如下图所示：</p>
+
+<p><img src="https://media.alan123.xyz/imgs/blogs/git/1.png" alt="分支状况1"/></p>
+
+<p>⑦ 在master、test1、test2分支中切换时，工作区的文件也会随之变化：切换到master时，工作区有readme.md和test.md；切换至test1分支时，工作区有readme.md和test1.md；切换至test2分支时，工作区有readme.md和test2.md文件</p>
+
+<p>⑧ 切换至master分支，使用git merge test1 test2将test1和test2分支合并至master</p>
+
+<p>⑨ 此时，master分支下的文件包含原来的readme.md、test.md以及加入的test1.md、test2.md，而test1和test2分支未发生变化</p>
+
+<p>⑩ 这时的test1和test2可以用git branch -d test1 test2进行删除 </p>
+</blockquote>
+
+<p>那么，如果存在两个分支master、test，它们对同一个文件readme.md进行修改（master在文件末尾加入master line，test在文件末尾加入test line），这时，当将test分支合并到master分支时Git会报错。</p>
+
+<pre><code class="language-bash">$ git merge test
+Auto-merging readme.md
+CONFLICT (content): Merge conflict in readme.md
+Automatic merge failed; fix conflicts and then commit the result.
+</code></pre>
+
+<p>使用git status查看状态也会提示文件在两个分支都修改了：</p>
+
+<pre><code class="language-bash">On branch master
+Your branch is ahead of &#39;origin/master&#39; by 6 commits.
+  (use &quot;git push&quot; to publish your local commits)
+
+You have unmerged paths.
+  (fix conflicts and run &quot;git commit&quot;)
+  (use &quot;git merge --abort&quot; to abort the merge)
+
+Unmerged paths:
+  (use &quot;git add &lt;file&gt;...&quot; to mark resolution)
+
+    both modified:   readme.md
+
+no changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)
+</code></pre>
+
+<p>此时，需要手动对master主分支下的readme.md文件进行修改，使用vim readme.md打开文件：</p>
+
+<pre><code class="language-bash">  1 &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+  2 master line
+  3 =======
+  4 test line
+  5 &gt;&gt;&gt;&gt;&gt;&gt;&gt; test
+</code></pre>
+
+<p>Git将两个分支的readme.md的内容使用&lt;&lt;&lt;&lt;&lt;&lt;&lt;、=======、&gt;&gt;&gt;&gt;&gt;&gt;&gt;区分开来。将内容修改为目标内容，然后git add、git commit即可完成合并。（使用git log --graph可以查看分支合并图）</p>
+
+<h3 id="toc_18">13.分支管理策略</h3>
+
+<p>在合并分支时，如果不指定合并模式，Git会默认使用Fast forward模式，在这个模式下，删除分支信息后，会丢失分支信息。我们可以在合并分支时加上--no-ff参数禁用Fast forward模式，此时Git在合并时会生成一个新的commit：</p>
+
+<pre><code class="language-bash">$ git merge --no-ff -m &#39;merge test&#39; test
+</code></pre>
+
+<p>使用git log --graph --pretty=oneline分别查看禁用Fast forward和不禁用时的区别：</p>
+
+<pre><code class="language-bash"># 不禁用时：
+$ git merge test
+* 06cf0607846548da37edf16cba68a4b46ba95835 (HEAD -&gt; master) add test.md
+* 9ee02e9c78cde794543df93ab508fefb2b7f7667 add readme.md
+
+# 禁用时：
+% git merge --no-ff -m &#39;merge test&#39; test
+*   2e6de5d4c6f4c919d63b553615181f51411b3a99 (HEAD -&gt; master) merge test
+|\  
+| * bbfb8e492523ba516e69813ce7b6b09b7ccd3778 test.md
+|/  
+* 9ee02e9c78cde794543df93ab508fefb2b7f7667 add readme.md
+
+</code></pre>
+
+<h3 id="toc_19">14.隐藏改变</h3>
+
+<p>当正在为一个Web应用程序进行升级时，突然发现当前版本的程序存在Bug，需要优先修复Bug，此时，升级的工作未完成，尚不能commit，而由于升级修改的文件会影响原来版本，怎么办？  </p>
+
+<p>使用git stash命令即可隐藏工作区未提交的工作（前提需要将文件添加到仓库，使得Git能够追踪这些文件）。例如，在当前目录下创建test.md文件并添加至仓库，此时使用</p>
+
+<pre><code class="language-bash">$ git stash
+Saved working directory and index state WIP on master: 9ee02e9 add readme.md
+</code></pre>
+
+<p>此时，那些未上传的文件在工作区消失了，可以使用以下命令进行查看：</p>
+
+<pre><code class="language-bash">$ git stash list
+stash@{0}: WIP on master: 9ee02e9 add readme.md
+</code></pre>
+
+<p>Git将相对于最近commit的修改保存至一个类似队列的结构中，可以尝试在使用git stash后再次添加一个文件并使用git stash，然后使用git stash list即可查看到两个stash。   </p>
+
+<p>隐藏后如何恢复呢？<br/><br/>
+① 使用git stash apply，使用后stash的记录和内容不会删除，可以使用git stash drop进行删除；<br/><br/>
+② 使用git stash pop弹出stash，在恢复的同时，删除stash   </p>
+
+<h3 id="toc_20">15.标签管理</h3>
+
+<p>添加标签：</p>
+
+<pre><code class="language-bash">$ git tag v1.0
+</code></pre>
+
+<p>Git默认是为当前分支下的最新commit版本添加标签，如果想为历史提交的版本添加标签，添加上commit id即可：</p>
+
+<pre><code class="language-bash">$ git tag v1.0 commitid
+</code></pre>
+
+<p>查看所有标签：</p>
+
+<pre><code class="language-bash">$ git tag
+v1.0
+</code></pre>
+
+<p>查看标签详细信息：</p>
+
+<pre><code class="language-bash">$ git show v1.0
+</code></pre>
+
+<p>删除标签：</p>
+
+<pre><code class="language-bash">$ git tag -d v1.0
+</code></pre>
+
+<p>本地标签不会自动推送至远程，可以手动推送至远程库：</p>
+
+<pre><code class="language-bash">$ git push origin v1.0   // 推送标签名v1.0至远程库
+$ git push origin --tags // 推送所有标签至远程库
+</code></pre>
+
+<p>删除远程库标签：</p>
+
+<pre><code class="language-bash">$ git push origin :refs/tags/v1.0  // 删除标签v1.0
+</code></pre>
+
+<h3 id="toc_21">16.多人协作的工作流程</h3>
+
+<p>多人协作的工作模式通常是这样：</p>
+
+<ol>
+<li><p>首先，可以试图用git push origin <branch-name>推送自己的修改；</p></li>
+<li><p>如果推送失败，则因为远程分支比你的本地更新，需要先用git pull试图合并；</p></li>
+<li><p>如果合并有冲突，则解决冲突，并在本地提交；</p></li>
+<li><p>没有冲突或者解决掉冲突后，再用git push origin <branch-name>推送就能成功！</p></li>
+</ol>
+
+<p>如果git pull提示no tracking information，则说明本地分支和远程分支的链接关系没有创建，用命令git branch --set-upstream-to <branch-name> origin/<branch-name>。</p>
+
+<p>这就是多人协作的工作模式，一旦熟悉了，就非常简单。</p>
+
+<h2 id="toc_22">三、总结</h2>
+
+<p>善用Git的--help可以帮助更好的使用命令，例如：</p>
+
+<pre><code class="language-bash">$ git --help
+$ git pull --help
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>git config —global user.name “&lt; username &gt;&quot;</td>
+<td>配置用户名</td>
+</tr>
+<tr>
+<td>git config —global user.email “&lt; <a href="mailto:user@example.com">user@example.com</a> &gt;&quot;</td>
+<td>配置邮箱</td>
+</tr>
+<tr>
+<td>git init</td>
+<td>创建版本库</td>
+</tr>
+<tr>
+<td>git add &lt; file &gt;</td>
+<td>添加文件到版本库（Git追踪该文件）</td>
+</tr>
+<tr>
+<td>git commit -m “&lt; commit message &gt;&quot;</td>
+<td>将改动提交到版本库</td>
+</tr>
+<tr>
+<td>git log [--graph --pretty=oneline ...]</td>
+<td>查看版本库日志信息</td>
+</tr>
+<tr>
+<td>git reflog</td>
+<td>查看所有分支的所有操作日志</td>
+</tr>
+<tr>
+<td>git reset --hard &lt; version &gt;</td>
+<td>重置版本,HEAD<sup>,HEAD~5,commit</sup> id</td>
+</tr>
+<tr>
+<td>git status</td>
+<td>查看状态</td>
+</tr>
+<tr>
+<td>git diff &lt; version &gt; </td>
+<td>查看版本和当前工作区差异</td>
+</tr>
+<tr>
+<td>git checkout — &lt; file &gt;</td>
+<td>恢复至最近commit或add时的状态</td>
+</tr>
+<tr>
+<td>git rm &lt; file &gt;</td>
+<td>从版本库删除文件</td>
+</tr>
+<tr>
+<td>git remote add &lt; 远程库名 &gt; &lt; address &gt;</td>
+<td>关联远程仓库（远程库名、地址）</td>
+</tr>
+<tr>
+<td>git push [-u] &lt; 远程库名 &gt; &lt; branch &gt;</td>
+<td>本地库内容推送至远程，第一次加-u（，分支）</td>
+</tr>
+<tr>
+<td>git pull origin &lt; 远程分支名 &gt;:&lt; 本地分支名 &gt;</td>
+<td>将远程库的更改合并至当前库</td>
+</tr>
+<tr>
+<td>git clone &lt; address &gt;</td>
+<td>远程仓库的内容克隆到本地</td>
+</tr>
+<tr>
+<td>git branch &lt; branch &gt;</td>
+<td>添加分支</td>
+</tr>
+<tr>
+<td>git branch -d &lt; branch &gt;</td>
+<td>删除分支</td>
+</tr>
+<tr>
+<td>git branch</td>
+<td>显示所有分支</td>
+</tr>
+<tr>
+<td>git checkout &lt; branch &gt;</td>
+<td>切换分支</td>
+</tr>
+<tr>
+<td>git checkout -b &lt; branch &gt;</td>
+<td>新建并切换分支</td>
+</tr>
+<tr>
+<td>git merge &lt; branch &gt;</td>
+<td>合并分支</td>
+</tr>
+<tr>
+<td>git merge --no-ff -m “&lt; commit message &gt;” &lt; branch &gt;</td>
+<td>禁用Fast forward模式合并分支</td>
+</tr>
+<tr>
+<td>git stash</td>
+<td>隐藏已跟踪未提交的工作区内容</td>
+</tr>
+<tr>
+<td>git stash list</td>
+<td>显示stash</td>
+</tr>
+<tr>
+<td>git stash apply</td>
+<td>恢复隐藏内容，但不删除</td>
+</tr>
+<tr>
+<td>git stash drop</td>
+<td>删除stash记录</td>
+</tr>
+<tr>
+<td>git stash pop</td>
+<td>恢复隐藏内容，并删除</td>
+</tr>
+<tr>
+<td>git tag &lt; tag name &gt; [&lt; commit id &gt;]</td>
+<td>添加标签</td>
+</tr>
+<tr>
+<td>git tag</td>
+<td>显示所有标签</td>
+</tr>
+<tr>
+<td>git show &lt; tag name &gt;</td>
+<td>显示tag详细信息</td>
+</tr>
+<tr>
+<td>git tag -d &lt; tag name &gt;</td>
+<td>删除标签</td>
+</tr>
+<tr>
+<td>git push &lt; 远程库名 &gt; &lt; tag name &gt;</td>
+<td>推送标签至远程库</td>
+</tr>
+<tr>
+<td>git push &lt; 远程库名 &gt; --tags</td>
+<td>推送所有标签至远程库</td>
+</tr>
+<tr>
+<td>git push &lt; 远程库名 &gt; :refs/tags/&lt; tag name &gt;</td>
+<td>删除远程库标签</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="toc_23">四、实际使用</h2>
+
+<h3 id="toc_24">1、在GitHub上，修改他人项目的代码</h3>
+
+<p>① 在GitHub上，将项目从他人仓库fork到自己仓库；</p>
+
+<p>② 使用git clone将自己仓库的项目clone到本地；</p>
+
+<p>③ 修改完代码后，将修改push到自己远程仓库；</p>
+
+<p>④ 在GitHub上，创建Pull Request，等待原仓库管理员的审核；</p>
+
+<h3 id="toc_25">2、Pull Request被合并后</h3>
+
+<p>最近在GitHub上修改别人的代码，遇到一个问题：我在第二次提交Pull Request时，将第一次已合并的Pull Request再次提交了上去。（毕竟第一次嘛😂   </p>
+
+<p>需要注意的是，在我们的Pull Request被合并时，我们需要做的工作有：</p>
+
+<blockquote>
+<p>① 给fork配置远程库：</p>
+
+<p>使用<code>git remote -v</code>可以查看远程仓库状态。如果结果中没有原仓库的配置，可以使用<code>git remote add 自定义名 原仓库地址</code>进行配置，例如：<code>git remote add nickname https://github.com/username/repostory.git</code></p>
+
+<p>② 使用<code>git fetch nickname</code>从原仓库fetch分支和提交点到本地，并存储到本地分支nickname/master</p>
+
+<p>③ 切换到master分支：<code>git checkout master</code></p>
+
+<p>④ 将nickname/master分支合并到本地master：<code>git merge nickname/master</code></p>
+
+<p>⑤ 更新到GitHub的fork上：<code>git push origin master</code></p>
+
+<p><strong>（原仓库即上游仓库）</strong></p>
+</blockquote>
+
+<p><em>Mission Complete!</em></p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15323450800273.html" 
+          title="Previous Post: PHP扩展编写">&laquo; PHP扩展编写</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15280115971375.html" 
+          title="Next Post: PHP的浅复制和深复制">PHP的浅复制和深复制 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          <script 
+    src="https://utteranc.es/client.js"
+    repo="AlanAlbert/personal-blog-comments"
+    issue-term="pathname"     
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="https://tvax4.sinaimg.cn/crop.0.0.664.664.180/006k9NITly8fejxhyoc3aj30ig0igmy3.jpg?Expires=1562496252&ssig=LhZKVSOY7F&KID=imgbed,tva" /></div>
+            
+                <h1>Alan的进阶日志</h1>
+                <div class="site-des">与有肝胆人共事，从无字句处读书。</div>
+                <div class="social">
+
+
+<a target="_blank" class="stackoverflow" href="https://stackoverflow.com/users/9723854/alan" title="StackOverflow"></a>
+
+
+
+
+<a target="_blank" class="weibo" href="https://weibo.com/u/5794659803" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/Alan_Albert_" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/AlanAlbert" title="GitHub">GitHub</a>
+<a target="_blank" class="email" href="mailto:alan1766447919@gmail.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+               
+             <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Important</h2>
+                </div>
+                <div class="side-content">
+                  <div style="color:#ff0000; text-align:center; padding:8px;" class="bg-info site_notice">
+                    ① 可以使用GitHub账号登录进行评论哦😁<br/><br/>② 欢迎关注我的个人公众号，一起交流学习~<br/ ><img src="https://mp.weixin.qq.com/mp/qrcode?scene=10000005&size=102&__biz=MzIzNDU0NTc4OA==&mid=100000001&idx=1&sn=34f05b9196beb41e8561cbdfc5de26f5&send_time=1566403069" />
+                  </div>
+                </div>
+            </div>
+    
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="php.html"><strong>PHP</strong></a>
+        
+            <a href="interview.html"><strong>面试</strong></a>
+        
+            <a href="security.html"><strong>安全</strong></a>
+        
+            <a href="linux.html"><strong>Linux</strong></a>
+        
+            <a href="mysql.html"><strong>MySQL</strong></a>
+        
+            <a href="redis.html"><strong>Redis</strong></a>
+        
+            <a href="data-struct-and-algorithm.html"><strong>数据结构及算法</strong></a>
+        
+            <a href="computer-network.html"><strong>计算机网络</strong></a>
+        
+            <a href="version-control-tool.html"><strong>版本控制工具</strong></a>
+        
+            <a href="read.html"><strong>读书</strong></a>
+        
+            <a href="javascript.html"><strong>JavaScript</strong></a>
+        
+            <a href="web-server.html"><strong>Web服务器</strong></a>
+        
+            <a href="hackintosh.html"><strong>黑苹果</strong></a>
+        
+            <a href="markdown.html"><strong>Markdown</strong></a>
+        
+            <a href="other.html"><strong>其它</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15810423370557.html">初探Docker---使用Docker Compose编排容器</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15714902755948.html">初探Docker---编写Dockerfile搭建PHP开发环境</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704551543845.html">初探Docker---Docker及Dockerfile</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15685386915043.html">百万级数据迁移、汇总</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15657597684450.html">PHP实现异步回调的总结</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="asset/prism.js"></script>
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+
+
+  </body>
+</html>

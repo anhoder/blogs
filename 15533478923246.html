@@ -1,0 +1,890 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  Daemon守护进程 - Alan的进阶日志
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="Alan的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+ 
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:alanalbert.github.io ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">博客</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">归档</a></li>
+        
+        <li id=""><a target="_self" href="about.html">关于</a></li>
+        
+        <li id=""><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Alan的进阶日志</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="_self" href="index.html">博客</a></li>
+        
+        <li><a target="_self" href="archives.html">归档</a></li>
+        
+        <li><a target="_self" href="about.html">关于</a></li>
+        
+        <li><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="php.html">PHP</a></li>
+        
+            <li><a href="interview.html">面试</a></li>
+        
+            <li><a href="security.html">安全</a></li>
+        
+            <li><a href="linux.html">Linux</a></li>
+        
+            <li><a href="mysql.html">MySQL</a></li>
+        
+            <li><a href="redis.html">Redis</a></li>
+        
+            <li><a href="data-struct-and-algorithm.html">数据结构及算法</a></li>
+        
+            <li><a href="computer-network.html">计算机网络</a></li>
+        
+            <li><a href="version-control-tool.html">版本控制工具</a></li>
+        
+            <li><a href="read.html">读书</a></li>
+        
+            <li><a href="javascript.html">JavaScript</a></li>
+        
+            <li><a href="web-server.html">Web服务器</a></li>
+        
+            <li><a href="hackintosh.html">黑苹果</a></li>
+        
+            <li><a href="markdown.html">Markdown</a></li>
+        
+            <li><a href="other.html">其它</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+              <div class="f-img"><img src="https://source.unsplash.com/random/1024x403" /></div>
+          
+          <h1>Daemon守护进程</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/3/23</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='php.html'>PHP</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<h2 id="toc_0">0、进程</h2>
+
+<ul>
+<li>僵尸进程：<strong>当子进程比父进程先结束，而父进程又没有回收子进程，释放子进程占用的资源，此时子进程将成为一个僵尸进程。</strong>如果父进程一直不处理,该进程将会一直存在,占用系统进程表项。</li>
+<li>孤儿进程：<strong>在其父进程执行完成或被终止后仍继续运行的一类进程。</strong>这些孤儿进程将被init进程(进程号为1)所收养，并由init进程对它们完成状态收集工作。孤儿进程没有任何危害,只是需要注意自己的代码逻辑即可。</li>
+</ul>
+
+<h2 id="toc_1">1、进程、进程组、会话、控制终端的关系</h2>
+
+<ul>
+<li>进程：进程属于且仅属于一个进程组；</li>
+<li>进程组：进程组包含多个进程，进程组号就是进程组长的进程号；</li>
+<li>会话：会话包含多个进程组，这些进程组可以分为：后台进程组、前台进程组</li>
+<li>控制终端：控制终端对应一个或多个登录会话（screen命令可以创建会话）</li>
+</ul>
+
+<p>关系如图：</p>
+
+<p><img src="media/15533478923246/5c963c3a9036d.jpg" alt="进程、进程组、会话、控制终端"/></p>
+
+<h2 id="toc_2">2、守护进程的创建过程</h2>
+
+<p><img src="media/15533478923246/5c95a53bc04d5.png" alt="守护进程"/></p>
+
+<blockquote>
+<p>① fork出的子进程会在继承父进程的状态，并往下执行，且子进程属于父进程所在的进程组和会话。<font style="color:red;"><strong>使用posix_setsid函数的作用就是创建一个新的会话，让子进程摆脱父进程所在的进程组和会话的控制</strong></font></p>
+
+<p>② <font style="color:red;">命令行使用&amp;符号在后台运行程序，只是将该程序放到后台进程组，并没有脱离当前进程组和会话的控制</font>，因此，当用户退出登录时，程序就会结束</p>
+
+<p>③ POSIX：portable operating system interface of UNIX</p>
+</blockquote>
+
+<p>示例代码：</p>
+
+<pre><code class="language-php">&lt;?php
+$pid = pcntl_fork();
+if ($pid == -1) {
+    die(&quot;Fork Error&quot;);
+} elseif ($pid) {
+    // 父进程
+    exit();
+} else {
+    // 子进程
+    posix_setsid();
+    chdir(&#39;/&#39;);
+    umask(0);
+    for ($i = 0; $i &lt; 20; $i++) {
+        echo $i, PHP_EOL;
+        sleep(1);
+    }
+}
+</code></pre>
+
+<h2 id="toc_3">3、结语</h2>
+
+<p>可以将上述代码优化封装成一个Daemon守护进程类，添加<strong>实现信号量处理（启动、暂停、结束等）、添加执行任务、保存进程id到pid文件等功能</strong>。    </p>
+
+<p>示例代码：</p>
+
+<pre><code class="language-php">class Daemon
+{
+    private $pid_file;
+    private $log_file;
+    private $jobs = [];
+
+    public function __construct($log_dir = &#39;/tmp/&#39;, $pid_dir = &#39;/var/run/&#39;)
+    {
+        $this-&gt;checkCli();
+        $this-&gt;checkPcntl();
+        $this-&gt;setLogFile(rtrim($log_dir, &#39;/&#39;) . &#39;/&#39; . __CLASS__ . &#39;.log&#39;);
+        $this-&gt;setPidFile(rtrim($pid_dir, &#39;/&#39;) . &#39;/&#39; . __CLASS__ . &#39;.pid&#39;);
+    }
+
+    /**
+     * 设置日志文件
+     * @param string $log_file 日志文件路径
+     */
+    private function setLogFile($log_file)
+    {
+        $this-&gt;log_file = $log_file;
+    }
+
+    /**
+     * 设置pid文件
+     * @param string $pid_file pid文件路径
+     */
+    private function setPidFile($pid_file)
+    {
+        $this-&gt;pid_file = $pid_file;
+    }
+
+    /**
+     * 检验是否安装pcntl扩展
+     * @return void 
+     */
+    private function checkPcntl()
+    {
+        if (!function_exists(&#39;pcntl_fork&#39;)) {
+            throw new Exception(&quot;Extension pcntl not exists&quot;);
+        }
+    }
+
+    /**
+     * 检查运行环境是否是命令行
+     * @return void 
+     */
+    private function checkCli()
+    {
+        if (php_sapi_name() != &#39;cli&#39;) {
+            throw new Exception(&quot;Current running environment is not cli&quot;);
+        }
+    }
+
+    /**
+     * 添加任务
+     * @param array $job 任务数组
+     */
+    public function addJob($job)
+    {
+        if (!isset($job[&#39;callback&#39;]) || empty($job[&#39;callback&#39;])) {
+            throw new Exception(&quot;Job need callback&quot;);
+        }
+        array_push($this-&gt;jobs, $job);
+    }
+    
+    /**
+     * 创建守护进程
+     *
+     * @return void
+     */
+    private function daemonize()
+    {
+        $pid = pcntl_fork();
+        if ($pid &lt; 0) {
+            throw new Exception(&#39;Fork son process error&#39;);
+        } elseif ($pid &gt; 0) {
+            exit();
+        }
+        
+        if (posix_setsid() == -1) {
+            throw new Exception(&#39;Cannot detach session&#39;);
+        }
+        chdir(&#39;/&#39;);
+        umask(0);
+        if (!$fp = fopen($this-&gt;pid_file, &#39;w&#39;)) {
+            throw new Exception(&#39;Cannot create pid file&#39;);
+        }
+        fwrite($fp, posix_getpid());
+        if (!empty($this-&gt;jobs)) {
+            foreach ($this-&gt;jobs as $job) {
+                if (isset($job[&#39;argv&#39;])) {
+                    call_user_func($job[&#39;callback&#39;], $job[&#39;argv&#39;]);
+                } else {
+                    call_user_func($job[&#39;callback&#39;]);
+                }
+            }
+        }
+    }
+    
+    /**
+     * 启动守护进程
+     *
+     * @return void
+     */
+    private function start()
+    {
+        if ($this-&gt;getPid()) {
+            $this-&gt;tips(&#39;Process is running...&#39;);
+            return;
+        }
+        $this-&gt;tips(&#39;Start success.&#39;);
+        $this-&gt;daemonize();
+    }
+
+    /**
+     * 停止进程
+     *
+     * @return void
+     */
+    private function stop()
+    {
+        if ($pid = $this-&gt;getPid()) {
+            posix_kill($pid, SIGTERM);
+            unlink($this-&gt;pid_file);
+            $this-&gt;tips(&#39;Stop success.&#39;);
+        } else {
+            $this-&gt;tips(&#39;Process not running.&#39;);
+        }
+    }
+
+    /**
+     * 获取状态
+     *
+     * @return void
+     */
+    private function status()
+    {
+        if ($this-&gt;getPid()) {
+            $this-&gt;tips(&#39;Process is running...&#39;);
+        } else {
+            $this-&gt;tips(&#39;Process is stopped.&#39;);
+        }
+    }
+
+    /**
+     * 输出提示信息
+     *
+     * @param string $msg 提示内容
+     * @return void
+     */
+    private function tips($msg)
+    {
+        printf(&quot;%s: %s\n&quot;, date(&#39;Y-m-d H:i:s&#39;), $msg);
+    }
+
+    /**
+     * 获取守护进程pid
+     *
+     * @return void
+     */
+    private function getPid()
+    {
+        if (!file_exists($this-&gt;pid_file)) {
+            return 0;
+        }
+        $pid = intval(file_get_contents($this-&gt;pid_file));
+        if (posix_kill($pid, SIG_DFL)) {
+            return $pid;
+        } else {
+            unlink($this-&gt;pid_file);
+            return 0;
+        }
+    }
+
+    /**
+     * 运行
+     *
+     * @return void
+     */
+    public function run($argv)
+    {
+        if (count($argv) &lt; 2) {
+            $this-&gt;tips(&#39;Params: stop | start | status&#39;);
+            return;
+        }
+        switch ($argv[1]) {
+            case &#39;start&#39;:
+                $this-&gt;start();
+                break;
+            case &#39;stop&#39;:
+                $this-&gt;stop();
+                break;
+            case &#39;status&#39;:
+                $this-&gt;status();
+                break;
+            default:
+                $this-&gt;tips(&#39;Params: stop | start | status&#39;);
+                break;
+        }
+    }
+}
+
+
+// 测试
+$daemon = new Daemon(&#39;/Users/Alan_Albert/Desktop/Daemon&#39;, &#39;/Users/Alan_Albert/Desktop/Daemon&#39;);
+$daemon-&gt;addJob([
+    &#39;callback&#39; =&gt; function () {
+        while (1) {
+            echo &quot;true&quot;, PHP_EOL;
+            sleep(1);
+        }
+    }
+]);
+$params = $argv;
+$daemon-&gt;run($argv);
+</code></pre>
+
+<p><em>Mission Complete!</em></p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15537548137267.html" 
+          title="Previous Post: SVN命令的使用">&laquo; SVN命令的使用</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15504991979563.html" 
+          title="Next Post: Lumen框架下安装dingo/api和tymon/jwt-auth">Lumen框架下安装dingo/api和tymon/jwt-auth &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          <script 
+    src="https://utteranc.es/client.js"
+    repo="AlanAlbert/personal-blog-comments"
+    issue-term="pathname"     
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="https://tvax4.sinaimg.cn/crop.0.0.664.664.180/006k9NITly8fejxhyoc3aj30ig0igmy3.jpg?Expires=1562496252&ssig=LhZKVSOY7F&KID=imgbed,tva" /></div>
+            
+                <h1>Alan的进阶日志</h1>
+                <div class="site-des">与有肝胆人共事，从无字句处读书。</div>
+                <div class="social">
+
+
+<a target="_blank" class="stackoverflow" href="https://stackoverflow.com/users/9723854/alan" title="StackOverflow"></a>
+
+
+
+
+<a target="_blank" class="weibo" href="https://weibo.com/u/5794659803" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/Alan_Albert_" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/AlanAlbert" title="GitHub">GitHub</a>
+<a target="_blank" class="email" href="mailto:alan1766447919@gmail.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+               
+             <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Important</h2>
+                </div>
+                <div class="side-content">
+                  <div style="color:#ff0000; text-align:center; padding:8px;" class="bg-info site_notice">
+                    ① 可以使用GitHub账号登录进行评论哦😁<br/><br/>② 欢迎关注我的个人公众号，一起交流学习~<br/ ><img src="https://mp.weixin.qq.com/mp/qrcode?scene=10000005&size=102&__biz=MzIzNDU0NTc4OA==&mid=100000001&idx=1&sn=34f05b9196beb41e8561cbdfc5de26f5&send_time=1566403069" />
+                  </div>
+                </div>
+            </div>
+    
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="php.html"><strong>PHP</strong></a>
+        
+            <a href="interview.html"><strong>面试</strong></a>
+        
+            <a href="security.html"><strong>安全</strong></a>
+        
+            <a href="linux.html"><strong>Linux</strong></a>
+        
+            <a href="mysql.html"><strong>MySQL</strong></a>
+        
+            <a href="redis.html"><strong>Redis</strong></a>
+        
+            <a href="data-struct-and-algorithm.html"><strong>数据结构及算法</strong></a>
+        
+            <a href="computer-network.html"><strong>计算机网络</strong></a>
+        
+            <a href="version-control-tool.html"><strong>版本控制工具</strong></a>
+        
+            <a href="read.html"><strong>读书</strong></a>
+        
+            <a href="javascript.html"><strong>JavaScript</strong></a>
+        
+            <a href="web-server.html"><strong>Web服务器</strong></a>
+        
+            <a href="hackintosh.html"><strong>黑苹果</strong></a>
+        
+            <a href="markdown.html"><strong>Markdown</strong></a>
+        
+            <a href="other.html"><strong>其它</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15810423370557.html">初探Docker---使用Docker Compose编排容器</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15714902755948.html">初探Docker---编写Dockerfile搭建PHP开发环境</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704551543845.html">初探Docker---Docker及Dockerfile</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15685386915043.html">百万级数据迁移、汇总</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15657597684450.html">PHP实现异步回调的总结</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="asset/prism.js"></script>
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+
+
+  </body>
+</html>

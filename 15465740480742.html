@@ -1,0 +1,789 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  初探Laravel---round 9 视图 - Alan的进阶日志
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="Alan的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+ 
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:alanalbert.github.io ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">博客</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">归档</a></li>
+        
+        <li id=""><a target="_self" href="about.html">关于</a></li>
+        
+        <li id=""><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Alan的进阶日志</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="_self" href="index.html">博客</a></li>
+        
+        <li><a target="_self" href="archives.html">归档</a></li>
+        
+        <li><a target="_self" href="about.html">关于</a></li>
+        
+        <li><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="php.html">PHP</a></li>
+        
+            <li><a href="interview.html">面试</a></li>
+        
+            <li><a href="security.html">安全</a></li>
+        
+            <li><a href="linux.html">Linux</a></li>
+        
+            <li><a href="mysql.html">MySQL</a></li>
+        
+            <li><a href="redis.html">Redis</a></li>
+        
+            <li><a href="data-struct-and-algorithm.html">数据结构及算法</a></li>
+        
+            <li><a href="computer-network.html">计算机网络</a></li>
+        
+            <li><a href="version-control-tool.html">版本控制工具</a></li>
+        
+            <li><a href="read.html">读书</a></li>
+        
+            <li><a href="javascript.html">JavaScript</a></li>
+        
+            <li><a href="web-server.html">Web服务器</a></li>
+        
+            <li><a href="hackintosh.html">黑苹果</a></li>
+        
+            <li><a href="markdown.html">Markdown</a></li>
+        
+            <li><a href="other.html">其它</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+              <div class="f-img"><img src="https://source.unsplash.com/random/1024x401" /></div>
+          
+          <h1>初探Laravel---round 9 视图</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2019/1/4</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='laravel.html'>Laravel</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<h2 id="toc_0">视图的基本用法</h2>
+
+<p>Laravel中，可以通过两种方式返回视图，一种是直接以字符串形式返回视图源码，另一种是返回视图文件。    </p>
+
+<p>① 第一种方法就是直接使用return返回字符串：</p>
+
+<pre><code class="language-php">public function index()
+{
+    return &#39;&lt;html&gt;&lt;/html&gt;&#39;;
+}
+</code></pre>
+
+<p>② 第二种是通过view()返回视图文件，视图存放在laravel/resources/views目录下。view函数是定义的全局函数相当于View::make()方法，实质调用的是Illuminate\View\Factory的make方法，进而创建Illuminate\View\View类的实例化对象。</p>
+
+<pre><code class="language-php">public function index()
+{
+    return view(&#39;index&#39;);
+}
+</code></pre>
+
+<p>以上用例会加载laravel/resources/views/index.blade.php文件，如果视图文件存在laravel/resources/views下的子目录下，例如：视图文件为laravel/resources/views/user/login.blade.php，则：</p>
+
+<pre><code class="language-php">public function index()
+{
+    return view(&#39;user.login&#39;);
+    // 或
+    // return view(&#39;user/login&#39;);
+}
+</code></pre>
+
+<h2 id="toc_1">数据传递</h2>
+
+<p>如果需要传递数据到视图中，有三种方法：</p>
+
+<blockquote>
+<p>① 通过数组的形式，如：<code>return view(&#39;index&#39;, [&#39;username&#39; =&gt; &#39;Alan&#39;, &#39;age&#39; =&gt; 18]);</code></p>
+
+<p>② 通过with函数，如：<code>return view(&#39;index&#39;)-&gt;with(&#39;username&#39;, &#39;Alan&#39;)-&gt;with(&#39;age&#39;, 18);</code></p>
+
+<p>③ 通过with加变量名的形式，如：<code>return view(&#39;index&#39;)-&gt;withUsername(&#39;Alan&#39;)-&gt;withAge(18);</code></p>
+</blockquote>
+
+<h2 id="toc_2">blade模板</h2>
+
+<p>Blade模板是Laravel提供的视图文件引擎，该模板可以通过模板继承和区块实现高度的代码复用和清晰的视图结构。blade模板文件以<code>.blade.php</code>为后缀。</p>
+
+<h3 id="toc_3">blade模板结构布局</h3>
+
+<pre><code class="language-php">// layout.blade.php
+&lt;html&gt;
+    &lt;head&gt;&lt;/head&gt;
+    &lt;body&gt;
+        @section(&#39;navbar&#39;)
+            This is the layout navbar.
+        @show
+        
+        @yield(&#39;content&#39;)
+        &lt;footer&gt;
+            &lt;p&gt;This is footer.&lt;/p&gt;
+        &lt;/footer&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+
+// view.blade.php
+@extend(&#39;layout&#39;)
+
+@section(&#39;navbar&#39;)
+    &lt;p&gt;This is the view navbar.&lt;/p&gt;
+    @parent
+@endsection
+
+@section(&#39;content&#39;)
+    &lt;div&gt;
+        This is the content.
+        include(&#39;sidebar&#39;)
+    &lt;/div&gt;
+@endsection
+
+// sidebar.blade.php
+&lt;div&gt;
+    This is the sidebar.
+&lt;/div
+
+</code></pre>
+
+<p>使用<code>return view(&#39;view&#39;);</code>即可使用视图，显示内容为：</p>
+
+<pre><code class="language-php">This is the view navbar.
+This is the layout navbar.
+This is the content.
+This is the sidebar.
+This is footer.
+</code></pre>
+
+<p>以下为blade模板中用于布局的语法标签：</p>
+
+<blockquote>
+<p>@extends(&#39;布局文件名&#39;)：用于继承一个布局文件</p>
+
+<p>@parent：用于显示继承的布局模板中的内容</p>
+
+<p>@section(&#39;区块名&#39;)：定义一个区块，其可以有不同的结尾标：@show用于显示区块；@stop和@endsection用于结束这个区块；@overwrite用于重写前面的区块。如果在布局模板文件中用@stop或@endsection结束这个区块，则视图文件将无法覆盖这个区块。</p>
+
+<p>@yield(&#39;区块文件&#39;, &#39;默认内容&#39;)：用于布局文件中显示一个区块。</p>
+
+<p>@include(&#39;子视图名称&#39;)：加载子视图文件</p>
+</blockquote>
+
+<h3 id="toc_4">blade模板的过程控制语法</h3>
+
+<p><strong>blade模板变量输出</strong>：</p>
+
+<pre><code class="language-php">{{ $name }}
+// 效果对应的PHP原生代码
+&lt;?php echo $name; ?&gt;
+</code></pre>
+
+<p><strong>三目运算符<code>?:</code>的效果</strong>：</p>
+
+<pre><code class="language-php">{{ $name or &#39;default&#39; }}
+// 效果对应的PHP原生代码
+&lt;?php echo isset($name) ? $name : &#39;default&#39;; ?&gt;
+</code></pre>
+
+<p><strong>禁止花括号被解析</strong>：</p>
+
+<pre><code class="language-php">@{{ $name }} // 输出{{ $name }}}
+</code></pre>
+
+<p><strong>条件控制</strong>：</p>
+
+<pre><code class="language-php">@if($age == 18)
+    i am {{$name}}
+@elseif($age == 19)
+    i am {{$age}}
+@else
+    i am {{$name}}, {{$age}}
+@endif
+</code></pre>
+
+<p><strong>循环控制</strong>：</p>
+
+<pre><code class="language-php">// foreach
+@foreach ($data as $key =&gt; $value)
+    &lt;p&gt;{{$key}} =&gt; {{$value}}&lt;/p&gt;
+@endforeach
+
+// for
+@for ($i = 0; $i &lt; count($data); $i++)
+    {{$i}} =&gt; {{$data[$i]}}
+@endfor
+
+// while
+@while (true)
+    While loop
+@endwhile
+</code></pre>
+
+<p>其中在foreach循环中，可以使用<code>$loop</code>变量获取相应的循环信息。该变量包含的信息有：</p>
+
+<pre><code class="language-markup">object(stdClass)[203]
+  public &#39;iteration&#39; =&gt; int 1       // 第几个item，范围：1~length
+  public &#39;index&#39; =&gt; int 0           // 索引，范围：0~length-1
+  public &#39;remaining&#39; =&gt; int 3       // 倒数，范围：length-1~0
+  public &#39;count&#39; =&gt; int 4           // 总长度，length
+  public &#39;first&#39; =&gt; boolean true    // 是否为第一个
+  public &#39;last&#39; =&gt; boolean false    // 是否为最后一个
+  public &#39;depth&#39; =&gt; int 1           // 当前循环嵌套层级
+  public &#39;parent&#39; =&gt; null           // 父级循环的loop变量信息
+</code></pre>
+
+<h3 id="toc_5">注释</h3>
+
+<pre><code class="language-php">{{-- 注释 --}}
+</code></pre>
+
+<p><em>Mission Complete!</em></p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15504991979563.html" 
+          title="Previous Post: Lumen框架下安装dingo/api和tymon/jwt-auth">&laquo; Lumen框架下安装dingo/api和tymon/jwt-auth</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15465255457808.html" 
+          title="Next Post: 初探Laravel---round 8 控制器">初探Laravel---round 8 控制器 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          <script 
+    src="https://utteranc.es/client.js"
+    repo="AlanAlbert/personal-blog-comments"
+    issue-term="pathname"     
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="https://tvax4.sinaimg.cn/crop.0.0.664.664.180/006k9NITly8fejxhyoc3aj30ig0igmy3.jpg?Expires=1562496252&ssig=LhZKVSOY7F&KID=imgbed,tva" /></div>
+            
+                <h1>Alan的进阶日志</h1>
+                <div class="site-des">与有肝胆人共事，从无字句处读书。</div>
+                <div class="social">
+
+
+<a target="_blank" class="stackoverflow" href="https://stackoverflow.com/users/9723854/alan" title="StackOverflow"></a>
+
+
+
+
+<a target="_blank" class="weibo" href="https://weibo.com/u/5794659803" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/Alan_Albert_" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/AlanAlbert" title="GitHub">GitHub</a>
+<a target="_blank" class="email" href="mailto:alan1766447919@gmail.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+               
+             <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Important</h2>
+                </div>
+                <div class="side-content">
+                  <div style="color:#ff0000; text-align:center; padding:8px;" class="bg-info site_notice">
+                    ① 可以使用GitHub账号登录进行评论哦😁<br/><br/>② 欢迎关注我的个人公众号，一起交流学习~<br/ ><img src="https://mp.weixin.qq.com/mp/qrcode?scene=10000005&size=102&__biz=MzIzNDU0NTc4OA==&mid=100000001&idx=1&sn=34f05b9196beb41e8561cbdfc5de26f5&send_time=1566403069" />
+                  </div>
+                </div>
+            </div>
+    
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="php.html"><strong>PHP</strong></a>
+        
+            <a href="interview.html"><strong>面试</strong></a>
+        
+            <a href="security.html"><strong>安全</strong></a>
+        
+            <a href="linux.html"><strong>Linux</strong></a>
+        
+            <a href="mysql.html"><strong>MySQL</strong></a>
+        
+            <a href="redis.html"><strong>Redis</strong></a>
+        
+            <a href="data-struct-and-algorithm.html"><strong>数据结构及算法</strong></a>
+        
+            <a href="computer-network.html"><strong>计算机网络</strong></a>
+        
+            <a href="version-control-tool.html"><strong>版本控制工具</strong></a>
+        
+            <a href="read.html"><strong>读书</strong></a>
+        
+            <a href="javascript.html"><strong>JavaScript</strong></a>
+        
+            <a href="web-server.html"><strong>Web服务器</strong></a>
+        
+            <a href="hackintosh.html"><strong>黑苹果</strong></a>
+        
+            <a href="markdown.html"><strong>Markdown</strong></a>
+        
+            <a href="other.html"><strong>其它</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15810423370557.html">初探Docker---使用Docker Compose编排容器</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15714902755948.html">初探Docker---编写Dockerfile搭建PHP开发环境</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704551543845.html">初探Docker---Docker及Dockerfile</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15685386915043.html">百万级数据迁移、汇总</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15657597684450.html">PHP实现异步回调的总结</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="asset/prism.js"></script>
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+
+
+  </body>
+</html>

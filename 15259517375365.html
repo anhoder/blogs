@@ -1,0 +1,881 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  PHP内核源码阅读记---round 1 准备工作 - Alan的进阶日志
+  
+  </title>
+  
+  
+  <link href="atom.xml" rel="alternate" title="Alan的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+ 
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:alanalbert.github.io ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">博客</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">归档</a></li>
+        
+        <li id=""><a target="_self" href="about.html">关于</a></li>
+        
+        <li id=""><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Alan的进阶日志</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+        
+        <li><a target="_self" href="index.html">博客</a></li>
+        
+        <li><a target="_self" href="archives.html">归档</a></li>
+        
+        <li><a target="_self" href="about.html">关于</a></li>
+        
+        <li><a target="_blank" href="https://github.com/AlanAlbert">GitHub</a></li>
+        
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="php.html">PHP</a></li>
+        
+            <li><a href="interview.html">面试</a></li>
+        
+            <li><a href="security.html">安全</a></li>
+        
+            <li><a href="linux.html">Linux</a></li>
+        
+            <li><a href="mysql.html">MySQL</a></li>
+        
+            <li><a href="redis.html">Redis</a></li>
+        
+            <li><a href="data-struct-and-algorithm.html">数据结构及算法</a></li>
+        
+            <li><a href="computer-network.html">计算机网络</a></li>
+        
+            <li><a href="version-control-tool.html">版本控制工具</a></li>
+        
+            <li><a href="read.html">读书</a></li>
+        
+            <li><a href="javascript.html">JavaScript</a></li>
+        
+            <li><a href="web-server.html">Web服务器</a></li>
+        
+            <li><a href="hackintosh.html">黑苹果</a></li>
+        
+            <li><a href="markdown.html">Markdown</a></li>
+        
+            <li><a href="other.html">其它</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+              <div class="f-img"><img src="https://source.unsplash.com/random/1024x402" /></div>
+          
+          <h1>PHP内核源码阅读记---round 1 准备工作</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2018/5/10</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='source-code.html'>源码</a></span>
+           
+         
+          <span class="comments">
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<p>一直想了解一下PHP底层源码的实现，同时还可以增强自己的C语言能力，于是颇有兴致的在PHP官网下载了源码，打开整个项目却不知从何下手，然后就找了阅读资料---<a href="https://www.php-internals.com">《TIPI：深入了解PHP内核》</a>、<a href="https://github.com/walu/phpbook/blob/master/preface.md">《PHP扩展开发及内核应用》</a>、《PHP7内核剖析》，感谢各位编写的大佬！   </p>
+
+<p>因此，该系列博客都是在阅读《TIPI：深入了解PHP内核》、《PHP扩展开发及内核应用》、《PHP7内核剖析》过程中自己的一些总结、摘录。</p>
+
+<h2 id="toc_0">一、PHP源码目录结构</h2>
+
+<p>阅读源码自然少不了理解源码各个目录结构和功能，目录结构如下：</p>
+
+<pre><code class="language-markup">.             // 主要包含一些说明文件以及设计方案，有一个比较重要的文件CODING_STANDARDS，如果要想写PHP扩展的话，这个文件一定要阅读一下，它存放了开发的编码规范
+..
+├── build       // 存放源码编译的相关文件
+├── ext         // 官方扩展目录，包括绝大多数PHP函数的定义和实现
+├── main        // 这里存放的就是PHP最为核心的文件了，主要实现PHP的基本设施，这里和Zend引擎不一样，Zend引擎主要实现语言最核心的语言运行环境
+├── pear        // “PHP 扩展与应用仓库”，包含PEAR的核心文件
+├── sapi        // 包含了各种服务器抽象层的代码，例如apache的mod_php，cgi，fastcgi以及fpm等等接口
+├── TSRM        // Thread Safe Resource Manager，线程安全资源管理器，PHP的线程安全是构建在TSRM库之上的
+├── Zend        // Zend引擎，比如脚本的词法语法解析，opcode的执行以及扩展机制的实现等等
+└── tests       // 测试脚本集合
+</code></pre>
+
+<h2 id="toc_1">二、C语言常用代码</h2>
+
+<h3 id="toc_2">1. &quot;##&quot;</h3>
+
+<p>在C语言的宏中，&quot;##&quot;被称为 <strong>连接符</strong>（concatenator），它是一种预处理运算符，用来把两个语言符号(Token)组合成单个语言符号。例如：</p>
+
+<pre><code class="language-c">#define PHP_FUNCTION ZEND_FUNCTION
+#define ZEND_FUNCTION(name) ZEND_NAMED_FUNCTION(ZEND_FN(name))
+#define ZEND_FN(name) zif_##name
+#define ZEND_NAMED_FUNCTION(name) void name(INTERNAL_FUNCTION_PARAMETERS)
+#define INTERNAL_FUNCTION_PARAMETERS int ht, zval *return_value, zval **return_value_ptr, \
+zval *this_ptr, int return_value_used TSRMLS_DC
+
+PHP_FUNCTION(count);
+
+//  预处理器处理以后， PHP_FUCNTION(count);就展开为如下代码
+void zif_count(int ht, zval *return_value, zval **return_value_ptr,
+        zval *this_ptr, int return_value_used TSRMLS_DC)
+</code></pre>
+
+<p>宏ZEND_FN(name)中有一个&quot;##&quot;，它的作用一如之前所说，是一个连接符，将zif和宏的变量name的值连接起来。</p>
+
+<h3 id="toc_3">2、&quot;#&quot;和&quot;##&quot;</h3>
+
+<p>&quot;#&quot;是一种预处理运算符，它的功能是将其后面的宏参数进行字符串化操作，简单说就是在对它所引用的宏变量通过替换后在其左右各加上一个双引号，用比较官方的话说就是将语言符号(Token)转化为字符串。 例如:</p>
+
+<pre><code class="language-c">#define STR(x) #x
+
+int main(int argc char** argv)
+{
+    printf(&quot;%s\n&quot;, STR(It&#39;s a long string)); // 输出 It&#39;s a long string
+    return 0;
+}
+</code></pre>
+
+<p>&quot;##&quot;则是将两个变量连接成一个字符串，例如：</p>
+
+<pre><code class="language-c">#define STR_CONCATE(a, b) a##b
+</code></pre>
+
+<h3 id="toc_4">3、宏定义中的do-while循环</h3>
+
+<pre><code class="language-c">#define ALLOC_ZVAL(z)                                   \
+do {                                                \
+    (z) = (zval*)emalloc(sizeof(zval_gc_info));     \
+    GC_ZVAL_INIT(z);                                \
+} while (0)
+</code></pre>
+
+<p>为什么在宏定义时需要使用do-while语句呢? 这种方式使用于宏定义中存在多语句的情况。举个反例：</p>
+
+<pre><code class="language-c">#define TEST(a, b)  a++;b++;
+
+if (expr)
+    TEST(a, b);
+else
+    do_else();
+</code></pre>
+
+<p>代码经过预处理后：</p>
+
+<pre><code class="language-c">if (expr)
+    a++;b++;
+else
+    do_else();
+</code></pre>
+
+<p>可见预处理后的if-else结构被破坏了，达不到预想的效果，而原因就在于宏只是简单的代码替换。那为什么不用{}代替do{}while(0)呢？我们可以尝试一下：</p>
+
+<pre><code class="language-c">#define Test(a, b)                          \
+{                                       \
+    a++;                                \
+    b++;                                \
+}
+
+if (expr)
+    TEST(a, b);
+else
+    do_else();
+</code></pre>
+
+<p>预处理后：</p>
+
+<pre><code class="language-c">if (expr)
+    {
+        a++;
+        b++;
+    };
+else
+    do_else();
+</code></pre>
+
+<p>可以看到，在}号后面跟了一个分号，这是因为调用宏时，后面的分号可有可无，但是我们会习惯性的加上，这时预处理之后的代码将不能通过编译，所以我们通常使用do{}while(0)结构来应对多表达式的宏定义。</p>
+
+<h2 id="toc_5">三、PHP运行时的一些全局参数</h2>
+
+<pre><code class="language-c">struct _php_core_globals {
+        zend_bool magic_quotes_gpc; //  是否对输入的GET/POST/Cookie数据使用自动字符串转义。
+        zend_bool magic_quotes_runtime; //是否对运行时从外部资源产生的数据使用自动字符串转义
+        zend_bool magic_quotes_sybase;  //   是否采用Sybase形式的自动字符串转义
+
+        zend_bool safe_mode;    //  是否启用安全模式
+
+        zend_bool allow_call_time_pass_reference;   //是否强迫在函数调用时按引用传递参数
+        zend_bool implicit_flush;   //是否要求PHP输出层在每个输出块之后自动刷新数据
+
+        long output_buffering;  //输出缓冲区大小(字节)
+
+        char *safe_mode_include_dir;    //在安全模式下，该组目录和其子目录下的文件被包含时，将跳过UID/GID检查。
+        zend_bool safe_mode_gid;    //在安全模式下，默认在访问文件时会做UID比较检查
+        zend_bool sql_safe_mode;
+        zend_bool enable_dl;    //是否允许使用dl()函数。dl()函数仅在将PHP作为apache模块安装时才有效。
+
+        char *output_handler;   // 将所有脚本的输出重定向到一个输出处理函数。
+
+        char *unserialize_callback_func;    // 如果解序列化处理器需要实例化一个未定义的类，这里指定的回调函数将以该未定义类的名字作为参数被unserialize()调用，
+        long serialize_precision;   //将浮点型和双精度型数据序列化存储时的精度(有效位数)。
+
+        char *safe_mode_exec_dir;   //在安全模式下，只有该目录下的可执行程序才允许被执行系统程序的函数执行。
+
+        long memory_limit;  //一个脚本所能够申请到的最大内存字节数(可以使用K和M作为单位)。
+        long max_input_time;    // 每个脚本解析输入数据(POST, GET, upload)的最大允许时间(秒)。
+
+        zend_bool track_errors; //是否在变量$php_errormsg中保存最近一个错误或警告消息。
+        zend_bool display_errors;   //是否将错误信息作为输出的一部分显示。
+        zend_bool display_startup_errors;   //是否显示PHP启动时的错误。
+        zend_bool log_errors;   // 是否在日志文件里记录错误，具体在哪里记录取决于error_log指令
+        long      log_errors_max_len;   //设置错误日志中附加的与错误信息相关联的错误源的最大长度。
+        zend_bool ignore_repeated_errors;   //   记录错误日志时是否忽略重复的错误信息。
+        zend_bool ignore_repeated_source;   //是否在忽略重复的错误信息时忽略重复的错误源。
+        zend_bool report_memleaks;  //是否报告内存泄漏。
+        char *error_log;    //将错误日志记录到哪个文件中。
+
+        char *doc_root; //PHP的”根目录”。
+        char *user_dir; //告诉php在使用 /~username 打开脚本时到哪个目录下去找
+        char *include_path; //指定一组目录用于require(), include(), fopen_with_path()函数寻找文件。
+        char *open_basedir; // 将PHP允许操作的所有文件(包括文件自身)都限制在此组目录列表下。
+        char *extension_dir;    //存放扩展库(模块)的目录，也就是PHP用来寻找动态扩展模块的目录。
+
+        char *upload_tmp_dir;   // 文件上传时存放文件的临时目录
+        long upload_max_filesize;   // 允许上传的文件的最大尺寸。
+
+        char *error_append_string;  // 用于错误信息后输出的字符串
+        char *error_prepend_string; //用于错误信息前输出的字符串
+
+        char *auto_prepend_file;    //指定在主文件之前自动解析的文件名。
+        char *auto_append_file; //指定在主文件之后自动解析的文件名。
+
+        arg_separators arg_separator;   //PHP所产生的URL中用来分隔参数的分隔符。
+
+        char *variables_order;  // PHP注册 Environment, GET, POST, Cookie, Server 变量的顺序。
+
+        HashTable rfc1867_protected_variables;  //  RFC1867保护的变量名，在main/rfc1867.c文件中有用到此变量
+
+        short connection_status;    //  连接状态，有三个状态，正常，中断，超时
+        short ignore_user_abort;    //  是否即使在用户中止请求后也坚持完成整个请求。
+
+        unsigned char header_is_being_sent; //  是否头信息正在发送
+
+        zend_llist tick_functions;  //  仅在main目录下的php_ticks.c文件中有用到，此处定义的函数在register_tick_function等函数中有用到。
+
+        zval *http_globals[6];  // 存放GET、POST、SERVER等信息
+
+        zend_bool expose_php;   //  是否展示php的信息
+
+        zend_bool register_globals; //  是否将 E, G, P, C, S 变量注册为全局变量。
+        zend_bool register_long_arrays; //   是否启用旧式的长式数组(HTTP_*_VARS)。
+        zend_bool register_argc_argv;   //  是否声明$argv和$argc全局变量(包含用GET方法的信息)。
+        zend_bool auto_globals_jit; //  是否仅在使用到$_SERVER和$_ENV变量时才创建(而不是在脚本一启动时就自动创建)。
+
+        zend_bool y2k_compliance;   //是否强制打开2000年适应(可能在非Y2K适应的浏览器中导致问题)。
+
+        char *docref_root;  // 如果打开了html_errors指令，PHP将会在出错信息上显示超连接，
+        char *docref_ext;   //指定文件的扩展名(必须含有’.&#39;)。
+
+        zend_bool html_errors;  //是否在出错信息中使用HTML标记。
+        zend_bool xmlrpc_errors;   
+
+        long xmlrpc_error_number;
+
+        zend_bool activated_auto_globals[8];
+
+        zend_bool modules_activated;    //  是否已经激活模块
+        zend_bool file_uploads; //是否允许HTTP文件上传。
+        zend_bool during_request_startup;   //是否在请求初始化过程中
+        zend_bool allow_url_fopen;  //是否允许打开远程文件
+        zend_bool always_populate_raw_post_data;    //是否总是生成$HTTP_RAW_POST_DATA变量(原始POST数据)。
+        zend_bool report_zend_debug;    //  是否打开zend debug，仅在main/main.c文件中有使用。
+
+        int last_error_type;    //  最后的错误类型
+        char *last_error_message;   //  最后的错误信息
+        char *last_error_file;  //  最后的错误文件
+        int  last_error_lineno; //  最后的错误行
+
+        char *disable_functions;    //该指令接受一个用逗号分隔的函数名列表，以禁用特定的函数。
+        char *disable_classes;  //该指令接受一个用逗号分隔的类名列表，以禁用特定的类。
+        zend_bool allow_url_include;    //是否允许include/require远程文件。
+        zend_bool exit_on_timeout;  //  超时则退出
+#ifdef PHP_WIN32
+        zend_bool com_initialized;
+#endif
+        long max_input_nesting_level;   //最大的嵌套层数
+        zend_bool in_user_include;  //是否在用户包含空间
+
+        char *user_ini_filename;    //  用户的ini文件名
+        long user_ini_cache_ttl;    //  ini缓存过期限制
+
+        char *request_order;    //  优先级比variables_order高，在request变量生成时用到，个人觉得是历史遗留问题
+
+        zend_bool mail_x_header;    //  仅在ext/standard/mail.c文件中使用，
+        char *mail_log;
+
+        zend_bool in_error_log;
+};
+</code></pre>
+
+<p>上面很多字段都是直接与php.ini配置文件中的配置项对应。在PHP启动并读取php.ini文件时就会对这些字段进行赋值。</p>
+
+<h2 id="toc_6">四、C语言中的union（联合体）</h2>
+
+<p>联合体与结构体很相似，但两者有本质上的区别，简单了解一下两个结构的区别：</p>
+
+<blockquote>
+<p>结构体：占用空间是其内部成员的占用空间总大小；所有成员同时存在。<br/>
+联合体：内部成员共享一段内存空间，其空间大小取决于成员中占用空间最大者；联合体的值是取自其内部任意一个成员的值。</p>
+</blockquote>
+
+<p>例：</p>
+
+<pre><code class="language-c">/* 结构体 */
+struct {
+  int id;
+  char ch;
+} s_test;
+
+/* 联合体 */
+union {
+  int id;
+  char ch;
+} u_test;
+</code></pre>
+
+<p>s_test中的id与ch变量同时存在，而u_test中只可以存在一种。</p>
+
+<blockquote>
+<p><em>想了解更多关于联合体的信息，请直走===&gt;<a href="https://www.baidu.com/s?wd=%E8%81%94%E5%90%88%E4%BD%93">联合体</a></em></p>
+</blockquote>
+
+<p><em>Mission Complete!</em></p>
+
+
+    
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="15262171801563.html" 
+          title="Previous Post: PHP内核源码阅读记---round 2 SAPI与PHP的启动及终止">&laquo; PHP内核源码阅读记---round 2 SAPI与PHP的启动及终止</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="15258440281260.html" 
+          title="Next Post: 简单介绍pjax">简单介绍pjax &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          <script 
+    src="https://utteranc.es/client.js"
+    repo="AlanAlbert/personal-blog-comments"
+    issue-term="pathname"     
+    theme="github-light"
+    crossorigin="anonymous"
+    async>
+</script>
+
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="https://tvax4.sinaimg.cn/crop.0.0.664.664.180/006k9NITly8fejxhyoc3aj30ig0igmy3.jpg?Expires=1562496252&ssig=LhZKVSOY7F&KID=imgbed,tva" /></div>
+            
+                <h1>Alan的进阶日志</h1>
+                <div class="site-des">与有肝胆人共事，从无字句处读书。</div>
+                <div class="social">
+
+
+<a target="_blank" class="stackoverflow" href="https://stackoverflow.com/users/9723854/alan" title="StackOverflow"></a>
+
+
+
+
+<a target="_blank" class="weibo" href="https://weibo.com/u/5794659803" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/Alan_Albert_" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/AlanAlbert" title="GitHub">GitHub</a>
+<a target="_blank" class="email" href="mailto:alan1766447919@gmail.com" title="Email">Email</a>
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+               
+             <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Important</h2>
+                </div>
+                <div class="side-content">
+                  <div style="color:#ff0000; text-align:center; padding:8px;" class="bg-info site_notice">
+                    ① 可以使用GitHub账号登录进行评论哦😁<br/><br/>② 欢迎关注我的个人公众号，一起交流学习~<br/ ><img src="https://mp.weixin.qq.com/mp/qrcode?scene=10000005&size=102&__biz=MzIzNDU0NTc4OA==&mid=100000001&idx=1&sn=34f05b9196beb41e8561cbdfc5de26f5&send_time=1566403069" />
+                  </div>
+                </div>
+            </div>
+    
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="php.html"><strong>PHP</strong></a>
+        
+            <a href="interview.html"><strong>面试</strong></a>
+        
+            <a href="security.html"><strong>安全</strong></a>
+        
+            <a href="linux.html"><strong>Linux</strong></a>
+        
+            <a href="mysql.html"><strong>MySQL</strong></a>
+        
+            <a href="redis.html"><strong>Redis</strong></a>
+        
+            <a href="data-struct-and-algorithm.html"><strong>数据结构及算法</strong></a>
+        
+            <a href="computer-network.html"><strong>计算机网络</strong></a>
+        
+            <a href="version-control-tool.html"><strong>版本控制工具</strong></a>
+        
+            <a href="read.html"><strong>读书</strong></a>
+        
+            <a href="javascript.html"><strong>JavaScript</strong></a>
+        
+            <a href="web-server.html"><strong>Web服务器</strong></a>
+        
+            <a href="hackintosh.html"><strong>黑苹果</strong></a>
+        
+            <a href="markdown.html"><strong>Markdown</strong></a>
+        
+            <a href="other.html"><strong>其它</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="15810423370557.html">初探Docker---使用Docker Compose编排容器</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15714902755948.html">初探Docker---编写Dockerfile搭建PHP开发环境</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15704551543845.html">初探Docker---Docker及Dockerfile</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15685386915043.html">百万级数据迁移、汇总</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="15657597684450.html">PHP实现异步回调的总结</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2015
+Powered by <a target="_blank" href="http://www.mweb.im">MWeb</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="asset/prism.js"></script>
+
+
+<style type="text/css">
+figure{margin: 0;padding: 0;}
+figcaption{text-align:center;}
+
+/* PrismJS 1.14.0
+ http://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background:#b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #b3d4fc;
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #F7F7F7;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .1em;
+    border-radius: .3em;
+    white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: slategray;
+}
+
+.token.punctuation {
+    color: #999;
+}
+
+.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #9a6e3a;
+    background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #07a;
+}
+
+.token.function,
+.token.class-name {
+    color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #e90;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+
+pre[class*="language-"].line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em; /* works for line-numbers below 1000 lines */
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+}
+
+    .line-numbers-rows > span {
+        pointer-events: none;
+        display: block;
+        counter-increment: linenumber;
+    }
+
+        .line-numbers-rows > span:before {
+            content: counter(linenumber);
+            color: #999;
+            display: block;
+            padding-right: 0.8em;
+            text-align: right;
+        }
+
+</style>
+
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+
+
+  </body>
+</html>

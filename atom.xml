@@ -1,0 +1,2773 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Alan的进阶日志]]></title>
+  <link href="https://alanalbert.github.io/atom.xml" rel="self"/>
+  <link href="https://alanalbert.github.io/"/>
+  <updated>2020-02-07T17:25:41+08:00</updated>
+  <id>https://alanalbert.github.io/</id>
+  <author>
+    <name><![CDATA[]]></name>
+    
+  </author>
+  <generator uri="http://www.mweb.im/">MWeb</generator>
+  
+  <entry>
+    <title type="html"><![CDATA[初探Docker---使用Docker Compose编排容器]]></title>
+    <link href="https://alanalbert.github.io/15810423370557.html"/>
+    <updated>2020-02-07T10:25:37+08:00</updated>
+    <id>https://alanalbert.github.io/15810423370557.html</id>
+    <content type="html"><![CDATA[
+<p>使用Docker Compose将之前使用Docker搭建的PHP开发环境进行编排。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">什么是Docker Compose？</h2>
+
+<p>Docker Compose是Docker官方编排项目之一，可以快速部署应用。</p>
+
+<p>其使用一个单独的YAML文件（docker-compose.yml）来定义一组相关联的应用容器为一个项目。</p>
+
+<p>Docker Compose不是必须使用的，你也可以只使用Docker来构建项目。Docker Compose只是提供一种更简单方便的方式来管理应用容器。</p>
+
+<h2 id="toc_1">编排PHP开发环境</h2>
+
+<pre><code class="language-yaml">version: &quot;3&quot;
+
+## 网络
+networks:
+    frontend:
+        driver: bridge
+    backend:
+        driver: bridge
+
+services:
+    ## PHP-FPM
+    php-fpm:
+        container_name: alan_php-fpm # 容器名
+        build: 
+            context: ./php-fpm
+        volumes: 
+            - ${WEBSITES_DIR}:/home/www # 站点目录
+            - ${PHP_FPM_LOG_DIR}:/var/log/php-fpm # php-fpm日志
+            - ${PHP_FPM_INI}:/usr/local/etc/php # php-fpm配置文件
+        ports: 
+            - &quot;${PHP_FPM_PORT}:9000&quot; # php-fpm端口
+            - &quot;${SWOFT_PORT}:18306&quot;  # 预留swoft端口
+        networks:
+            - backend 
+
+        
+    ## Nginx
+    nginx:
+        container_name: alan_nginx # 容器名
+        build:
+            context: ./nginx 
+        volumes: 
+            - ${WEBSITES_DIR}:/home/www # 站点目录
+            - ${NGINX_LOG_DIR}:/var/log/nginx # Nginx日志
+            - ${NGINX_CONF}:/etc/nginx/conf.d # Nginx配置文件
+        ports: 
+            - &quot;${NGINX_PORT}:80&quot; # Nginx端口
+        depends_on:
+            - php-fpm # 依赖与php-fpm
+        networks:
+            - frontend
+            - backend
+
+    
+    ## MySQL
+    mysql:
+        container_name: alan_mysql # 容器名
+        build: 
+            context: ./mysql
+        volumes: 
+            - ${MYSQL_DATA}:/var/lib/mysql # MySQL数据存储位置
+            - ${MYSQL_CONF}:/etc/mysql/conf.d # MySQL配置文件
+        ports: 
+            - &quot;${MYSQL_PORT}:3306&quot; # MySQL端口
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # MySQL的root密码
+            MYSQL_USER: ${MYSQL_USER} # MySQL用户
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD} # MySQL密码
+            MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD} # 是否允许空密码
+        networks:
+            - backend
+
+    
+    ## Redis
+    redis:
+        container_name: alan_redis #容器名
+        build: 
+            context: ./redis
+        ports: 
+            - &quot;${REDIS_PORT}:6379&quot; # Redis端口
+        networks:
+            - backend
+
+</code></pre>
+
+<p>其中的变量（例如：${REDIS_PORT}）可以在.env文件中进行自定义。</p>
+
+<h2 id="toc_2">ENV环境变量文件示例</h2>
+
+<p>.env配置文件的样例：</p>
+
+<pre><code class="language-env"># web站点目录
+WEBSITES_DIR=./www
+
+
+## PHP-FPM
+# PHP-FPM日志
+PHP_FPM_LOG_DIR=./logs/php-fpm
+
+# PHP-FPM配置
+PHP_FPM_INI=./php-fpm/php
+
+# PHP-FPM端口
+PHP_FPM_PORT=9000
+
+# SWOFT端口
+SWOFT_PORT=18306
+
+
+## Nginx
+# Nginx日志
+NGINX_LOG_DIR=./logs/nginx
+
+# Nginx配置
+NGINX_CONF=./nginx/sites
+
+# Nginx端口
+NGINX_PORT=8081
+
+
+## MySQL
+# MySQL数据
+MYSQL_DATA=./data
+
+# MySQL配置
+MYSQL_CONF=./mysql/conf.d
+
+# MySQL端口
+MYSQL_PORT=3306
+
+
+## Redis
+# Redis端口
+REDIS_PORT=6379
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[初探Docker---编写Dockerfile搭建PHP开发环境]]></title>
+    <link href="https://alanalbert.github.io/15714902755948.html"/>
+    <updated>2019-10-19T21:04:35+08:00</updated>
+    <id>https://alanalbert.github.io/15714902755948.html</id>
+    <content type="html"><![CDATA[
+<p>使用Dockerfile搭建PHP开发环境（之后添加docker-compose），项目地址见<strong>原文链接</strong>。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">一、编写Dockerfile</h2>
+
+<h3 id="toc_1">1. PHP-FPM</h3>
+
+<pre><code class="language-dockerfile">FROM php:7.2-fpm
+
+LABEL maintainer=&quot;AlanAlbert&quot; version=&quot;1.0&quot; description=&quot;php-fpm(php 7.2)&quot;
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+
+# 复制php配置文件、php-fpm配置文件
+COPY php.ini /usr/local/etc/php/
+COPY php-fpm.conf /usr/local/etc/
+COPY php-fpm.d/* /usr/local/etc/php-fpm.d/
+
+# 安装PHP扩展——swoole、redis、pdo_mysql、mysqli
+RUN docker-php-ext-install pdo_mysql mysqli \
+    &amp;&amp; pecl install redis swoole \
+    &amp;&amp; docker-php-ext-enable redis swoole
+
+# 挂载站点目录、php-fpm日志目录为匿名卷
+VOLUME /home/www /var/log/php-fpm
+
+# 添加www用户及切换站点目录所有者
+RUN useradd www \
+    &amp;&amp; chown -R www /home/www
+
+# 切换工作目录为根目录
+WORKDIR /
+
+# 容器启动时执行命令
+CMD [&quot;/usr/local/sbin/php-fpm&quot;]
+
+# 声明使用9000端口
+EXPOSE 9000
+</code></pre>
+
+<h3 id="toc_2">2. Nginx</h3>
+
+<pre><code class="language-dockerfile">FROM nginx
+
+LABEL maintainer=&quot;AlanAlbert&quot; version=&quot;1.0&quot; description=&quot;nginx&quot;
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+
+# 复制Nginx配置
+COPY nginx.conf /etc/nginx/
+COPY sites/*.conf /etc/nginx/conf.d/
+
+# 挂载站点、Nginx日志为匿名卷
+VOLUME /home/www /var/log/nginx
+
+# 添加www用户、更换站点目录所有者
+RUN useradd www \
+    &amp;&amp; chown -R www /home/www
+
+# 设置工作目录
+WORKDIR /home/www
+
+# 设置容器启动时执行的命令
+CMD [&quot;/usr/sbin/nginx&quot;]
+
+# 声明使用的端口
+EXPOSE 80 443
+</code></pre>
+
+<h3 id="toc_3">3. MySQL</h3>
+
+<pre><code class="language-dockerfile">FROM mysql:5.7
+
+LABEL maintainer=&quot;AlanAlbert&quot; version=&quot;1.0&quot; description=&quot;mysql&quot;
+
+# 设置环境变量
+ENV MYSQL_ALLOW_EMPTY_PASSWORD=true \
+    MYSQL_ROOT_PASSWORD=&quot;&quot; \
+    TZ=Asia/Shanghai
+
+# 复制MySQL配置
+COPY my.cnf /etc/mysql/
+
+# 挂载MySQL数据目录为匿名卷
+VOLUME /var/lib/mysql
+
+# 声明使用的端口
+EXPOSE 3306
+</code></pre>
+
+<h3 id="toc_4">4. Redis</h3>
+
+<pre><code class="language-dockerfile">FROM redis
+
+LABEL maintainer=&quot;AlanAlbert&quot; version=&quot;1.0&quot; description=&quot;redis&quot;
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+
+# 声明需要使用的端口
+EXPOSE 6379
+</code></pre>
+
+<h2 id="toc_5">二、编写shell脚本管理容器</h2>
+
+<p>因为暂时没有使用docker-compose，而docker命令较长，很复杂，所以编写脚本来管理容器</p>
+
+<h3 id="toc_6">1. build</h3>
+
+<pre><code class="language-bash">#!/bin/bash
+
+# 发生错误，中断执行
+set -e
+
+echo &quot;开始构建...&quot;
+echo &quot;正在构建PHP-FPM...&quot;
+
+# 构建PHP-FPM镜像，并设置名称为alan/php-fpm
+docker build -t alan/php-fpm php-fpm
+
+# 创建PHP-FPM容器。
+# 1. -p: 将容器9000端口映射到物理机9000端口；
+# 2. --name: 指定名称为alan_php-fpm；
+# 3. -i: 开启容器标准输入
+# 4. -t: 分配一个伪输入终端
+# 5. -v: 挂载www目录到/home/www、logs/php-fpm目录到/car/log/php-fpm
+# 6. --network: 连接到alan_php_env网络
+docker create -p 9000:9000 --name alan_php-fpm -it -v `pwd`/www:/home/www -v `pwd`/logs/php-fpm:/var/log/php-fpm --network alan_php_env alan/php-fpm
+
+echo &quot;PHP-FPM构建完成.&quot;
+echo &quot;正在构建Nginx...&quot;
+
+# 构建Nginx镜像，设置名称为alan/nginx
+docker build -t alan/nginx nginx
+
+# 创建Nginx容器。
+# 1. -p: 映射端口
+# 2. --name: 设置镜像名称
+# 3. -i: 开启标准输入
+# 4. -t: 分配伪输入终端
+# 5. -v: 挂载目录
+# 6. --network: 连接网络
+docker create -p 80:80 --name alan_nginx -it -v `pwd`/www:/home/www -v `pwd`/logs/nginx:/var/log/nginx --network alan_php_env alan/nginx
+
+echo &quot;Nginx构建完成.&quot;
+echo &quot;正在构建MySQL...&quot;
+
+# 构建MySQL镜像
+docker build -t alan/mysql mysql
+
+# 创建MySQL容器
+docker create -p 3306:3306 --name alan_mysql -it -v `pwd`/data:/var/lib/mysql --network alan_php_env alan/mysql
+
+echo &quot;MySQL构建完成.&quot;
+echo &quot;正在构建Redis...&quot;
+
+# 构建Redis镜像
+docker build -t alan/redis redis
+
+# 创建Redis容器
+# --requirepass: 设置Redis密码
+docker create -p 6379:6379 --name alan_redis -it --network alan_php_env alan/redis --requirepass &quot;&quot;
+
+echo &quot;Redis构建完成.&quot;
+echo &quot;正在创建网络...&quot;
+
+# 创建bridge网络
+docker network create -d bridge alan_php_env
+
+echo &quot;网络创建完成.&quot;
+echo &quot;构建完成.&quot;
+</code></pre>
+
+<h3 id="toc_7">2. start</h3>
+
+<pre><code class="language-bash">#!/bin/bash
+set -e
+
+echo &quot;正在启动...&quot;
+
+# 启动所有容器
+docker start alan_php-fpm alan_nginx alan_mysql alan_redis
+
+echo &quot;启动完成.&quot;
+
+</code></pre>
+
+<h3 id="toc_8">3. stop</h3>
+
+<pre><code class="language-bash">#!/bin/bash
+
+echo &quot;正在停止...&quot;
+
+# 停止所有容器
+docker stop alan_redis alan_mysql alan_nginx alan_php-fpm
+
+echo &quot;已停止.&quot;
+</code></pre>
+
+<h3 id="toc_9">4. restart</h3>
+
+<pre><code class="language-bash">#!/bin/bash
+set -e
+
+echo &quot;正在重启...&quot;
+
+# 重启所有镜像
+docker restart alan_redis alan_mysql alan_nginx alan_php-fpm
+
+echo &quot;重启完成.&quot;
+</code></pre>
+
+<h3 id="toc_10">5. uninstall</h3>
+
+<pre><code class="language-bash">#!/bin/bash
+
+# 停止所有容器 &amp;&amp; 删除所有容器 &amp;&amp; 删除所有镜像 &amp;&amp; 删除网络
+
+echo &quot;正在卸载...&quot;
+echo &quot;正在停止运行容器...&quot;
+
+docker stop alan_redis alan_mysql alan_nginx alan_php-fpm
+
+echo &quot;已停止.&quot;
+echo &quot;正在删除容器...&quot;
+
+docker rm alan_redis alan_mysql alan_nginx alan_php-fpm
+
+echo &quot;已删除容器.&quot;
+echo &quot;正在删除镜像...&quot;
+
+docker rmi alan/redis alan/mysql alan/nginx alan/php-fpm
+
+echo &quot;已删除镜像.&quot;
+echo &quot;正在删除网络...&quot;
+
+docker network rm alan_php_env
+
+echo &quot;已删除网络.&quot;
+echo &quot;卸载完成.&quot;
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[初探Docker---Docker及Dockerfile]]></title>
+    <link href="https://alanalbert.github.io/15704551543845.html"/>
+    <updated>2019-10-07T21:32:34+08:00</updated>
+    <id>https://alanalbert.github.io/15704551543845.html</id>
+    <content type="html"><![CDATA[
+<p>学习Docker过程中自己的一些理解。</p>
+
+<ul>
+<li>什么是Docker、Dockerfile？</li>
+<li>怎么使用Docker？</li>
+<li>如何编写Dockerfile？</li>
+</ul>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">1. 镜像</h2>
+
+<p>镜像是一种特殊的文件系统，包含所需要的程序、资源、库、配置等文件，还有一些为运行时准备的配置参数。Docker镜像并不是一个文件，而是由多层文件系统联合组成的。镜像是一层一层构建的，而且删除前一层文件的操作并不是真的删除文件，而是将其标记为该文件已删除。</p>
+
+<h2 id="toc_1">2. 容器</h2>
+
+<p>容器是使用镜像来创建的，其类似于<code>类</code>与<code>对象</code>的关系：</p>
+
+<ul>
+<li>镜像是<code>类</code>，是静态的定义；</li>
+<li>容器是实例化的<code>对象</code>，是动态运行时的实体。</li>
+</ul>
+
+<h2 id="toc_2">3. 仓库</h2>
+
+<p><strong>仓库（Repository）</strong>是一个集中存储、分发镜像的场所，例如：存放Ubuntu镜像的仓库是Ubuntu仓库。另一个概念是<strong>注册服务器（Registry）</strong>，注册服务器是存放仓库的地方。</p>
+
+<h2 id="toc_3">4. docker命令列表</h2>
+
+<ul>
+<li><code>docker help</code>: 获取帮助信息</li>
+<li><code>docker exec</code>: 在正在运行的容器中运行命令</li>
+<li><code>docker pull</code>: 从服务器提取镜像或存储库</li>
+<li><code>docker ps</code>: 列出容器信息</li>
+<li><code>docker images</code>: 列出所有镜像</li>
+<li><code>docker build</code>: 通过Dockerfile构建镜像</li>
+<li><code>docker create IMAGE</code>: 创建一个新的容器但不启动</li>
+<li><code>docker run IMAGE [COMMAND]</code>: 创建一个新容器并运行一个命令</li>
+<li><code>docker restart CONTAINER</code>: 重启容器</li>
+<li><code>docker start CONTAINER</code>: 启动一个或多个容器</li>
+<li><code>docker stop CONTAINER</code>: 停止容器</li>
+<li><code>docker top CONTAINER</code>: 查看容器中运行的进程信息</li>
+<li><code>docker rm</code>: 删除容器</li>
+<li><code>docker rmi</code>: 删除镜像</li>
+<li><code>docker volume</code>: 数据卷管理</li>
+<li><code>docker network</code>: 网络管理</li>
+<li><code>docker commit</code>: 从当前更改的容器状态创建新镜像</li>
+<li><code>docker search</code>: 在服务器中搜索镜像</li>
+<li><code>docker version</code>: 查看docker版本信息</li>
+<li><code>docker attach</code>: 将本地输入、输出、错误流附加到正在运行的容器</li>
+<li><code>docker history</code>: 查看镜像历史记录</li>
+<li><code>docker info</code>: 显示设备信息</li>
+<li><code>docker inspect</code>: 获取容器/镜像的元数据</li>
+<li><code>docker login</code>: 登录到服务器</li>
+<li><code>docker pause CONTAINER</code>: 暂停容器中所有的进程</li>
+<li><code>docker unpause CONTAINER</code>: 恢复容器中的所有进程</li>
+<li><code>docker kill CONTAINER</code>: 杀掉一个运行中的容器</li>
+</ul>
+
+<h2 id="toc_4">5. Dockerfile</h2>
+
+<p>Dockerfile中提供了很多指令，以下将会提到这些指令的作用和用法。</p>
+
+<h3 id="toc_5"><code>FROM</code></h3>
+
+<ul>
+<li><p>指定<strong>基础镜像</strong>。如: nginx, ubunu等。</p></li>
+<li><p>还可以使用空白镜像(<code>scratch</code>)作为基础镜像。</p></li>
+</ul>
+
+<blockquote>
+<p>使用：<code>FROM nginx</code>，或指定版本<code>FROM ubuntu:stretch</code></p>
+</blockquote>
+
+<h3 id="toc_6"><code>RUN</code></h3>
+
+<ul>
+<li><p>运行命令。</p></li>
+<li><p>可以运行可执行文件：<code>RUN [&quot;可执行文件&quot;, &quot;参数1&quot;, &quot;参数2&quot;]</code></p></li>
+</ul>
+
+<blockquote>
+<p>使用：<code>RUN echo &#39;测试&#39; &gt; a.txt</code></p>
+</blockquote>
+
+<h3 id="toc_7"><code>COPY</code></h3>
+
+<ul>
+<li><p>复制文件。</p></li>
+<li><p>可以使用通配符：<code>COPY *.txt /var/www/</code></p></li>
+<li><p>可以指定复制后文件的所属用户及组：<code>COPY --chown=name a.txt /var/www/</code></p></li>
+</ul>
+
+<blockquote>
+<p>使用：<code>COPY a.txt /var/www/</code></p>
+</blockquote>
+
+<h3 id="toc_8"><code>ADD</code></h3>
+
+<ul>
+<li><p>高级的<code>COPY</code>指令，可以指定URL。从URL下载的文件默认权限为600。</p></li>
+<li><p>该命令可以用<code>RUN</code>指令执行<code>wget</code>或<code>curl</code>替换</p></li>
+</ul>
+
+<p><strong>不推荐使用</strong></p>
+
+<h3 id="toc_9"><code>CMD</code></h3>
+
+<ul>
+<li><p>Docker容器启动时执行。</p></li>
+<li><p>与RUN指令一样，该指令也支持exec、shell两种写法：<code>CMD &lt;命令&gt;</code>、 <code>CMD [&quot;可执行文件&quot;, &quot;参数1&quot;, &quot;参数2&quot;...]</code></p></li>
+<li><p>一个Dockerfile只能有一个CMD命令。</p></li>
+</ul>
+
+<blockquote>
+<p>使用: <code>CMD [&quot;curl&quot;, &quot;-s&quot;, &quot;https://dogedoge.com&quot;]</code></p>
+</blockquote>
+
+<h3 id="toc_10"><code>ENTRYPOINT</code></h3>
+
+<ul>
+<li><p>与<code>CMD</code>指令一样，用于指定容器启动程序及参数。</p></li>
+<li><p>同样支持exec及shell写法</p></li>
+<li><p>与CMD指令的区别在于：command会作为参数传递给ENTRYPOINT指令</p></li>
+</ul>
+
+<blockquote>
+<p>使用：<code>ENTRYPOINT [&quot;curl&quot;, &quot;-s&quot;, &quot;https://dogedoge.com&quot;]</code></p>
+</blockquote>
+
+<h3 id="toc_11"><code>ENV</code></h3>
+
+<ul>
+<li>设置环境变量</li>
+</ul>
+
+<blockquote>
+<p>使用：<code>ENV &lt;key&gt; &lt;value&gt;</code> 或 <code>ENV &lt;key1&gt;=&lt;value1&gt; &lt;key2&gt;=&lt;value2&gt; ...</code></p>
+</blockquote>
+
+<h3 id="toc_12"><code>ARG</code></h3>
+
+<ul>
+<li>与ENV指令效果一样，都是设置环境变量。但ARG设置的环境变量在容器运行时是不会存在的</li>
+</ul>
+
+<blockquote>
+<p>使用：<code>ARG name=Alan</code></p>
+</blockquote>
+
+<h3 id="toc_13"><code>VOLUME</code></h3>
+
+<ul>
+<li><p>挂载匿名卷(volume)。为了防止用户在运行时忘记将动态文件所在的文件挂载为卷(docker -v)，我们可以事先在Dockerfile中指定挂载某些目录为匿名卷。</p></li>
+<li><p>Docker运行时应保持容器存储层不发生写操作，容器存储层的数据在容器停止后不会持续存在。所以将数据写入到卷中，可以持久化存储数据，提高性能。</p></li>
+</ul>
+
+<blockquote>
+<p>使用：<code>VOLUME /var/data</code></p>
+</blockquote>
+
+<h3 id="toc_14"><code>EXPOSE</code></h3>
+
+<ul>
+<li><p>声明打算使用的端口。</p></li>
+<li><p>与<code>docker -p &lt;宿主端口&gt;:&lt;容器端口&gt;</code>不同，<code>EXPOSE</code>只是声明打算使用的端口，并不会自动做端口映射</p>
+<blockquote>
+<p>使用：<code>EXPOSE 8080</code></p>
+</blockquote></li>
+</ul>
+
+<h3 id="toc_15"><code>WORKDIR</code></h3>
+
+<ul>
+<li>指定当前工作目录。</li>
+</ul>
+
+<blockquote>
+<p>使用：<code>WORKDIR /var/data</code></p>
+</blockquote>
+
+<h3 id="toc_16"><code>USER</code></h3>
+
+<ul>
+<li>指定当前用户，<code>USER &lt;用户名&gt;:&lt;用户组&gt;</code></li>
+</ul>
+
+<blockquote>
+<p>使用：<code>USER php</code></p>
+</blockquote>
+
+<h3 id="toc_17"><code>HEALTHCHECK</code></h3>
+
+<ul>
+<li>检查容器的健康状况</li>
+</ul>
+
+<blockquote>
+<p>使用：<code>HEALTHCHECK [选项] CMD [命令]</code> 或 <code>HEALTHCHECK NONE</code></p>
+</blockquote>
+
+<h3 id="toc_18"><code>ONBUILD</code></h3>
+
+<ul>
+<li>当该镜像作为基础镜像被其他镜像使用时才会被执行。</li>
+</ul>
+
+<blockquote>
+<p>使用：<code>ONBUILD RUN [&quot;npm&quot;, &quot;install&quot;]</code></p>
+</blockquote>
+
+<hr/>
+
+<p><em>下一篇：<a href="#">初探Docker---编写Dockerfile搭建PHP的开发环境</a></em></p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[百万级数据迁移、汇总]]></title>
+    <link href="https://alanalbert.github.io/15685386915043.html"/>
+    <updated>2019-09-15T17:11:31+08:00</updated>
+    <id>https://alanalbert.github.io/15685386915043.html</id>
+    <content type="html"><![CDATA[
+<p>最近在工作中，需要对一些数据表的数据进行迁移及汇总，所以总结下自己遇到的问题及解决方案。<br/>
+<a href="https://packagist.org/packages/alanalbert/data-segmenter">data-segmenter</a></p>
+
+<span id="more"></span><!-- more -->
+
+<p><img src="https://source.unsplash.com/random/1024x400" alt="图片"/></p>
+
+<h2 id="toc_0">一、数据迁移</h2>
+
+<p>对百万级数据进行数据迁移。</p>
+
+<h3 id="toc_1">1. 问题</h3>
+
+<p>在进行迁移过程中，因为数据量比较大，且存在内存限制，因此将所有数据一次全部取出来是肯定不行的。那如何进行数据迁移呢？</p>
+
+<h3 id="toc_2">2. 解决方法</h3>
+
+<p>既然一次装不下所有数据，那就使用<strong>分段的形式</strong>来依次读取。</p>
+
+<ul>
+<li>说到分段读取，最先想到的就是使用MySQL提供的分段方式 <code>limit m,n</code> 来读取数据。</li>
+</ul>
+
+<blockquote>
+<p>但是使用<code>limit m,n</code>进行分段取数据，MySQL需要首先计算出m行数据，然后往后取n条。因此当m值越大，查询速度就会越慢。</p>
+</blockquote>
+
+<ul>
+<li>另外一种方式，用<code>where</code>条件查询来查询数据，进而让MySQL使用到索引。</li>
+</ul>
+
+<blockquote>
+<p>每个数据表都会有一个自增ID，我们可以使用这个自增ID作为条件判断。每次取出数据后，都记录上次最后一行记录的ID，以作为下次取数据的判断依据。例如：</p>
+
+<pre><code class="language-sql">SELECT * FROM `test` WHERE id&gt;2000 LIMIT 1000;
+</code></pre>
+
+<p>其中，2000就是上一次取出的数据中的最大ID。</p>
+</blockquote>
+
+<p>由此，我基于illuminate/database编写了一个类似于分页器的数据读取组件：<a href="https://packagist.org/packages/alanalbert/data-segmenter">data-segmenter</a>.</p>
+
+<p>具体实现代码如下：</p>
+
+<pre><code class="language-php">use AlanAlbert\Segmenter\Contract\Processor;
+use Illuminate\Database\Eloquent\Model;
+use \Exception;
+use Illuminate\Database\Eloquent\Builder;
+class Segmenter
+{
+    const ALL_ROWS = -1;
+    
+    /**
+     * 源模型
+     * @var array
+     */
+    protected $sourceModel = null;
+    
+    /**
+     * 保存每个模型的最后一行主键id
+     * @var int
+     */
+    private $lastRowId = -1;
+    
+    /**
+     *模型中最大的ID
+     * @var int
+     */
+    private $maxRowId = 0;
+    
+    /**
+     * 一次处理的数据量
+     * @var int
+     */
+    private $oneTimeRowNumber = -1;
+    
+    /**
+     * 用于记录行数的列名（保证其在源模型中唯一性及递增性）
+     * @var string
+     */
+    private $mainField = &#39;&#39;;
+    
+    /**
+     * 需要获取的列
+     * @var array|mixed
+     */
+    private $fields = [];
+    
+    /**
+     * 数据表的别名
+     * @var mixed|string
+     */
+    private $as = &#39;&#39;;
+    
+    /**
+     * Segmenter构造函数
+     *
+     * @param Model|Builder $sourceModel
+     * @param array $config
+     *   配置的结构：
+     *      [
+     *          rows_number: 一次读取数据行数,
+     *          main_field: 根据哪一列进行分段，默认取主键ID,
+     *          fields: 需要获取的数据列,
+     *          table_alias: 表的别名
+     *      ]
+     * 
+     */
+    public function __construct($sourceModel, array $config = [])
+    {
+        $this-&gt;sourceModel = $sourceModel;
+        $this-&gt;oneTimeRowNumber = $config[&#39;rows_number&#39;] ?? self::ALL_ROWS;
+        // 设置main_field
+        if (isset($config[&#39;main_field&#39;]) &amp;&amp; !empty($config[&#39;main_field&#39;])) {
+            $this-&gt;mainField = $config[&#39;main_field&#39;];
+        } else {
+            $this-&gt;mainField = $sourceModel instanceof Model ?
+                $sourceModel-&gt;newInstance()-&gt;getKeyName() : 
+                $sourceModel-&gt;newModelInstance()-&gt;getKeyName();
+        }
+        // 设置fields
+        $this-&gt;fields = $config[&#39;fields&#39;] ?? [];
+        // 设置表别名
+        $tableName = $sourceModel instanceof Model ?
+            $sourceModel-&gt;newInstance()-&gt;getTable() : 
+            $sourceModel-&gt;newModelInstance()-&gt;getTable();
+        $this-&gt;as = $config[&#39;table_alias&#39;] ?? $tableName;
+        // 获取最大ID
+        $maxRowId = (clone $sourceModel)
+            -&gt;orderByDesc($this-&gt;as . &#39;.&#39; . $this-&gt;mainField)
+            -&gt;limit(1)
+            -&gt;value($this-&gt;mainField);
+        $this-&gt;maxRowId = $maxRowId ?? 0;
+        var_dump(&#39;最大ID: &#39; . $this-&gt;maxRowId);
+    }
+    
+    /**
+     * 迁移数据
+     * @param Processor $processor 实现DataProcessor接口，主要处理读出后的数据
+     * @param mixed ...$args 额外需要使用的参数
+     * @return bool
+     */
+    public function execute(Processor $processor, ...$args): bool
+    {
+        // 循环读取数据，直至结尾
+        while ($this-&gt;lastRowId &lt; $this-&gt;maxRowId) {
+            if ($this-&gt;executeOneTime($processor, ...$args) === false) {
+                return false;
+            }
+        }
+    
+        return true;
+    }
+    
+    /**
+     * 
+     * @param Processor $processor
+     * @param mixed ...$args
+     * @return bool
+     */
+    protected function executeOneTime(Processor $processor, ...$args): bool
+    {
+        // 获取原始数据
+        $sourceModel = $this-&gt;sourceModel
+            -&gt;where($this-&gt;as . &#39;.&#39; . $this-&gt;mainField, &#39;&gt;&#39;, $this-&gt;lastRowId)
+            -&gt;orderBy($this-&gt;as . &#39;.&#39; . $this-&gt;mainField);
+        if ($this-&gt;oneTimeRowNumber &gt; 0) {
+            $sourceModel = $sourceModel
+                -&gt;limit($this-&gt;oneTimeRowNumber);
+        }
+        if (!empty($this-&gt;fields)) {
+            $sourceData = $sourceModel
+                -&gt;get(array_merge($this-&gt;fields, [$this-&gt;as . &#39;.&#39; . $this-&gt;mainField]));
+        } else {
+            $sourceData = $sourceModel
+                -&gt;get();
+        }
+        
+        // 更新当前ID
+        $mainField = $this-&gt;mainField;
+        $this-&gt;lastRowId = $sourceData-&gt;last()-&gt;$mainField;
+        var_dump(&#39;当前ID: &#39; . $this-&gt;lastRowId . &#39;/&#39; . $this-&gt;maxRowId);
+        return $processor-&gt;process($sourceData, ...$args);
+    }
+}
+</code></pre>
+
+<p><em>虽然最后工作中也没用到...</em></p>
+
+<h2 id="toc_3">二、数据汇总</h2>
+
+<p>对百万级数据进行分组汇总，举个简单的例子：统计出连锁网吧的用户数。</p>
+
+<h3 id="toc_4">1. 问题</h3>
+
+<p>如果选课表为<code>user_log</code>，网吧ID为<code>bar_id</code>，用户ID为<code>user_id</code>。统计的SQL语句可以为：</p>
+
+<pre><code class="language-sql">SELECT COUNT(DISTINCT `bar_id`, `user_id`) AS `user_number` 
+  FROM `user_log`;
+</code></pre>
+
+<p>但是这样存在一个问题：汇总的速度很慢，脚本运行时间需要用到<strong>一分半钟</strong>，这对于10分钟执行一次的脚本来说，时间有点长，如何优化呢？</p>
+
+<h3 id="toc_5">2. 解决方法</h3>
+
+<p>使用临时表：</p>
+
+<ol>
+<li>首先对表中的数据进行<code>group by</code>多列分组，将得到的结果作为临时表</li>
+<li>对临时表中的数据进行统计</li>
+</ol>
+
+<p>例如：</p>
+
+<pre><code class="language-sql">SELECT `bar_id`, COUNT(`bar_id`) AS `user_number`
+  FROM (SELECT `bar_id` FROM `user_log` GROUP BY `bar_id`, `user_id`)
+  GROUP BY `bar_id`;
+</code></pre>
+
+<h2 id="toc_6">三、其他问题</h2>
+
+<p>当插入或更新的数据行很多时，出现占位符过多的的问题：<code>Prepared statement contains too many placeholders</code>。</p>
+
+<blockquote>
+<p>这是因为MySQL支持的占位符有数量限制（2<sup>16</sup> - 1），因此，可以使用<code>array_chunk</code>函数对需要的数据进行分块处理，然后依次插入。</p>
+</blockquote>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP实现异步回调的总结]]></title>
+    <link href="https://alanalbert.github.io/15657597684450.html"/>
+    <updated>2019-08-14T13:16:08+08:00</updated>
+    <id>https://alanalbert.github.io/15657597684450.html</id>
+    <content type="html"><![CDATA[
+<p>很久没更新博客了，最近在下班时间写了一个简单的PHP库——<a href="https://github.com/AlanAlbert/php-async">php-async</a>及<a href="https://github.com/AlanAlbert/php-async-manager">php-async-manager</a>，以实现PHP中的简单异步回调。</p>
+
+<span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<p><img src="https://source.unsplash.com/random/1024x400" alt="图片"/></p>
+
+<h2 id="toc_0">0. 前言</h2>
+
+<blockquote>
+<p>最近遇到个问题，PHP的异步回调怎么实现？</p>
+</blockquote>
+
+<p>Workman、Swoole、fastcgi_finish_request？</p>
+
+<ul>
+<li>Workman、Swoole这些框架虽然对异步回调实现的很好，但是如果只需要简单的异步回调就上这些未免大材小用。</li>
+<li>而fastcgi_finish_request虽然使用方面，但毕竟只能在php-fpm模式下使用，而且一次请求只能使用一次。</li>
+</ul>
+
+<p>之后就一直在思考：能不能自己实现一个PHP可用的简单异步回调呢？最初出现在我脑海的有几个方案：</p>
+
+<ol>
+<li>编写PHP扩展，使用C/C++创建守护进程进程，用于监听是否有异步任务到来，如果有任务到来，则执行任务及回调函数。而PHP进程则将异步任务传递给该监听进程，从而实现异步。</li>
+<li>使用pcntl扩展创建子进程，并让子进程脱离父进程的控制，成为守护进程。子进程用于处理耗时的异步任务，父进程处理HTTP请求及返回响应。</li>
+</ol>
+
+<p>由于第二种方案更简单，因此选择使用第二种方案进行实现。</p>
+
+<h2 id="toc_1">1. 实现原理及思路</h2>
+
+<p>实现原理比较简单：</p>
+
+<blockquote>
+<ol>
+<li>在当前进程中创建子进程，父进程处理耗时较短的HTTP业务逻辑；子进程处理耗时较长的任务，例如邮件发送等。</li>
+<li>创建子进程后，让子进程脱离父进程的控制，成为守护进程。</li>
+<li>父进程通过设置<code>Callable</code>或<code>Closure</code>函数，让子进程执行异步任务及回调函数。</li>
+</ol>
+</blockquote>
+
+<p>每个异步任务都需要两个关键元素组成：异步任务本身、回调函数。所以设计了JobInterface接口，该接口要求实现两个方法：job、callback，分别对应异步任务及回调函数。具体代码为：</p>
+
+<pre><code class="language-php">interface JobInterface
+{
+    /**
+     * 异步任务
+     *
+     * @return void
+     */
+    public function job();
+
+    /**
+     * 回调函数
+     *
+     * @return void
+     */
+    public function callback();
+}
+</code></pre>
+
+<h2 id="toc_2">2. 遇到的问题及解决方法</h2>
+
+<p>在CLI模式下开发运行十分顺利，没遇到什么较大的问题。但是，一切开发完成之后，在php-fpm模式下测试，遇到以下几个问题：</p>
+
+<h3 id="toc_3">问题</h3>
+
+<ol>
+<li><strong>创建的子进程由php-fpm管理进程控制</strong>，当子进程执行完成后，因为php-fpm没有给该异步进程“收尸”，<strong>导致其成为僵尸进程，占用系统资源</strong>。</li>
+<li>因为在php-fpm模式下，进程受php-fpm管理进程的控制，因此猜测<strong>异步进程的数量可能受php-fpm配置的进程数限制</strong>。</li>
+</ol>
+
+<h3 id="toc_4">解决方案</h3>
+
+<ol>
+<li>对于“僵尸进程”的问题，让父进程忽略子进程的结束，从而将子进程的回收权移交给系统的init进程，由init进程回收创建的子进程：<code>pcntl_signal(SIGCHLD, SIG_IGN);</code>。</li>
+<li>php-fpm配置的进程数限制，经过测试（将php-fpm配置文件中的最大进程数改为5，并使用静态模式）发现，并未出现猜想中的创建子进程被限制的问题。</li>
+</ol>
+
+<h2 id="toc_5">3. 最后结果</h2>
+
+<p>最后实现的结果为: <a href="https://github.com/AlanAlbert/php-async">php-async</a>。在CLI和php-fpm模式下都没有发现问题。</p>
+
+<p>之后，我还基于symfony/console开发了一个用于查看异步任务的命令行工具——<a href="https://github.com/AlanAlbert/php-async-manager">php-async-manager</a>，可以用于查看异步任务运行状态、停止正在运行的任务等。</p>
+
+<h2 id="toc_6">4. 后续拓展</h2>
+
+<p>该异步实现方案还存在一个很大的问题，即，每执行一个异步任务就要创建一个进程，当处理的请求数量比较多时，就需要创建太多的进程。</p>
+
+<p>之后了解了NodeJS的异步实现原理，其底层使用libuv库，以事件为驱动，libuv负责将来自操作系统的事件收集起来，或者监视其他来源的事件。这样，用户就可以注册回调函数，回调函数会在事件发生的时候被调用。event-loop会一直保持运行状态。</p>
+
+<p>因此，最好的异步实现方案还是使用C语言开发一个PHP的扩展😂。</p>
+
+<p><em>Mission Complete!</em></p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[对于Laravel的容器、服务提供者、Facade、Console、Collection的理解]]></title>
+    <link href="https://alanalbert.github.io/15650037258499.html"/>
+    <updated>2019-08-05T19:15:25+08:00</updated>
+    <id>https://alanalbert.github.io/15650037258499.html</id>
+    <content type="html"><![CDATA[
+<p>Laravel使用了较长的一段时间了，总结一下自己对于容器、服务提供者、门面（Facade）、Console、Collection的一些理解。</p>
+
+<span id="more"></span><!-- more -->
+
+<p><img src="https://source.unsplash.com/random/1024x400" alt="图片"/></p>
+
+<h2 id="toc_0">容器</h2>
+
+<p>容器，用于管理类之间的依赖关系。其工作流程大致为：</p>
+
+<blockquote>
+<ol>
+<li>使用类反射——<strong>ReflectionClass</strong>对需要实例化的类进行反射。（类反射可以通过类名获取类的具体信息，方法、属性等）</li>
+<li>获取需要使用的方法的反射——<strong>ReflectionMethod</strong>。（方法反射可以获得方法的修饰符、参数信息等）</li>
+<li>如果方法的参数包含类、接口等声明，继续进行类反射，执行第1步、第2步。如此递归，直至所有依赖被创建。</li>
+</ol>
+</blockquote>
+
+<p>容器就是如此处理依赖关系的，当然，实际中的容器比上述流程更加复杂。</p>
+
+<h2 id="toc_1">服务提供者</h2>
+
+<p>当外部库需要使用依赖注入时，可以通过服务提供者将类注册到容器中。换句话说，服务提供者就是容器对外的接口，让外部也能够使用容器进行类管理。</p>
+
+<h2 id="toc_2">Facade</h2>
+
+<h2 id="toc_3">Console</h2>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP的一些底层知识]]></title>
+    <link href="https://alanalbert.github.io/15631621023557.html"/>
+    <updated>2019-07-15T11:41:42+08:00</updated>
+    <id>https://alanalbert.github.io/15631621023557.html</id>
+    <content type="html"><![CDATA[
+<p>自己在学习PHP底层时的一些笔记。</p>
+
+<span id="more"></span><!-- more -->
+
+<p><img src="https://source.unsplash.com/random/1024x400" alt="图片"/></p>
+
+<blockquote>
+<p><em>阅读<a href="https://github.com/huanghantao/study-note/blob/master/PHP/PHP%E6%89%A9%E5%B1%95%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0.md">https://github.com/huanghantao/study-note/blob/master/PHP/PHP%E6%89%A9%E5%B1%95%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0.md</a>的笔记</em></p>
+</blockquote>
+
+<h2 id="toc_0">1. php-config</h2>
+
+<p><code>php-config</code>是一个简单的命令行脚本，<strong>用于获取PHP的安装及配置信息</strong>。当安装多个PHP版本时，可以使用<code>--with-php-config</code>来指定使用哪个版本的PHP来进行编译。</p>
+
+<h2 id="toc_1">2. PHP的扩展类型</h2>
+
+<p>PHP的扩展可分为静态扩展和动态扩展两类。</p>
+
+<ul>
+<li>静态扩展是与PHP源码一起进行编译安装的，编译PHP时通过指定参数<code>--enable</code>和<code>--with</code>来启用扩展。</li>
+<li>动态扩展是直接编译扩展的源代码，生成<code>.so</code>(Linux)或<code>.dll</code>(Windows)的动态链接库，然后在php.ini配置文件中开启。</li>
+</ul>
+
+<blockquote>
+<p>在静态编译PHP时，enable 是启用 PHP 源码包自带，但是默认不启用的扩展，比如 ftp 和 exif 扩展。with 是指定扩展依赖的资源库的位置，如果是默认位置，就可以留空。</p>
+</blockquote>
+
+<h2 id="toc_2">3. PHP函数的底层实现</h2>
+
+<p>PHP的函数分为两种，一种为内置函数<code>zend_internal_function</code>，另一种为用户函数<code>zend_user_function</code>。</p>
+
+<ul>
+<li>内置函数在PHP的内核实现，通过c/c++进行编写</li>
+<li>用户函数是用户使用PHP自定义的函数，这种函数会被ZE(Zend Engine)编译为opcode来执行</li>
+</ul>
+
+<p>PHP在编译阶段将用户自定义的函数编译为独立的opcodes,保存在EG(function_table)中,调用时重新分配新的zend_execute_data(相当于运行栈),然后执行函数的opcodes,调用完再还原到旧的zend_execute_data，即原来的函数，继续执行。</p>
+
+<p>zend_function的结构中的op_array存储了该函数中所有的操作,当函数被调用时,ZE就会将这个op_array中的opline一条条顺次执行, 并将最后的返回值返回。 从VLD扩展中查看的关于函数的信息可以看出,函数的定义和执行是分开的,一个函数可以作为一个独立的运行单元而存在。</p>
+
+<h2 id="toc_3">4. PHP的线程安全</h2>
+
+<p>配置编译PHP时加参数<code>--enable-maintainer-zts</code>则编译出的php为Zend线程安全（ZTS），否则不是线程安全（NTS）。</p>
+
+<p>当<strong>使用pthread（POSIX threads）扩展时，或者当web服务器为Apache2 mpm-worker或IIS</strong>使用PHP作为模块时，请考虑使用ZTS。当<strong>使用FastCGI / FPM或Apache2 mpm-prefork</strong>时，您不需要ZTS，因为在PHP运行时使用的多进程处理。</p>
+
+<p>NTS是运行PHP的首选方式。NTS还使您更容易编写和调试扩展。</p>
+
+<h2 id="toc_4">5. Zend引擎的执行过程</h2>
+
+<blockquote>
+<ol>
+<li>Zend Engine调用词法分析器将PHP脚本分割为一个一个的token</li>
+<li>Zend Engine会将得到的token提交给语法分析器，生成抽象语法树(Abstract Syntax Tree)</li>
+<li>ZE调用zend_compile_top_stmt()函数将抽象语法树解析为一个一个的opcode，opcode一般会以op_array的形式存在，它是PHP执行的中间语言</li>
+<li>最后,ZE调用zend_executor来执行op_array，输出结果</li>
+</ol>
+</blockquote>
+
+<h3 id="toc_5">Token</h3>
+
+<p>PHP提供<code>token_get_all</code>函数来获取token，例如：</p>
+
+<pre><code class="language-php">$token = token_get_all(&#39;&lt;?php echo \&#39;hello, world\&#39;;&#39;);
+var_dump($token);
+</code></pre>
+
+<p>输出结果为：</p>
+
+<pre><code class="language-bash">array(5) {
+  [0] =&gt;
+  array(3) {
+    [0] =&gt;
+    int(379)
+    [1] =&gt;
+    string(6) &quot;&lt;?php &quot;
+    [2] =&gt;
+    int(1)
+  }
+  [1] =&gt;
+  array(3) {
+    [0] =&gt;
+    int(328)
+    [1] =&gt;
+    string(4) &quot;echo&quot;
+    [2] =&gt;
+    int(1)
+  }
+  [2] =&gt;
+  array(3) {
+    [0] =&gt;
+    int(382)
+    [1] =&gt;
+    string(1) &quot; &quot;
+    [2] =&gt;
+    int(1)
+  }
+  [3] =&gt;
+  array(3) {
+    [0] =&gt;
+    int(323)
+    [1] =&gt;
+    string(14) &quot;&#39;hello, world&#39;&quot;
+    [2] =&gt;
+    int(1)
+  }
+  [4] =&gt;
+  string(1) &quot;;&quot;
+}
+</code></pre>
+
+<h3 id="toc_6">AST抽象语法树</h3>
+
+<p>以下工具可以用于查看AST结构信息：</p>
+
+<ul>
+<li><a href="https://pecl.php.net/package/ast">https://pecl.php.net/package/ast</a>  (扩展)</li>
+<li><a href="https://dooakitestapp.herokuapp.com/phpast/webapp/">https://dooakitestapp.herokuapp.com/phpast/webapp/</a> (在线)</li>
+<li><a href="https://github.com/nikic/PHP-Parser">https://github.com/nikic/PHP-Parser</a> (PHP解析工具)</li>
+</ul>
+
+<h3 id="toc_7">Opcode</h3>
+
+<p>opcode是Zend虚拟机可识别的指令，php7共有173个opcode，定义在zend_vm_opcodes.h中，这些中间代码会被Zend VM(Zend虚拟机)直接执行。</p>
+
+<p>查看opcode可以使用：</p>
+
+<ul>
+<li><a href="https://pecl.php.net/package/vld">https://pecl.php.net/package/vld</a> (扩展)</li>
+<li><a href="https://3v4l.org/UBstu/vld#output">https://3v4l.org/UBstu/vld#output</a> (在线)</li>
+</ul>
+
+<h2 id="toc_8">6. EG变量</h2>
+
+<p>executor_globals是一个全局变量，存储着许多信息(当前上下文、符号表、函数/类/常量表、堆栈等)，EG宏就是用于访问executor_globals的某个成员</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP中的fastcgi_finish_request函数]]></title>
+    <link href="https://alanalbert.github.io/15631169760220.html"/>
+    <updated>2019-07-14T23:09:36+08:00</updated>
+    <id>https://alanalbert.github.io/15631169760220.html</id>
+    <content type="html"><![CDATA[
+<p>fastcgi_finish_request是<strong>工作在FastCGI模式下</strong>才可用的函数。使用这个脚本可以提高请求响应速度。</p>
+
+<span id="more"></span><!-- more -->
+
+<p><img src="https://source.unsplash.com/random/1024x400" alt="图片"/></p>
+
+<h2 id="toc_0">CGI</h2>
+
+<p>CGI，公共网关接口，是一种Web服务器与后端语言的通信规范。CGI会在请求到来时，fork出一个子进程用于处理请求，当处理完成后，会杀死该进程，下次请求到来时继续创建，如此往复...</p>
+
+<p>因此，CGI在创建进程上会存在极大地资源消耗。现在使用较少。</p>
+
+<h2 id="toc_1">FastCGI</h2>
+
+<p>FastCGI可以说是CGI的升级版本，其解决了CGI在创建进程上的资源消耗。</p>
+
+<p>具体方法为，当FastCGI进程管理器启动时，会创建若干个CGI进程（数量可配置）等待请求到来，不需要每次都花时间去创建，同时可以根据请求数对CGI进程数进行伸缩。</p>
+
+<h2 id="toc_2">fastcgi_finish_request</h2>
+
+<p>该函数就是<strong>工作在FastCGI模式下的</strong>。具体作用为，当执行到该函数时，直接向客户端返回响应，但后续脚本仍然执行，只是对用户不可见。</p>
+
+<p>例如脚本文件a.php：</p>
+
+<pre><code class="language-php">echo &#39;Hello, Alan&#39;;
+
+fastcgi_finish_request();
+
+sleep(5);
+file_put_contents(&#39;a.txt&#39;, &#39;测试内容&#39;);
+</code></pre>
+
+<p>同时，使用tail命令监控a.txt文件的内容：</p>
+
+<pre><code class="language-bash">$ tail -f -n 5 a.txt
+</code></pre>
+
+<p>启动Nginx、PHP-FPM，并访问a.php，可以发现很快就能得到响应，并不会受后面<code>sleep(5)</code>的影响，5秒之后a.txt文件也会出现<code>测试内容</code>。</p>
+
+<h2 id="toc_3">其他</h2>
+
+<p>因为该函数<strong>只能在FastCGI模式下可用</strong>，因此，如果需要考虑可移植性，可以自己根据业务逻辑实现fastcgi_finish_request函数：</p>
+
+<pre><code class="language-php">if (!function_exists(&#39;fastcgi_finish_request&#39;)) {
+  function fastcgi_finish_request() {
+  
+  }
+}
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP扩展之全局变量的使用]]></title>
+    <link href="https://alanalbert.github.io/15630043742201.html"/>
+    <updated>2019-07-13T15:52:54+08:00</updated>
+    <id>https://alanalbert.github.io/15630043742201.html</id>
+    <content type="html"><![CDATA[
+<p>使用C语言开发PHP扩展时可能需要使用到全局变量，在使用全局变量时涉及到线程安全的问题，PHP设计了TSRM(线程安全资源管理器)来解决这个问题。在扩展开发中需要按照TSRM的规范定义全局变量。</p>
+
+<span id="more"></span><!-- more -->
+
+<p><img src="https://source.unsplash.com/random/1024x400" alt="图片"/></p>
+
+<h2 id="toc_0">ZEND_BEGIN_MODULE_GLOBALS、ZEND_END_MODULE_GLOBALS</h2>
+
+<p>PHP为扩展的全局变量提供一种存储方式：每个扩展将自己所有的全局变量统一定义在结构体中，然后将这个结构体注册到TSRM中。</p>
+
+<p>ZEND_BEGIN_MODULE_GLOBALS、ZEND_END_MODULE_GLOBALS便是用来定义这个结构体的。使用方式为：</p>
+
+<pre><code class="language-c">ZEND_BEGIN_MODULE_GLOBALS(extension_name)
+    zend_long   val
+    HashTable   table
+ZEND_END_MODULE_GLOBALS(extension_name)
+</code></pre>
+
+<h2 id="toc_1">ZEND_DECLARE_MODULE_GLOBALS</h2>
+
+<p>定义好存储全局变量的结构体后，便需要将该结构体注册进TSRM中。ZEND_DECLARE_MODULE_GLOBALS宏就是用于处理这个操作。</p>
+
+<pre><code class="language-c">ZEND_DECLARE_MODULE_GLOBALS(extension_name)
+</code></pre>
+
+<h2 id="toc_2">ZEND_MODULE_GLOBALS_ACCESSOR</h2>
+
+<p>访问扩展中定义的全局变量：</p>
+
+<pre><code class="language-c">ZEND_MODULE_GLOBALS_ACCESSOR(extension_name, val)
+</code></pre>
+
+<p>当然你也可以自己定义一个宏进行访问：</p>
+
+<pre><code class="language-c">#define TEST_G(val) ZEND_MODULE_GLOBALS_ACCESSOR(extension_name, val)
+</code></pre>
+
+<blockquote>
+<p>需要注意的是，在一个PHP扩展中并不是只能定义一个全局变量结构体，数量是不限制的。</p>
+</blockquote>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[config.m4详解]]></title>
+    <link href="https://alanalbert.github.io/15629867837001.html"/>
+    <updated>2019-07-13T10:59:43+08:00</updated>
+    <id>https://alanalbert.github.io/15629867837001.html</id>
+    <content type="html"><![CDATA[
+<p>config.m4是扩展的编译配置文件，其会被包含到configure.in中，最终被autoconf编译为configure。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">PHP提供的宏</h2>
+
+<h3 id="toc_1">PHP_ARG_WITH(arg_name, check_message, help_info)</h3>
+
+<ul>
+<li>定义一个<code>--with-param[=arg]</code>的编译参数。</li>
+<li>这个宏有五个参数，但常用的是前三个。第一个参数为<code>参数名</code>，第二个参数为<code>执行./configure时的展示信息</code>，第三个参数为<code>执行 --help 时的展示信息</code>。</li>
+<li>该宏定义的参数可以在config.m4中通过<code>$PHP_大写参数名</code>的形式进行访问。</li>
+</ul>
+
+<p>例如：</p>
+
+<pre><code class="language-php">PHP_ARG_WITH(extname, for extname support, [--with-extname=yes])
+# 通过$PHP_EXTNAME即可获得--with-extname=yes中的yes
+</code></pre>
+
+<h3 id="toc_2">PHP_ARG_ENABLE(arg_name, check_message, help_info)</h3>
+
+<ul>
+<li>定义一个<code>--enable-param[=arg]</code>或<code>--disable-param</code>（等价于<code>--enable-param=no</code>）</li>
+<li>该宏与<code>PHP_ARG_WITH</code>类似，如果参数需要设置具体的值，则使用<code>PHP_ARG_WITH</code>，否则使用<code>PHP_ARG_ENABLE</code></li>
+</ul>
+
+<h3 id="toc_3">AC_MSG_CHECKING、AC_MSG_RESULT、AC_MSG_ERROR</h3>
+
+<ul>
+<li>AC_MSG_CHECKING([提示信息]): 在执行./configure时，check的提示信息。</li>
+<li>AC_MSH_RESULT([检测的路径]): 结束check，继续执行</li>
+<li>AC_MSG_ERROR([错误信息]): 输出错误信息并退出./configure的执行</li>
+</ul>
+
+<h3 id="toc_4">AC_DEFINE(variable, value, [description])</h3>
+
+<ul>
+<li>定义一个宏，例如：<code>AC_DEFINE(DEBUG_MODEL, 1, [open debug model])</code>，最终会执行<code>#define DEBUG_MODEL 1</code></li>
+</ul>
+
+<h3 id="toc_5">PHP_ADD_INCLUDE(path)</h3>
+
+<ul>
+<li>添加include路径，相当于<code>#include &quot;file&quot;</code></li>
+<li>引用外部库或分为多个目录时会使用到</li>
+</ul>
+
+<h3 id="toc_6">PHP_CHECK_LIBRARY(library, function [, action-found [, action-not-found [, extra-libs]]])</h3>
+
+<ul>
+<li>检查依赖库library中是否存在需要的function，action-found为存在时执行的动作，action-not-found是不存在时执行的动作</li>
+</ul>
+
+<p>例如：</p>
+
+<pre><code class="language-php">PHP_CHECK_LIBRARY($EXAMPLE_LIB_NAME, example_critical_function, [
+  dnl 添加所需的 include 目录
+  PHP_EVAL_INCLINE($EXAMPLE_INCDIRS)
+  dnl 添加所需的扩展库及扩展库所在目录
+  PHP_EVAL_LIBLINE($EXAMPLE_LIBS, EXAMPLE_SHARED_LIBADD)
+],[
+  dnl 跳出
+  AC_MSG_ERROR([example library not found. Check config.log for more information.])
+],[$EXAMPLE_LIBS])
+</code></pre>
+
+<h3 id="toc_7">AC_CHECK_FUNC(function, [action-if-found], [action-if-not-found])</h3>
+
+<ul>
+<li>检查函数function是否存在，action-if-found为存在时执行的动作，action-if-not-found为不存在时执行的动作</li>
+</ul>
+
+<h3 id="toc_8">PHP_ADD_LIBRARY_WITH_PATH</h3>
+
+<ul>
+<li>格式为：<code>PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $XXX_DIR/$PHP_LIBDIR, XXX_SHARED_LIBADD)</code>，添加链接库</li>
+</ul>
+
+<p>例如：</p>
+
+<pre><code class="language-php">PHP_ADD_LIBRARY_WITH_PATH(example-extra, $PHP_EXAMPLE_EXTRA/lib, EXAMPLE_SHARED_LIBADD)
+</code></pre>
+
+<h3 id="toc_9">PHP_ADD_BUILD_DIR</h3>
+
+<ul>
+<li>加载所需所有C文件</li>
+</ul>
+
+<h3 id="toc_10">PHP_REQUIRE_CXX()</h3>
+
+<ul>
+<li>使用C++进行开发</li>
+</ul>
+
+<h3 id="toc_11">PHP_SUBST(XXX_SHARED_LIBADD)</h3>
+
+<ul>
+<li>扩展编译成动态链接库的形式</li>
+</ul>
+
+<h3 id="toc_12">PHP_NEW_EXTENSION(extname, sources , $ext_shared [, sapi_class [, extra-cflags [, cxx [, zend_ext]]]])</h3>
+
+<ul>
+<li>注册一个扩展</li>
+<li>第一个参数是扩展的名称，和包含它的目录同名</li>
+<li>第二个参数是做为扩展的一部分的所有源文件的列表</li>
+<li>第三个参数总是 $ext_shared</li>
+<li>第四个参数指定一个“SAPI 类”，仅用于专门需要 CGI 或 CLI SAPI 的扩展</li>
+<li>第五个参数指定了构建时要加入 CFLAGS 的标志列表</li>
+<li>第六个参数是一个布尔值，为 &quot;yes&quot; 时会强迫整个扩展使用 <code>$CXX</code> 代替 <code>$CC</code> 来构建</li>
+<li>第三个以后的所有参数都是可选的</li>
+</ul>
+
+<p>例如：</p>
+
+<pre><code class="language-php">PHP_NEW_EXTENSION(example, example.c $EXAMPLE_SOURCES, $ext_shared)
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Git Flow与git-flow的介绍]]></title>
+    <link href="https://alanalbert.github.io/15629079461623.html"/>
+    <updated>2019-07-12T13:05:46+08:00</updated>
+    <id>https://alanalbert.github.io/15629079461623.html</id>
+    <content type="html"><![CDATA[
+<p>前两天在面试中，遇到GitFlow的问题，涉及到知识盲区，今天趁有空学习一下。</p>
+
+<span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<h2 id="toc_0">什么是Git Flow</h2>
+
+<p>Git Flow是2010年由<a href="https://nvie.com/about/">Vincent Driessen</a>提出的在进行产品开发时Git的行为规范（<a href="https://nvie.com/posts/a-successful-git-branching-model/">原文链接</a>）。类似的规范还有Github Flow、Gitlab Flow。</p>
+
+<h2 id="toc_1">Git Flow的分支</h2>
+
+<p>Git Flow中定义了两类分支：主分支、辅助分支。</p>
+
+<blockquote>
+<p>主分支用于组织与软件开发、部署相关的活动。主分支是所有开发活动的核心分支，可分为<code>master分支</code>、<code>develop分支</code>。</p>
+
+<p>辅助分支是为了解决特定的问题而进行的各种开发活动。辅助分支有<code>feature分支</code>、<code>release分支</code>、<code>hotfix分支</code>。</p>
+</blockquote>
+
+<h3 id="toc_2">master分支</h3>
+
+<p>master分支用于存放可上线的稳定代码。</p>
+
+<ul>
+<li>来源：<code>release分支</code>、<code>hotfix分支</code></li>
+<li>去向：无</li>
+</ul>
+
+<h3 id="toc_3">develop分支</h3>
+
+<p>develop 分支是开发的基础分支，当需要增加功能时可以从该分支切出一个 feature 分支。</p>
+
+<ul>
+<li>来源：<code>feature分支</code>、<code>release分支</code>、<code>hotfix分支</code></li>
+<li>去向：<code>release分支</code></li>
+</ul>
+
+<h3 id="toc_4">feature分支</h3>
+
+<p>当需要增加新功能时，使用 feature 分支。feature 分支从 develop 分支切出，完成时也要合并到 develop 分支。</p>
+
+<ul>
+<li>来源：<code>develop分支</code></li>
+<li>去向：<code>develop分支</code></li>
+</ul>
+
+<h3 id="toc_5">release分支</h3>
+
+<p>release 分支是发布到 master 分支前的版本。可以把已完成的 develop 分支合并到 release 分支，在该分支上做最后的测试。测试通过即可完成 release 分支，完成时会将 release 合并到 master 以及 develop 两个分支上。合并到 develop 分支是因为在 Release 分支上可能会有代码修改，需要将修改同步到 develop 分支上。</p>
+
+<ul>
+<li>来源：<code>develop分支</code></li>
+<li>去向：<code>master分支</code>、<code>develop分支</code></li>
+</ul>
+
+<blockquote>
+<p>常用命名：release-*</p>
+</blockquote>
+
+<h3 id="toc_6">hotfix分支</h3>
+
+<p>当线上产品产生Bug时，从 master 分支开一个 hotfix 分支用于修复，修复完成后会合并到 master、develop 分支。</p>
+
+<ul>
+<li>来源：<code>master分支</code></li>
+<li>去向：<code>master分支</code>、<code>develop分支</code></li>
+</ul>
+
+<blockquote>
+<p>常用命名：hotfix-*</p>
+</blockquote>
+
+<h2 id="toc_7">总结</h2>
+
+<p>以上分支的关系如下图所示（引用自<a href="https://segmentfault.com/a/1190000006194051">Git Flow简介</a>）：</p>
+
+<p><img src="media/15629079461623/3652838737-57a69c4ba2103_articlex.png" alt="Git Flow分支"/></p>
+
+<h2 id="toc_8">git-flow</h2>
+
+<p>git-flow是配合Git Flow工作流程使用的一个Git扩展。可以简化Git Flow的操作。</p>
+
+<h3 id="toc_9">安装</h3>
+
+<p><strong>Mac OSX</strong></p>
+
+<pre><code class="language-bash">brew install git-flow
+</code></pre>
+
+<p><strong>Debian/Ubuntu Linux</strong></p>
+
+<pre><code class="language-bash">apt-get install git-flow
+</code></pre>
+
+<p><strong>Windows搭配Cygwin</strong></p>
+
+<pre><code class="language-bash">wget -q -O - --no-check-certificate https://github.com/nvie/gitflow/raw/develop/contrib/gitflow-installer.sh | bash
+</code></pre>
+
+<h3 id="toc_10">初始化</h3>
+
+<pre><code class="language-bash">git flow init
+</code></pre>
+
+<h3 id="toc_11">feature</h3>
+
+<ul>
+<li>新建feature分支</li>
+</ul>
+
+<pre><code class="language-bash">git flow feature start FeatureName
+</code></pre>
+
+<ul>
+<li>结束feature分支（将当前feature分支合并到develop；删除当前分支；并切换到develop分支）</li>
+</ul>
+
+<pre><code class="language-bash">git flow feature finish FeatureName
+</code></pre>
+
+<ul>
+<li>公布feature分支（当需要与同伴一起开发时，将feature分支公布到服务器上）</li>
+</ul>
+
+<pre><code class="language-bash">git flow feature publish FeatureName
+</code></pre>
+
+<ul>
+<li>从服务器上获取一个别人公布的feature分支</li>
+</ul>
+
+<pre><code class="language-bash">git flow feature pull origin FeatureName
+</code></pre>
+
+<h3 id="toc_12">release</h3>
+
+<ul>
+<li>创建一个release分支</li>
+</ul>
+
+<pre><code class="language-bash">git flow release start ReleaseName
+</code></pre>
+
+<ul>
+<li>公布一个release分支</li>
+</ul>
+
+<pre><code class="language-bash">git flow release publish ReleaseName
+</code></pre>
+
+<ul>
+<li>结束一个release分支（把release分支合并回master，给本次发布打tag；把release合并回develop；删除release分支）</li>
+</ul>
+
+<pre><code class="language-bash">git flow release finish ReleaseName
+// 最后不要忘记把tag push到服务器：git push --tags
+</code></pre>
+
+<h3 id="toc_13">hotfix</h3>
+
+<ul>
+<li>创建一个hotfix分支</li>
+</ul>
+
+<pre><code class="language-bash">git flow hotfix start HotfixName
+</code></pre>
+
+<ul>
+<li>结束一个hotfix分支（合并到develop、master分支，并删除hotfix分支）</li>
+</ul>
+
+<pre><code class="language-bash">git flow hotfix finish HotfixName
+</code></pre>
+
+<p><em>Mission Complete!</em></p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[数据库使用和设计的优化]]></title>
+    <link href="https://alanalbert.github.io/15628105772643.html"/>
+    <updated>2019-07-11T10:02:57+08:00</updated>
+    <id>https://alanalbert.github.io/15628105772643.html</id>
+    <content type="html"><![CDATA[
+<p>自己收集的一些数据库设计和使用的优化方法。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">优化SQL语句</h2>
+
+<ul>
+<li>应避免全表扫描，首先应考虑在where和order by的列上建立索引</li>
+<li><p>避免在where条件中进行null判断，且表的设计也应该尽量使用not null</p>
+<blockquote>
+<p>《高性能MySQL》书中提到：MySQL难以优化引用可为null的查询，它会使索引、索引统计和值更加复杂。可为null的列需要更多的存储空间，还需要mysql内部进行特殊处理。可空列被索引后，每条记录都需要一个额外的字节，还能导致MyISAM中固定大小的索引变成可变大小的索引。</p>
+</blockquote></li>
+<li><p>应避免使用<code>!=</code>或<code>&lt;&gt;</code>操作符，MySQL只有对以下操作才使用索引：<code>&lt;</code>、<code>&lt;=</code>、<code>=</code>、<code>=&gt;</code>、<code>&gt;</code>、<code>BETWEEN</code>、<code>IN</code>、以及形如<code>name LIKE &#39;Alan%&#39;</code>的<code>LIKE</code>(%放在后面，%放在前面的可以使用全文索引)</p></li>
+<li><p>应避免在<code>where</code>中使用<code>or</code>来连接条件，否则会导致引擎放弃使用索引而进行全表扫描，可以使用<code>union all</code>进行联合查询</p></li>
+<li><p>使用联合查询时，应尽量使用<code>union all</code>代替<code>union</code>，因为<code>union</code>会对结果进行去重</p></li>
+<li><p><code>in</code>和<code>not in</code>也会导致全表扫描，对于连续的数值，应尽量使用<code>between ... and ...</code></p></li>
+<li><p>避免在<code>where</code>中对字段进行<strong>表达式操作</strong>和<strong>函数操作</strong></p></li>
+<li><p>避免在<code>where中</code>使用参数，其也会导致全表扫描。因为SQL在执行时才能解析局部变量，因此在编译时无法建立索引，可以修改为强制使用索引：<code>SELECT id FROM table FORCE INDEX(index_name) WHERE num=@num</code></p></li>
+<li><p>可以使用<code>exists</code>代替<code>in</code></p></li>
+<li><p>一张表的索引应尽量不多于6个，虽然索引可以加速查询，但同时也提高了索引的维护成本，降低插入数据及更新数据的速度</p></li>
+<li><p>尽可能避免更新聚集(clustered)索引数据列，因为操作聚集索引会消耗相当大的资源（<a href="mweblib://15628148741975">聚集索引、非聚集索引及主键</a>）</p></li>
+<li><p>只含数值信息的字段尽量使用数字型字段，以提高查询和连接的性能</p></li>
+<li><p>使用<code>varchar</code>代替<code>char</code></p></li>
+<li><p>查询时只查询需要的字段，而不是使用<code>*</code></p></li>
+<li><p>当连接多个表时，使用<code>as</code>设置表的别名并使用别名访问列，如：<code>SELECT t1.name, t2.class_name FROM table1 AS t1 JOIN table2 AS t2 ON t1.class_id=t2.id</code></p></li>
+<li><p>尽量少用子查询</p></li>
+<li><p>不要超过5个以上的<code>JOIN</code>，可以使用中间变量或临时表存放中间结果</p></li>
+<li><p>统计行数时使用<code>COUNT(*)</code></p></li>
+<li><p>尽量使用<code>&gt;=</code>代替<code>&gt;</code></p></li>
+<li><p>通过将不需要的记录在<code>GROUP BY</code>之前过滤掉</p></li>
+<li><p>使用慢查询日志查看慢查询的语句</p></li>
+<li><p>使用<code>explain</code>分析SQL语句的执行计划</p></li>
+<li><p>使用<code>LIMIT</code>查询只需要的数据</p></li>
+<li><p>建立索引<code>index(a,b,c)</code>，存储引擎不能使用索引范围条件右边的列作为索引，例如：<code>select * from where a=&#39;Alan&#39; and b&gt;25 and c=&#39;dev&#39;</code>，此时，只有a和b使用到索引</p></li>
+<li><p>尽量只访问索引列的查询，避免<code>select *</code></p></li>
+<li><p><code>is null</code>或<code>is not null</code>也会无法使用索引</p></li>
+<li><p>隐式转换：<code>select * from test where name=123</code>，此时不会使用索引，应为<code>name</code>加上单引号</p></li>
+<li><p>少用<code>or</code></p></li>
+</ul>
+
+<h2 id="toc_1">如何建立索引</h2>
+
+<ul>
+<li>每个表都需要主键索引</li>
+<li>数据量超过300的表应该建立索引</li>
+<li>对经常出现在where条件中或order by中的字段建立索引</li>
+<li>经常需要与其他表进行连接的表，在其连接字段上建立索引</li>
+<li>索引应该建立在数据量小的字段</li>
+<li>频繁进行数据操作的表不应建立过多索引</li>
+<li>复合索引应注意前缀原则</li>
+</ul>
+
+<h2 id="toc_2">慎用</h2>
+
+<ul>
+<li><code>NULL</code></li>
+<li><code>!=</code>或<code>&lt;&gt;</code></li>
+<li>形如<code>name LIKE %Alan</code>的<code>LIKE</code></li>
+<li><code>IN</code>和<code>NOT IN</code></li>
+<li><code>*</code></li>
+<li>子查询</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PHP的加速器--OpCache、APC、APCu、XCache]]></title>
+    <link href="https://alanalbert.github.io/15624051521792.html"/>
+    <updated>2019-07-06T17:25:52+08:00</updated>
+    <id>https://alanalbert.github.io/15624051521792.html</id>
+    <content type="html"><![CDATA[
+<p>OpCache、APC、APCu、XCache都是用于PHP加速的扩展，文中会讲述它们的工作原理及使用方法。</p>
+
+<span id="more"></span><!-- more -->
+
+<p>在介绍这些工具之前，先简单的描述一下PHP的工作流程：</p>
+
+<blockquote>
+<ol>
+<li>PHP请求到来</li>
+<li>读取PHP文件</li>
+<li>Zend引擎进行词法分析与语法分析</li>
+<li>生成Zend可执行的指令opcode</li>
+<li>执行opcode</li>
+<li>返回响应</li>
+</ol>
+</blockquote>
+
+<p>而OpCache、APC等此类工具就是通过缓存opcode指令来提升PHP的效率。</p>
+
+<h2 id="toc_0">OpCache</h2>
+
+<h3 id="toc_1">开启OpCache</h3>
+
+<p>OpCache在PHP 5.5及之后的版本是默认安装的，不需要我们去下载源码进行编译了，只要在PHP配置文件中开启即可：</p>
+
+<pre><code class="language-ini">[opcache]
+zend_extension=opcache.so
+opcache.enable=1
+opcache.enable_cli=1
+</code></pre>
+
+<h3 id="toc_2">OpCache是否生效</h3>
+
+<p>以下是opCache的更多配置（摘自<a href="https://www.zybuluo.com/phper/note/1016714">https://www.zybuluo.com/phper/note/1016714</a>）：</p>
+
+<pre><code class="language-ini">opcache.enable=1 (default &quot;1&quot;)
+;OPcache打开/关闭开关。当设置为Off或者0时，会关闭Opcache, 代码没有被优化和缓存。
+
+opcache.enable_cli=1 (default &quot;0&quot;)
+;CLI环境下，PHP启用OPcache。这主要是为了测试和调试。从 PHP 7.1.2 开始，默认启用。
+
+opcache.memory_consumption=128 (default &quot;64&quot;)
+;OPcache共享内存存储大小。用于存储预编译的opcode（以MB为单位）。
+
+opcache.interned_strings_buffer=8 (default &quot;4&quot;)
+;这是一个很有用的选项，但是似乎完全没有文档说明。PHP使用了一种叫做字符串驻留（string interning）的技术来改善性能。例如，如果你在代码中使用了1000次字符串“foobar”，在PHP内部只会在第一使用这个字符串的时候分配一个不可变的内存区域来存储这个字符串，其他的999次使用都会直接指向这个内存区域。这个选项则会把这个特性提升一个层次——默认情况下这个不可变的内存区域只会存在于单个php-fpm的进程中，如果设置了这个选项，那么它将会在所有的php-fpm进程中共享。在比较大的应用中，这可以非常有效地节约内存，提高应用的性能。
+;这个选项的值是以兆字节（megabytes）作为单位，如果把它设置为16，则表示16MB，默认是4MB，这是一个比较低的值。
+
+opcache.max_accelerated_files (default &quot;2000&quot;)
+;这个选项用于控制内存中最多可以缓存多少个PHP文件。这个选项必须得设置得足够大，大于你的项目中的所有PHP文件的总和。设置值取值范围最小值是 200，最大值在 PHP 5.5.6 之前是 100000，PHP 5.5.6 及之后是 1000000。也就是说在200到1000000之间。你可以运行“find . -type f -print | grep php | wc -l”这个命令来快速计算你的代码库中的PHP文件数。
+
+opcache.max_wasted_percentage (default &quot;5&quot;)
+;计划重新启动之前，“浪费”内存的最大百分比。
+
+opcache.use_cwd (default &quot;1&quot;)
+;如果启用，OPcache将在哈希表的脚本键之后附加改脚本的工作目录， 以避免同名脚本冲突的问题。禁用此选项可以提高性能，但是可能会导致应用崩溃
+
+opcache.validate_timestamps (default &quot;1&quot;)
+;如果启用（设置为1），OPcache会在
+opcache.revalidate_freq设置的秒数去检测文件的时间戳（timestamp）检查脚本是否更新。
+;如果这个选项被禁用（设置为0），opcache.revalidate_freq会被忽略，PHP文件永远不会被检查。这意味着如果你修改了你的代码，然后你把它更新到服务器上，再在浏览器上请求更新的代码对应的功能，你会看不到更新的效果，你必须使用 `opcache_reset()` 或者 `opcache_invalidate()` 函数来手动重置 OPcache。或者重重你的web服务器或者php-fpm 来使文件系统更改生效。
+;我强烈建议你在生产环境中设置为0，why？因为当你在更新服务器代码的时候，如果代码较多，更新操作是有些延迟的，在这个延迟的过程中必然出现老代码和新代码混合的情况，这个时候对用户请求的处理必然存在不确定性。最后，等所有的代码更新完毕后，再平滑重启PHP和web服务器。
+    
+opcache.revalidate_freq (default &quot;2&quot;)
+;这个选项用于设置缓存的过期时间（单位是秒），当这个时间达到后，opcache会检查你的代码是否改变，如果改变了PHP会重新编译它，生成新的opcode，并且更新缓存。值为“0”表示每次请求都会检查你的PHP代码是否更新（这意味着会增加很多次stat系统调用，译注：stat系统调用是读取文件的状态，这里主要是获取最近修改时间，这个系统调用会发生磁盘I/O，所以必然会消耗一些CPU时间，当然系统调用本身也会消耗一些CPU时间）。可以在开发环境中把它设置为0，生产环境下不用管。
+;如果 `opcache.validate_timestamps` 配置指令设置为禁用（设置为0），那么此设置项将会被忽略。
+    
+opcache.revalidate_path (default &quot;0&quot;)
+;在include_path优化中启用或禁用文件搜索
+;如果被禁用，并且找到了使用的缓存文件相同的include_path，该文件不被再次搜索。因此，如果一个文件与include_path中的其他地方相同的名称出现将不会被发现。如果此优化对此有效，请启用此指令你的应用程序，这个指令的默认值是禁用的，这意味着该优化是活跃的。
+    
+opcache.fast_shutdown（默认“0”）
+;如果启用，则会使用快速停止续发事件。 所谓快速停止续发事件是指依赖 Zend 引擎的内存管理模块 一次释放全部请求变量的内存，而不是依次释放每一个已分配的内存块。该指令已在PHP 7.2.0中被删除。快速关机序列的一个变种已经被集成到PHP中，并且如果可能的话将被自动使用。
+</code></pre>
+
+<h3 id="toc_3">OpCache其他内容</h3>
+
+<p>除了配置项以外，opCache还提供一些函数：</p>
+
+<ul>
+<li>opcache_compile_file — 无需运行，即可编译并缓存 PHP 脚本，该函数可用于在 Web 服务器重启之后初始化缓存，俗称缓存预热</li>
+<li>opcache_get_configuration — 获取php.ini中的配置信息</li>
+<li>opcache_get_status — 获取缓存的状态信息</li>
+<li>opcache_invalidate — 废除脚本缓存</li>
+<li>opcache_is_script_cached — 一个php文件是否被缓存</li>
+<li>opcache_reset — 重置情况所有的缓存内容</li>
+</ul>
+
+<h2 id="toc_4">APC（Alternative PHP Cache 可选的PHP缓存）</h2>
+
+<p>APC包含两个功能：用户缓存（用户数据缓存，类似MemCache）、opcode缓存</p>
+
+<blockquote>
+<p>注意：apc的3.1.14版本存在严重的内存问题，被官方废弃。最新可用的apc版本为3.1.13，仅支持php 5.3.* 。之后的PHP版本中自带了opCache</p>
+</blockquote>
+
+<h2 id="toc_5">APCu（APC user cache，APC的用户缓存）</h2>
+
+<p>APCu保留了APC的用户数据缓存部分，去掉了opcode缓存。且提供的接口与APC一致。</p>
+
+<h3 id="toc_6">APCu的安装</h3>
+
+<ol>
+<li>前往<a href="http://pecl.php.net/package/APCu">pecl下载页面</a>下载源码包</li>
+<li>解压并进入源代码根目录</li>
+<li>使用PHP的 <code>phpize</code> 命令工具读取config.m4文件，并生成configure</li>
+<li>执行生成的 <code>configure</code> 文件: <code>./configure with-php-config=/usr/bin/php-config</code></li>
+<li>使用 <code>make</code> 及 <code>sudo make install</code> 进行编译安装</li>
+<li><p>在php.ini中添加扩展:     </p>
+<pre><code class="language-ini">[apcu]
+extension      = apcu.so<br/>
+apc.enabled    = on<br/>
+apc.shm_size   = 256m<br/>
+apc.enable_cli = on
+</code></pre></li>
+</ol>
+
+<h3 id="toc_7">APCu的使用</h3>
+
+<p>APCu的使用可以参考<a href="https://www.php.net/manual/zh/book.apcu.php">https://www.php.net/manual/zh/book.apcu.php</a></p>
+
+<h2 id="toc_8">XCache</h2>
+
+<p>XCache的安装与前面的安装方法类似：</p>
+
+<ol>
+<li>前往<a href="https://xcache.lighttpd.net/pub/Releases/">https://xcache.lighttpd.net/pub/Releases/</a>下载源代码压缩包</li>
+<li>解压并进入根目录</li>
+<li>使用<code>phpize</code>、<code>./configure with-php-config=/usr/bin/php-config</code>、<code>make</code>、<code>sudo make install</code>进行编译安装</li>
+<li>修改php.ini，添加扩展配置</li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[面试问题之安全]]></title>
+    <link href="https://alanalbert.github.io/15619590428033.html"/>
+    <updated>2019-07-01T13:30:42+08:00</updated>
+    <id>https://alanalbert.github.io/15619590428033.html</id>
+    <content type="html"><![CDATA[
+<span id="more"></span><!-- more -->
+
+<blockquote>
+<p>博客内容为<a href="https://github.com/colinlet/PHP-Interview-QA">PHP-Interview-QA</a>读后笔记</p>
+</blockquote>
+
+<h2 id="toc_0">SQL注入</h2>
+
+<p>用户在提交的表单中注入SQL命令，恶意篡改原SQL语句的语义，以达到破坏或入侵系统的目的。</p>
+
+<blockquote>
+<p>防范: ① 使用预编译SQL语句绑定变量的方式；② 检查用户输入；③ 对数据库用户设置权限</p>
+</blockquote>
+
+<h2 id="toc_1">XSS攻击</h2>
+
+<p>在表单中提交恶意脚本代码，当用户在加载网页时，恶意脚本会被执行。</p>
+
+<blockquote>
+<p>防范: 对用户输入进行验证，对特殊字符进行转义</p>
+</blockquote>
+
+<h2 id="toc_2">CSRF</h2>
+
+<p>利用浏览器保存的登录态，诱导用户执行非本意操作。</p>
+
+<blockquote>
+<p>防范: ① 使用token令牌进行验证；② 增加验证码；③ 检查请求来源</p>
+</blockquote>
+
+<h2 id="toc_3">PHP安全</h2>
+
+<ul>
+<li><p>文件包含漏洞：include、require、include_once、require_once，使用这4个函数包含文件，该文件将作为 PHP 代码执行，PHP 内核不会在意该包含的文件是什么类型</p></li>
+<li><p>代码执行漏洞：危险函数exec、shell_exec、system可以直接执行系统命令。eval函数可以执行 PHP 代码</p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[面试问题之Linux]]></title>
+    <link href="https://alanalbert.github.io/15619559886160.html"/>
+    <updated>2019-07-01T12:39:48+08:00</updated>
+    <id>https://alanalbert.github.io/15619559886160.html</id>
+    <content type="html"><![CDATA[
+<span id="more"></span><!-- more -->
+
+<blockquote>
+<p>博客内容为<a href="https://github.com/colinlet/PHP-Interview-QA">PHP-Interview-QA</a>读后笔记</p>
+</blockquote>
+
+<h2 id="toc_0">目录结构</h2>
+
+<pre><code class="language-bash">/
+├── bin #存放二进制可执行文件，常用命令一般都在这里
+├── boot #存放用于系统引导时使用的各种文件
+├── dev #用于存放设备文件
+├── etc #存放系统管理和配置文件
+├── home #存放所有用户文件的根目录
+├── lib #存放着和系统运行相关的库文件
+├── media #linux 系统会自动识别一些设备，当识别后，linux 会把识别的设备挂载到这个目录下
+├── mnt #用户临时挂载其他的文件系统
+├── opt #额外安装的可选应用程序包所放置的位置
+├── proc #虚拟文件系统目录，是系统内存的映射。可直接访问这个目录来获取系统信息
+├── root #超级用户的主目录
+├── run #是一个临时文件系统，存储系统启动以来的信息
+├── sbin #存放二进制可执行文件，只有 root 才能访问
+├── srv #该目录存放一些服务启动之后需要提取的数据
+├── sys #存放内核相关文件
+├── tmp #用于存放各种临时文件，是公用的临时文件存储点
+├── usr #用于存放系统应用程序
+└── var #用于存放运行时需要改变数据的文件，比如服务的日志文件
+</code></pre>
+
+<h2 id="toc_1">Linux命令</h2>
+
+<ul>
+<li>uname -a: 系统信息</li>
+<li>cat /proc/cpuinfo: CPU信息</li>
+<li>env: 环境变量</li>
+<li>free: 查看内存使用量</li>
+<li>df -h: 查看分区使用情况</li>
+<li>du <dir>: 查看具体目录使用情况</li>
+<li>uptime: 查看系统运行时间、用户数、负载</li>
+<li>ifconfig: 查看网络接口的属性</li>
+<li>iptables: 查看防火墙设置</li>
+<li>netstat -lntp: 查看所有监听的端口</li>
+<li>netstat -antp: 查看所有已建立的连接</li>
+<li>ps -ef、ps aux: 查看所有进程</li>
+<li>top: 实时查看进程状况</li>
+<li>w: 查看活动用户</li>
+<li>last: 查看用户登录日志</li>
+<li>crontab: 设置定时任务</li>
+<li>tail -f: 实时查看文件尾部的内容</li>
+<li>awk、cut: 文本处理（<a href="https://blog.alan123.xyz/linux/953.html">awk、cut命令</a>）</li>
+</ul>
+
+<h2 id="toc_2">查找</h2>
+
+<ul>
+<li>which: 查找命令的位置</li>
+<li>find <obj_dir> -name <file_name>: 查找目标目录下的文件</li>
+<li>locate: 查找文件，但从其自己的数据中查找，速度快</li>
+</ul>
+
+<h2 id="toc_3">标准数据流</h2>
+
+<ul>
+<li>STDIN: 标准输入，0</li>
+<li>STDOUT: 标准输出，1</li>
+<li>STDERR: 标准错误输出，2</li>
+</ul>
+
+<h2 id="toc_4">vim</h2>
+
+<ul>
+<li>向上翻半页: ctrl+u</li>
+<li>向下翻半页: ctrl+d</li>
+<li>光标上移: k</li>
+<li>光标下移: j</li>
+<li>光标左移: h</li>
+<li>光标右移: l</li>
+<li>跳到第一行: gg</li>
+<li>跳到最后一行: G</li>
+<li>调到指定行: :n</li>
+<li>查找: /word</li>
+<li>查找下一个: n</li>
+<li>查找上一个: N</li>
+</ul>
+
+<h2 id="toc_5">进程、线程、协程</h2>
+
+<ul>
+<li>进程: 是一个正在执行的程序，它是系统资源分配的最小单位</li>
+<li>线程: 相对进程更小，一个进程可能包含多个线程，同一个进程中的线程资源共享，线程是CPU调度的最小单位</li>
+<li>协程: 比线程还小，协程的调度由程序员操控，没有进程和线程中的上下文切换</li>
+</ul>
+
+<h2 id="toc_6">进程间通信</h2>
+
+<ul>
+<li>信号量</li>
+<li>消息队列</li>
+<li>共享内存</li>
+<li>信号</li>
+<li>管道</li>
+<li>套接字</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[面试问题之Redis]]></title>
+    <link href="https://alanalbert.github.io/15619534355213.html"/>
+    <updated>2019-07-01T11:57:15+08:00</updated>
+    <id>https://alanalbert.github.io/15619534355213.html</id>
+    <content type="html"><![CDATA[
+<span id="more"></span><!-- more -->
+
+<blockquote>
+<p>博客内容为<a href="https://github.com/colinlet/PHP-Interview-QA">PHP-Interview-QA</a>读后笔记</p>
+</blockquote>
+
+<h2 id="toc_0">Redis特点</h2>
+
+<ul>
+<li>支持数据持久化</li>
+<li>支持key-value类型数据及其他数据类型</li>
+<li>支持主从结构</li>
+</ul>
+
+<h2 id="toc_1">数据类型</h2>
+
+<ul>
+<li>String字符串</li>
+<li>List链表</li>
+<li>Hash哈希表</li>
+<li>Set集合</li>
+<li>ZSet有序集合</li>
+</ul>
+
+<h2 id="toc_2">Redis与MemCache</h2>
+
+<ul>
+<li>Redis支持丰富的数据类型，MemCache支持k-v数据</li>
+<li>Redis支持数据持久化，MemCache不支持</li>
+<li>Redis支持事务，MemCache用cas维持数据一致性</li>
+</ul>
+
+<h2 id="toc_3">Redis事务</h2>
+
+<ul>
+<li>MULTI: 后续的命令进入事务队列</li>
+<li>DISCARD: 取消一个事务，清空事务队列</li>
+<li>EXEC: 执行事务</li>
+<li>WATCH: 用于在事务开始之前监视任意数量的键：当调用 EXEC 命令执行事务时，如果任意一个被监视的键已经被其他客户端修改了，那么整个事务不再执行，直接返回失败。</li>
+</ul>
+
+<h2 id="toc_4">持久化策略</h2>
+
+<ul>
+<li>RDB快照持久化：将所有数据写入硬盘，BGSAVE</li>
+<li>AOF持久化：以追加形式写入，将写过的命令保存到磁盘</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[面试问题之MySQL]]></title>
+    <link href="https://alanalbert.github.io/15619499349092.html"/>
+    <updated>2019-07-01T10:58:54+08:00</updated>
+    <id>https://alanalbert.github.io/15619499349092.html</id>
+    <content type="html"><![CDATA[
+<span id="more"></span><!-- more -->
+
+<blockquote>
+<p>博客内容为<a href="https://github.com/colinlet/PHP-Interview-QA">PHP-Interview-QA</a>读后笔记</p>
+</blockquote>
+
+<h2 id="toc_0">left join、inner join、right join、full join</h2>
+
+<ul>
+<li>left join: 用左边所有的数据在右边中查找匹配的值，如果没有匹配的，用null代替</li>
+<li>right join: 与left join类似</li>
+<li>inner join: 左右两边匹配到的行</li>
+<li>full join: 左边、右边的所有数据，未匹配到的用null代替</li>
+</ul>
+
+<h2 id="toc_1">union、union all</h2>
+
+<ul>
+<li>union: 连接两个结果集，并去重</li>
+<li>union all: 不去重</li>
+</ul>
+
+<h2 id="toc_2">MySQL常用函数</h2>
+
+<ul>
+<li>floor向下取整、ceil向上取整、round四舍五入、rand随机数、abs绝对值</li>
+<li>concat连接字符串、length字符串长度</li>
+<li>now当前时间、curdate当前日期、unix_timestamp转时间戳、from_unixtime时间戳转格式化日期</li>
+<li>password、md5加密</li>
+<li>format数字格式化</li>
+</ul>
+
+<h2 id="toc_3">锁</h2>
+
+<ul>
+<li>读锁（共享锁）：同一时刻可以同时读取同一个资源，阻塞写</li>
+<li>写锁（排他锁）：阻塞其他写和读</li>
+</ul>
+
+<p>共享锁和排他锁都属于悲观锁（悲观锁认为此操作会出现数据冲突，所以在进行每次操作时都要通过获取锁才能进行对相同数据的操作），乐观锁则认为这次的操作不会导致冲突，在操作数据时，并不进行任何其他的特殊处理（也就是不加锁），而在进行更新后，再去判断是否有冲突了。</p>
+
+<p>例如：</p>
+
+<pre><code class="language-sql"># 1.查询出商品信息
+
+select (status,version) from t_goods where id=#{id}
+
+# 2.根据商品信息生成订单
+
+# 3.修改商品status为2
+
+update t_goods 
+
+set status=2,version=version+1
+
+where id=#{id} and version=#{version};
+</code></pre>
+
+<blockquote>
+<p>悲观锁由数据库内部实现<br/>
+乐观锁则是在外部需要手动实现</p>
+</blockquote>
+
+<ul>
+<li>表锁：开销小，锁定整张表</li>
+<li>行级锁：开销大，锁定一行</li>
+</ul>
+
+<h2 id="toc_4">事务隔离级别</h2>
+
+<ul>
+<li>未提交读：事务中未提交的修改，对其他事务可见</li>
+<li>提交读：事务中未提交修改仅自己可见，但两次查询可能得到不同结果（解决脏读：一个线程中的事务读取到了另外一个线程中未提交的数据）</li>
+<li>可重复读：MySQL默认，同一事务多次读取结果一致（解决不可重复读：一个线程中的事务读取到了另外一个线程中提交的update的数据）</li>
+<li>可串行化：强制事务串行执行（解决幻读：一个线程中的事务读取到了另外一个线程中提交的insert的数据）</li>
+</ul>
+
+<h2 id="toc_5">InnoDB、MyISAM</h2>
+
+<ul>
+<li>InnoDB: MySQL默认存储引擎，支持事务、行级锁、外键，支持崩溃后安全恢复，性能优秀</li>
+<li>MyISAM: 支持全文索引、表锁，不支持事务、外键、崩溃后安全恢复</li>
+</ul>
+
+<p>其他存储引擎：Blackhole、Memory</p>
+
+<h2 id="toc_6">索引</h2>
+
+<p>通过二叉查找树等数据结构来提升无序数据表的查询效率。</p>
+
+<blockquote>
+<p>优势：提升数据的扫描量、避免创建临时表、提升查询速度<br/>
+劣势：增删改需要额外维护索引，写入速度降低，索引会导致占用更多磁盘</p>
+</blockquote>
+
+<ul>
+<li>普通索引</li>
+<li>唯一索引</li>
+<li>主键索引</li>
+<li>外建索引</li>
+<li>组合索引：应遵循最左前缀原则</li>
+<li>全文索引</li>
+</ul>
+
+<p>按物理存储分类：聚簇索引、非聚簇索引</p>
+
+<ul>
+<li>聚簇索引：叶节点就是数据节点</li>
+<li>非聚簇索引：叶节点仍是索引节点，存在指向数据块的指针</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[面试问题之Web]]></title>
+    <link href="https://alanalbert.github.io/15619489517372.html"/>
+    <updated>2019-07-01T10:42:31+08:00</updated>
+    <id>https://alanalbert.github.io/15619489517372.html</id>
+    <content type="html"><![CDATA[
+<span id="more"></span><!-- more -->
+
+<blockquote>
+<p>博客内容为<a href="https://github.com/colinlet/PHP-Interview-QA">PHP-Interview-QA</a>读后笔记</p>
+</blockquote>
+
+<h2 id="toc_0">SEO</h2>
+
+<ul>
+<li>语义化的HTML代码，符合W3C规范</li>
+<li>重要内容放在最前</li>
+<li>重要内容不用js输出</li>
+<li>少使用iframe</li>
+<li>非装饰图片加alt</li>
+<li>添加网站地图</li>
+</ul>
+
+<h2 id="toc_1">JavaScript代码放在HTML末尾</h2>
+
+<ul>
+<li>优先加载HTML及CSS，减少用户使用时的加载时长</li>
+<li>在JavaScript执行之前，保证HTML全部加载</li>
+</ul>
+
+<h2 id="toc_2">跨域方式</h2>
+
+<ul>
+<li>使用jsonp进行跨域（只能GET请求），创建回调函数，在服务器返回的数据中调用该函数，并将数据放在函数的参数中</li>
+<li>document.domain + iframe，设置两个页面的基础域名相同（子域不同）</li>
+<li>CORS，服务器返回设置Access-Contorl-Allow-Origin: *</li>
+<li>WebSocket</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[面试问题之PHP]]></title>
+    <link href="https://alanalbert.github.io/15617130997827.html"/>
+    <updated>2019-06-28T17:11:39+08:00</updated>
+    <id>https://alanalbert.github.io/15617130997827.html</id>
+    <content type="html"><![CDATA[
+<span id="more"></span><!-- more -->
+
+<blockquote>
+<p>博客内容为<a href="https://github.com/colinlet/PHP-Interview-QA">PHP-Interview-QA</a>读后笔记</p>
+</blockquote>
+
+<h2 id="toc_0">变量</h2>
+
+<ul>
+<li>PHP中的八大数据类型：整型、字符串、浮点型、布尔、数组、对象、NULL、资源。</li>
+<li>字符串的定义：单引号、双引号、NowDoc及HereDoc。双引号包裹的字符串会被解析，单引号的不会。</li>
+<li>判断语句中被判定为false的情况：0、0.0、&#39;0&#39;、&#39;&#39;、array()、null、false</li>
+</ul>
+
+<h2 id="toc_1">引用</h2>
+
+<ul>
+<li>引用计数、写时复制（对象除外）</li>
+<li>unset不销毁内存空间、只是取消引用</li>
+</ul>
+
+<h2 id="toc_2">echo、print、print_r、var_dump、printf、sprintf</h2>
+
+<blockquote>
+<p>echo、print属于语言结构，print_r、var_dump、printf、sprintf是普通函数</p>
+</blockquote>
+
+<ul>
+<li>echo：输出一个或多个字符串（echo &#39;123&#39;, &#39;345&#39;, &#39;567&#39;;）</li>
+<li>print：输出字符串</li>
+<li>print_r：可输出复杂数据类型Array、Object，布尔类型true输出为1，false输出为0</li>
+<li>var_dump：可输出复杂数据类型Array、Object，布尔输出正常</li>
+<li>printf：格式化输出</li>
+<li>sprintf：格式化返回</li>
+</ul>
+
+<h2 id="toc_3">isset、is_null、empty</h2>
+
+<ul>
+<li>isset：当变量为NULL、声明后未赋值或者变量未声明时，返回false</li>
+<li>is_null：当变量为NULL、声明后未赋值或者变量未声明时，返回true（当变量未声明或未赋值时，PHP输出警告）</li>
+<li>empty：当变量为空字符串、false、array()、null、&quot;0&quot;、0、0.0或变量未声明时，返回true</li>
+</ul>
+
+<h2 id="toc_4">超全局变量</h2>
+
+<ul>
+<li>$GLOBALS: 包含以下8个</li>
+<li>$_GET: 请求的GET参数</li>
+<li>$_POST: 请求的POST参数</li>
+<li>$_FILES: 提交的文件信息</li>
+<li>$_REQUEST: 请求参数，包含GET及POST的参数</li>
+<li>$_COOKIE: 请求中携带的cookie数据</li>
+<li>$_SESSION: 服务器中的session数据</li>
+<li>$_ENV: 服务器系统的环境变量</li>
+<li>$_SERVER: 服务器脚本信息、客户端信息、请求信息</li>
+</ul>
+
+<h2 id="toc_5">常量</h2>
+
+<ul>
+<li>const：语言结构，可以在类中定义常量，数据更快</li>
+<li>define：函数</li>
+</ul>
+
+<blockquote>
+<p>PHP中预定义的常量（魔术常量）：__DIR__、__FILE__、__LINE__、__NAMESPACE__、__CLASS__、__TRAIT__、__FUNCTION__、__METHOD__</p>
+</blockquote>
+
+<h2 id="toc_6">static、self、$this、parent</h2>
+
+<ul>
+<li>static表示当前实例化的类，不能用于访问非静态属性</li>
+<li>self表示当前语句所在的类，也不能用于访问非静态属性，</li>
+<li>$this指的是实际实例化的对象，其不能访问静态属性和常量，且不能出现于静态方法中</li>
+<li>parent指向父类，用于访问父类public的方法及静态常量</li>
+</ul>
+
+<h2 id="toc_7">require、include、require_once、include_once</h2>
+
+<p>require引用文件出错时报致命错误，并终止脚本执行，include引用文件出错时报警告，但继续执行后续脚本。</p>
+
+<p>require_once、include_once与require、include类似，但文件只会被包含一次。因为包含前存在判断，所以性能比require、include较差。</p>
+
+<blockquote>
+<p>应尽量不使用include_once、require_once</p>
+</blockquote>
+
+<h2 id="toc_8">常见的数组处理函数</h2>
+
+<ul>
+<li>array_count_values: 统计数组中各个value的个数</li>
+<li>array_diff: 判断一个数组与其他数组的差异，返回在第一个数组中但不在其他数组中的元素，例如array_duff([1,2,3,4], [1,2], [4])返回[2 =&gt; 3]</li>
+<li>array_key_exists: 判断key是否存在</li>
+<li>in_array: 判断值是否存在于数组中</li>
+<li>array_keys: 获取数组的所有键</li>
+<li>array_values: 获取数组的所有值</li>
+<li>array_merge: 合并数组，后者覆盖前者。使用“+”则是前者覆盖后者</li>
+<li>sort: 数组排序</li>
+<li>count: 数组长度，等同于sizeof</li>
+<li>array_shift: 删除数组第一个元素，并返回</li>
+<li>array_unshift: 在数组头部加入一个元素</li>
+<li>array_pop: 删除数组末尾最后一个元素，并返回</li>
+<li>array_push: 向数组末尾添加一个元素</li>
+<li>array_reverse: 翻转数组</li>
+<li>array_rand: 从数组中取随机值</li>
+<li>array_flip: 交换数组的键值</li>
+<li>array_search: 搜索数组的值，返回第一个匹配到的元素的键</li>
+<li>array_sum: 计算数组所有值的和</li>
+<li>array_slice: 根据开始位置和长度复制数组元素，返回复制的元素（即原数组不改变）</li>
+<li>array_splice: 根据开始位置和长度剪切数组元素，并返回剪切的元素（即原数组中匹配到的元素被删除） </li>
+<li>array_map: 对数组进行遍历，并对每个元素使用提供的回调函数</li>
+</ul>
+
+<h2 id="toc_9">常见的字符串处理函数</h2>
+
+<ul>
+<li>chr: ASCII码转字符</li>
+<li>ord: 字符转ASCII码</li>
+<li>count_chars: 统计字符串中的字符数</li>
+<li>str_word_count: 统计字符串中的单词数</li>
+<li>explode: 按指定字符将字符串分解为数组</li>
+<li>implode: 按指定字符将数组合并为字符串</li>
+<li>htmlentities: 转义处理字符串中的HTML实体。html_entity_decode用于反向解码</li>
+<li>htmlspecialchars: 转义处理字符串中的特殊字符，包括&amp;、&quot;、&#39;、&lt;、&gt;。htmlspecialchars_decode用于反向解码</li>
+<li>trim: 去除字符串两端的空格，ltrim、rtrim分别用于去除左边界的空格和右边界的空格</li>
+<li>str_len: 计算字符串长度</li>
+<li>strrev: 翻转字符串</li>
+<li>substr: 根据起始位置和长度获取子字符串，返回获取的子字符串</li>
+<li>preg_replace: 正则表达式替换</li>
+<li>preg_match: 正则表达式匹配</li>
+<li>strstr: 判断字符串2是否为字符串1的子字符串，如果是，返回匹配到的开始位置到父字符串末尾的字符串，如果不是，返回null</li>
+<li>strrchr: 与strstr一样，只是该函数从父字符串的末尾开始匹配</li>
+<li>strcmp: 字符串比较函数，如果字符串1&gt;字符串2，返回1；如果字符串1&lt;字符串2，返回-1；如果字符串1等于字符串2，返回0；如果两个字符串部分内容不一致，返回两个字符串中第一个不同的字符的差值</li>
+<li>str_replace: 搜索并替换字符串的内容</li>
+</ul>
+
+<h2 id="toc_10">多台服务器session共享的解决方案</h2>
+
+<ul>
+<li>将session数据存储到MySQL数据库中</li>
+<li>将session数据存储到Redis、MemCache这些内存型数据库中</li>
+<li>使用NFS共享session文件</li>
+<li>使用cookie保存session信息</li>
+</ul>
+
+<h2 id="toc_11">魔术方法</h2>
+
+<ul>
+<li>__construct()</li>
+<li>__destruct()</li>
+<li>__call(): 当调用不存在的方法时</li>
+<li>__callStatic(): 当调用不存在的惊天方法时</li>
+<li>__get(): 获取不存在的属性时</li>
+<li>__set(): 写入不存在的属性时</li>
+<li>__sleep(): 当对象被序列化时</li>
+<li>__wakeup(): 反序列化时</li>
+<li>__toString(): 对象作为字符串使用时</li>
+<li>__invoke(): 当对象被作为函数调用时</li>
+<li>__isset(): 当使用isset函数探测对象的私有属性时</li>
+<li>__unset(): 当使用unset函数删除对象的私有属性时</li>
+<li>__clone(): 当对象被克隆</li>
+</ul>
+
+<h2 id="toc_12">public、protected、private、final</h2>
+
+<ul>
+<li>public可被外部访问，protected与private不可被外部访问</li>
+<li>public、protected可被子类继承，private不可被继承</li>
+<li>final描述的方法，不可被子类重写；final描述的类，不可被继承</li>
+</ul>
+
+<h2 id="toc_13">SERVER_ADDR、REMOTE_ADDR、HTTP_X_FORWARDED_FOR、HTTP_CLIENT_IP</h2>
+
+<ul>
+<li>SERVER_ADDR获取服务器IP</li>
+<li>REMOTE_ADDR获取客户端IP，但当用户使用代理时，获取到的就是代理服务器的IP</li>
+<li>HTTP_X_FORWARDED_FOR、HTTP_CLIENT_IP可以获取到用户真实IP及使用的各个代理的IP，但该字段可能被伪造</li>
+</ul>
+
+<blockquote>
+<p>当后端架构中有使用到代理服务器，可以使用HTTP_X_FORWARDED_FOR、HTTP_CLIENT_IP来进行获取用户IP。如果后端服务器直接暴露给用户，只需要使用REMOTE_ADDR获取客户端IP即可。</p>
+</blockquote>
+
+<h2 id="toc_14">php.ini配置</h2>
+
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>short_open_tag</td>
+<td>On</td>
+<td>是否开启缩写模式</td>
+</tr>
+<tr>
+<td>precision</td>
+<td>14</td>
+<td>浮点数显示有效数字的位数</td>
+</tr>
+<tr>
+<td>disable_functions</td>
+<td></td>
+<td>禁用的函数</td>
+</tr>
+<tr>
+<td>disable_classes</td>
+<td></td>
+<td>禁用的类</td>
+</tr>
+<tr>
+<td>expose_php</td>
+<td>On</td>
+<td>是否暴露PHP被安装在服务器上</td>
+</tr>
+<tr>
+<td>max_execution_time</td>
+<td>30</td>
+<td>最大执行时间</td>
+</tr>
+<tr>
+<td>memory_limit</td>
+<td>128M</td>
+<td>每个脚本执行时内存限制</td>
+</tr>
+<tr>
+<td>error_reporting</td>
+<td>E_ALL &amp; ~E_DEPRECATED &amp; ~E_STRICT</td>
+<td>设置错误报告级别</td>
+</tr>
+<tr>
+<td>display_errors</td>
+<td>On</td>
+<td>显示错误</td>
+</tr>
+<tr>
+<td>log_errors</td>
+<td>On</td>
+<td>设置是否将错误日志记录到error_log</td>
+</tr>
+<tr>
+<td>error_log</td>
+<td></td>
+<td>PHP错误日志文件</td>
+</tr>
+<tr>
+<td>upload_max_filesize</td>
+<td>2M</td>
+<td>上传文件的最大限制</td>
+</tr>
+<tr>
+<td>post_max_size</td>
+<td>8M</td>
+<td>设置POST最大数据限制</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="toc_15">php-fpm.conf配置信息</h2>
+
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>默认</th>
+<th>备注</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>pid</td>
+<td></td>
+<td>pid文件</td>
+</tr>
+<tr>
+<td>error_log</td>
+<td></td>
+<td>错误日志的位置</td>
+</tr>
+<tr>
+<td>log_level</td>
+<td>notice</td>
+<td>错误级别（alert: 必须立即处理；error: 错误信息；warning: 警告信息；notice: 一般重要信息；debug: 调试信息）</td>
+</tr>
+<tr>
+<td>daemonize</td>
+<td>yes</td>
+<td>设置FPM后台运行</td>
+</tr>
+<tr>
+<td>listen</td>
+<td></td>
+<td>FPM监听的地址及端口</td>
+</tr>
+<tr>
+<td>request_slowlog_timeout</td>
+<td>0</td>
+<td>慢日志记录阈值</td>
+</tr>
+<tr>
+<td>slowlog</td>
+<td></td>
+<td>慢日志记录文件</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="toc_16">进程通讯方式</h2>
+
+<ul>
+<li>消息队列</li>
+<li>socket</li>
+<li>信号量</li>
+<li>共享内存</li>
+<li>管道</li>
+</ul>
+
+<h2 id="toc_17">发起HTTP请求的方式</h2>
+
+<ul>
+<li>curl: curl_init -&gt; curl_setopt -&gt; curl_exec -&gt; curl_close</li>
+<li>file_get_contents: http_build_query -&gt; stream_context_create -&gt; file_get_content(url, false, context)</li>
+<li>fopen: fopen -&gt; fgets -&gt; fclose</li>
+<li>fsockopen: fsocketopen -&gt; fputs -&gt; fgets -&gt; fclose</li>
+</ul>
+
+<h2 id="toc_18">生成器yield的基本原理</h2>
+
+<blockquote>
+<p>当一个生成器被调用的时候，它返回一个可以被遍历的对象。<br/>
+当你遍历这个对象的时候 (例如通过一个 foreach 循环)，PHP 将会在每次需要值的时候调用生成器函数，并在产生一个值之后保存生成器的状态，这样它就可以在需要产生下一个值的时候恢复调用状态。</p>
+
+<p>一旦不再需要产生更多的值，生成器函数可以简单退出，而调用生成器的代码还可以继续执行，就像一个数组已经被遍历完了。</p>
+</blockquote>
+
+<p>此外，yield还可以接受值：</p>
+
+<pre><code class="language-php">function printer()
+{
+    while (true) {
+        printf(&quot;receive: %s\n&quot;, yield);
+    }
+}
+
+$printer = printer();
+
+$printer-&gt;send(&#39;hello&#39;);
+$printer-&gt;send(&#39;world&#39;);
+</code></pre>
+
+<p>PHP的生成器还实现了一个send方法，该方法向yield处传递一个值，同时从 yied 语句处继续执行，直至再次遇到 yield 后控制权回到外部。   </p>
+
+<p>Generator生成器提供的方法有：</p>
+
+<ul>
+<li>current: 获取生成器当前的值</li>
+<li>getReturn: 获取生成器返回的值</li>
+<li>key: 获取生成器当前的key</li>
+<li>next: 继续执行生成器</li>
+<li>rewind: 重置生成器</li>
+<li>send: 发送值给生成器</li>
+<li>valid: 验证生成器是否关闭</li>
+<li>throw: 抛出一个生成器异常</li>
+</ul>
+
+<h2 id="toc_19">防止内存泄露的解决方法</h2>
+
+<ul>
+<li>过大的数据分段读取</li>
+<li>尽可能减少静态变量的使用，可以考虑使用引用代替</li>
+<li>数据库、文件操作完后，及时释放连接</li>
+<li>对象、变量使用完后，及时unset释放</li>
+<li>unset()函数只能在变量值占用内存空间超过256字节时才会释放内存空间</li>
+<li>当指向该变量的所有变量（如引用变量）都被销毁后，才会释放内存</li>
+</ul>
+
+<h2 id="toc_20">模板引擎的原理</h2>
+
+<ul>
+<li>通过视图名找到相应的视图文件</li>
+<li>通过正则表达式或其它方式将模板引擎的定界符及其他符号修改为PHP的定界符和符号</li>
+<li>将转化好的文件内容存为缓存文件，并以视图文件的上一次修改时间作为缓存文件的命名依据，保证视图文件更新后，缓存文件也进行更新</li>
+</ul>
+
+<h2 id="toc_21">反射类</h2>
+
+<ul>
+<li>ReflectionClass</li>
+<li>ReflectionFunction</li>
+<li>ReflectionMethod</li>
+<li>ReflectionObject</li>
+<li>ReflectionGenerator</li>
+<li>...</li>
+</ul>
+
+<h2 id="toc_22">正则表达式</h2>
+
+<ul>
+<li>\d: 数字</li>
+<li>\D: 非数字</li>
+<li>\w: 字母、数字、下划线</li>
+<li>\W: 非字母、数字、下划线</li>
+<li>\s: 空白符，空格、制表、换行</li>
+<li>\S: 非空白符</li>
+<li>.: 除换行外的任意字符</li>
+<li>*: 0~n个</li>
+<li>?: 0或1个</li>
+<li>+: 1~n个</li>
+<li>{n}: n个</li>
+<li>{n,}: 大于等于n个</li>
+<li>{n,m}: n~m个</li>
+<li><sup>:</sup> 开始</li>
+<li>$: 结束</li>
+<li>[]: 匹配中括号中任意一个</li>
+<li>[<sup>]:</sup> 除了括号中的</li>
+<li>(): 整体或后文引用</li>
+</ul>
+
+<blockquote>
+<p>修正符:<br/>
+i: 区分大小写<br/>
+S: .包括换行<br/>
+m: 每一行分别进行匹配<br/>
+U: 取消贪婪模式，另一种方法就是在量词后面加问号，如*?<br/>
+u: utf8中文匹配</p>
+</blockquote>
+
+<h2 id="toc_23">CGI、FastCGI、PHP-FPM</h2>
+
+<ul>
+<li><p>CGI: 通用网关接口，是Web服务器与服务端语言交互的标准接口。在一个请求到来时，服务器创建一个CGI进程用来执行程序，等待程序执行完成，该CGI进程被杀死。</p></li>
+<li><p>FastCGI: 是用于提升CGI性能的标准，FastCGI要求CGI进程在处理完请求后不被立刻杀死，而是保留下来，等待处理下一次请求。</p></li>
+<li><p>PHP-FPM: FastCGI Processor Manager，实现FastCGI的管理器，使用FastCGI标准管理CGI程序</p></li>
+</ul>
+
+<h2 id="toc_24">PHP操作MySQL数据库</h2>
+
+<h3 id="toc_25">mysqli面向过程</h3>
+
+<pre><code class="language-php">// 使用prepare（推荐）
+$conn = mysqli_connect(&#39;127.0.0.1&#39;, &#39;root&#39;, &#39;&#39;, &#39;test&#39;);
+mysqli_set_charset($conn, &#39;utf8&#39;);
+$stmt = mysqli_prepare($conn, &#39;SELECT `name`, `phone` FROM `aihailin` LIMIT ?&#39;);
+mysqli_stmt_bind_param($stmt, &#39;i&#39;, $limit);
+$limit = 2;
+mysqli_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+foreach ($result as $row) {
+  var_dump($row);
+}
+// 或不使用prepare
+$conn = mysqli_connect(&#39;127.0.0.1&#39;, &#39;root&#39;, &#39;&#39;, &#39;test&#39;);
+mysqli_set_charset($conn, &#39;utf8&#39;);
+$res = mysqli_query($conn, &#39;SELECT * FROM `aihailin` LIMIT 2&#39;);
+foreach ($res as $row) {
+  var_dump($row);
+}
+</code></pre>
+
+<h3 id="toc_26">mysqli面向对象</h3>
+
+<pre><code class="language-php">$mysqli = new mysqli(&#39;127.0.0.1&#39;, &#39;root&#39;, &#39;&#39;, &#39;test&#39;);
+$mysqli-&gt;set_charset(&#39;utf8&#39;);
+$stmt = $mysqli-&gt;prepare(&#39;SELECT `name`, `phone` FROM `aihailin` LIMIT ?&#39;);
+$stmt-&gt;bind_param(&#39;i&#39;, $limit);
+$limit = 2;
+$stmt-&gt;execute();
+$result = $stmt-&gt;get_result();
+foreach ($result as $row) {
+  var_dump($row);
+}
+</code></pre>
+
+<h3 id="toc_27">PDO</h3>
+
+<pre><code class="language-php">$dsn = &#39;mysql:host=127.0.0.1;dbname=test;charset=utf8&#39;;
+$pdo = new PDO($dsn, &#39;root&#39;, &#39;&#39;);
+$stmt = $pdo-&gt;prepare(&#39;SELECT * FROM `aihailin` LIMIT :limit&#39;);
+$stmt-&gt;bindParam(&#39;:limit&#39;, $limit);
+$limit = 5;
+if ($stmt-&gt;execute()) {
+    $result = $stmt-&gt;fetchAll(PDO::FETCH_ASSOC);
+    var_dump($result);
+}
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[面试问题之数据结构及算法]]></title>
+    <link href="https://alanalbert.github.io/15616925139175.html"/>
+    <updated>2019-06-28T11:28:33+08:00</updated>
+    <id>https://alanalbert.github.io/15616925139175.html</id>
+    <content type="html"><![CDATA[
+<span id="more"></span><!-- more -->
+
+<blockquote>
+<p>博客内容为<a href="https://github.com/colinlet/PHP-Interview-QA">PHP-Interview-QA</a>读后笔记</p>
+</blockquote>
+
+<h2 id="toc_0">衡量算法优劣的指标</h2>
+
+<ul>
+<li>空间复杂度</li>
+<li>时间复杂度</li>
+</ul>
+
+<h2 id="toc_1">链表有哪些</h2>
+
+<ul>
+<li>单向链表</li>
+<li>双向链表</li>
+<li>循环链表</li>
+</ul>
+
+<h2 id="toc_2">线性结构</h2>
+
+<blockquote>
+<p>线性结构是指一个有序数据元素的集合，除了第一个和最后一个外，其他元素都是首尾相接的。</p>
+</blockquote>
+
+<p>常见的线性结构有：线性表、栈、队列、数据</p>
+
+<h2 id="toc_3">树</h2>
+
+<ul>
+<li>二叉树</li>
+<li>二叉搜索树</li>
+<li>平衡二叉树</li>
+<li>红黑树</li>
+<li>B树</li>
+<li>B+树</li>
+</ul>
+
+<h2 id="toc_4">散列表</h2>
+
+<p>散列表，就是哈希（Hash）表，在PHP中，数组就是哈希表的实现。    </p>
+
+<p>散列表是用来存储key-value键值对的数据结构，其原理是将key通过<strong>散列函数</strong>计算，得到相应的<strong>桶</strong>的序号，然后通过桶号直接访问value。</p>
+
+<blockquote>
+<p>散列函数应尽可能让所有key均匀地散布到整个集合。<br/>
+此外，散列函数计算得到的结果可能相同，这种情况就叫<strong>哈希冲突</strong>。</p>
+</blockquote>
+
+<p>处理哈希冲突的常用方法： </p>
+
+<ul>
+<li>拉链法：在每个桶中存放一个链表，通过链表存储冲突的值</li>
+<li>开放地址法：用大小为M的数组保存N个键值对，其中M&gt;N，数组中的空位用于解决冲突问题。线性探测法就是这种方法的具体实现：当发生碰撞时，我们会检测数组的下一个位置，直到找到该键或遇到一个空位置。</li>
+</ul>
+
+<h2 id="toc_5">排序</h2>
+
+<ul>
+<li>选择排序：简单选择排序（每次选择最小或最大的排在起始位置）、堆排序（将序列构成最大堆或最小堆，将堆顶元素（最大元素或最小元素）放于序列末尾，然后将剩下的n-1个元素继续如上操作，直至得到有序序列）</li>
+<li>插入排序：简单插入排序（前面为有序序列，后面为无序序列，每次从无序序列中选择第一个元素，比较并插入到有序序列中的合适位置）、希尔排序</li>
+<li>交换排序：冒泡排序（比较相邻元素的大小，并按条件进行交换）、快速排序（选择一个数值，交换并保证比它小的元素在其左边，比它大的元素在其右边）</li>
+<li>归并排序（将序列分为左右两个子序列，对两个子序列分别进行归并排序，将排好序的两个子序列合并成最终的排序序列）</li>
+<li>基数排序：桶排序、基数排序</li>
+</ul>
+
+<h2 id="toc_6">其他算法</h2>
+
+<ul>
+<li>KPM（字符串查找算法）</li>
+<li>布隆过滤器（检索一个元素是否在集合中）</li>
+<li>贪心算法</li>
+<li>回溯算法</li>
+<li>动态规划</li>
+<li>最小生成树</li>
+<li>最短路径</li>
+<li>推荐算法</li>
+<li>深度优先、广度优先</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
