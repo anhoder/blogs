@@ -1,6 +1,6 @@
 # PHP实现异步回调的总结
 
-很久没更新博客了，最近在下班时间写了一个简单的PHP库——[php-async](https://github.com/AlanAlbert/php-async)及[php-async-manager](https://github.com/AlanAlbert/php-async-manager)，以实现PHP中的简单异步回调。
+很久没更新博客了，最近在下班时间写了一个简单的PHP库——[php-async](https://github.com/anhoder/php-async)及[php-async-manager](https://github.com/anhoder/php-async-manager)，以实现PHP中的简单异步回调。
 
 <!-- more -->
 
@@ -67,10 +67,10 @@ interface JobInterface
 
 ## 3. 最后结果
 
-最后实现的结果为: [php-async](https://github.com/AlanAlbert/php-async)。在CLI和php-fpm模式下都没有发现问题。
+最后实现的结果为: [php-async](https://github.com/anhoder/php-async)。在CLI和php-fpm模式下都没有发现问题。
 
 
-之后，我还基于symfony/console开发了一个用于查看异步任务的命令行工具——[php-async-manager](https://github.com/AlanAlbert/php-async-manager)，可以用于查看异步任务运行状态、停止正在运行的任务等。
+之后，我还基于symfony/console开发了一个用于查看异步任务的命令行工具——[php-async-manager](https://github.com/anhoder/php-async-manager)，可以用于查看异步任务运行状态、停止正在运行的任务等。
 
 ## 4. 后续拓展
 

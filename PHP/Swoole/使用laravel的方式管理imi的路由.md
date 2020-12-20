@@ -96,7 +96,7 @@ Route::group(['middleware' => ['auth']], function () {
 });
 ```
 
-所以，我编写了一个组件——[`imi-route`](https://github.com/AlanAlbert/imi-route)，希望可以将laravel路由管理的基本功能应用到在imi框架中去。
+所以，我编写了一个组件——[`imi-route`](https://github.com/anhoder/imi-route)，希望可以将laravel路由管理的基本功能应用到在imi框架中去。
 
 ### 基本实现思路
 

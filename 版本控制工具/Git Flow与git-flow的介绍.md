@@ -61,7 +61,7 @@ release 分支是发布到 master 分支前的版本。可以把已完成的 dev
 
 以上分支的关系如下图所示（引用自[Git Flow简介](https://segmentfault.com/a/1190000006194051)）：
 
-![Git Flow分支](media/15629079461623/3652838737-57a69c4ba2103_articlex.png)
+![Git Flow分支](media/15981624548765/3652838737-57a69c4ba2103_articlex.png)
 
 ## git-flow
 

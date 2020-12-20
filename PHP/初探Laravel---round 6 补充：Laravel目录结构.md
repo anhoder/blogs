@@ -4,11 +4,7 @@
 
 *Mission Start!*
 
-打开Laravel框架，其目录文件如下图：
-
-![目录结构](https://media.alan123.xyz/imgs/blogs/laravel/1.jpg)
-
-目录结构介绍如下表：
+打开Laravel框架，其目录结构如下表：
 
 
 | 文件夹名称 | 简介 |
