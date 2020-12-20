@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=0.8,minimum-scale=0.8, maximum-scale=0.8,user-scalable=no,viewport-fit=cover">
+    <title>
+      
+    PHP内核源码阅读记---round 1 准备工作 - anhoder的进阶日志
+    
+    </title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/png" />
+
+    
+    
+    <link href="atom.xml" rel="alternate" title="anhoder的进阶日志" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/style.min.css">
+    <link rel="stylesheet" href="asset/css/doc.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161423102-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-161423102-1');
+    </script>
+    
+    <!-- 百度分析 -->
+    
+    <script>
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?bdf14d3cd277bc2dfa9f84d19b36a686";
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+    
+    
+      <script src="https://cdn.jsdelivr.net/npm/live2d-widget@3.x/lib/L2Dwidget.min.js"></script>
+    
+    <script src="asset/app.js"></script>
+</head>
+  <body style="overflow-x: hidden;">
+    <section class="hero">
+      <div class="hero-head">
+          <nav class="navbar" role="navigation" aria-label="main navigation">
+              <div class="container">
+              <div class="navbar-brand">
+                
+                <a target="_self" class="navbar-item " href="index.html">博客</a>
+                
+                <a target="_self" class="navbar-item " href="archives.html">归档</a>
+                
+                <a target="_self" class="navbar-item " href="about.html">关于</a>
+                
+                <a target="_blank" class="navbar-item " href="https://github.com/anhoder">GitHub</a>
+                
+
+                <a role="button" id="navbarSNSRssSwitchBtn" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarSNSRssButtons">
+                  <span aria-hidden="true"></span>
+                  <span aria-hidden="true"></span>
+                  <span aria-hidden="true"></span>
+                </a>
+              </div>
+            
+              <div id="navbarSNSRssButtons" class="navbar-menu">
+                <div class="navbar-start">
+                  
+                </div>
+            
+                <div class="navbar-end">
+                  <div class="navbar-item">
+                    <!--buttons start-->
+                    <div class="buttons">
+                      
+                      
+                      
+                      
+                      <a href="https://github.com/anhoder" target="_blank" title="github">
+                        <span class="icon is-large has-text-grey-darker">
+                          <svg class="svg-inline--fa fa-github fa-w-16 fa-lg" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" data-fa-i2svg=""><path fill="currentColor" d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg><!-- <i class="fab fa-github fa-lg"></i> -->
+                        </span>
+                      </a>
+                      
+                      
+                      <a href="https://twitter.com/Alan_Albert_"  target="_blank" title="twitter">
+                        <span class="icon is-large has-text-grey-darker">
+                          <svg class="svg-inline--fa fa-twitter fa-w-16 fa-lg" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path></svg><!-- <i class="fab fa-twitter fa-lg"></i> -->
+                        </span>
+                      </a>
+                      
+                      
+                      <a href="https://weibo.com/u/5794659803" target="_blank" title="weibo">
+                        <span class="icon is-large has-text-grey-darker">
+                          <svg class="svg-inline--fa fa-weibo fa-w-16 fa-lg" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="weibo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M407 177.6c7.6-24-13.4-46.8-37.4-41.7-22 4.8-28.8-28.1-7.1-32.8 50.1-10.9 92.3 37.1 76.5 84.8-6.8 21.2-38.8 10.8-32-10.3zM214.8 446.7C108.5 446.7 0 395.3 0 310.4c0-44.3 28-95.4 76.3-143.7C176 67 279.5 65.8 249.9 161c-4 13.1 12.3 5.7 12.3 6 79.5-33.6 140.5-16.8 114 51.4-3.7 9.4 1.1 10.9 8.3 13.1 135.7 42.3 34.8 215.2-169.7 215.2zm143.7-146.3c-5.4-55.7-78.5-94-163.4-85.7-84.8 8.6-148.8 60.3-143.4 116s78.5 94 163.4 85.7c84.8-8.6 148.8-60.3 143.4-116zM347.9 35.1c-25.9 5.6-16.8 43.7 8.3 38.3 72.3-15.2 134.8 52.8 111.7 124-7.4 24.2 29.1 37 37.4 12 31.9-99.8-55.1-195.9-157.4-174.3zm-78.5 311c-17.1 38.8-66.8 60-109.1 46.3-40.8-13.1-58-53.4-40.3-89.7 17.7-35.4 63.1-55.4 103.4-45.1 42 10.8 63.1 50.2 46 88.5zm-86.3-30c-12.9-5.4-30 .3-38 12.9-8.3 12.9-4.3 28 8.6 34 13.1 6 30.8.3 39.1-12.9 8-13.1 3.7-28.3-9.7-34zm32.6-13.4c-5.1-1.7-11.4.6-14.3 5.4-2.9 5.1-1.4 10.6 3.7 12.9 5.1 2 11.7-.3 14.6-5.4 2.8-5.2 1.1-10.9-4-12.9z"></path></svg><!-- <i class="fab fa-weibo fa-lg"></i> -->
+                        </span>
+                      </a>
+                      
+                      
+                      <a href="mailto: anhoder@88.com" target="_blank" title="email">
+                        <span class="icon is-large has-text-grey-darker">
+                          <svg class="svg-inline--fa fa-email fa-w-14 fa-lg" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1208" width="200" height="200"><path fill="currentColor" d="M935.335233 153.62202h-846.666656a84.666666 84.666666 0 0 0-84.666666 84.666666v550.333327a84.666666 84.666666 0 0 0 84.666666 84.666665h846.666656a84.666666 84.666666 0 0 0 84.666666-84.666665v-550.333327a84.666666 84.666666 0 0 0-84.666666-84.666666z m-27.293711 213.952665L557.558216 549.672927a94.993177 94.993177 0 0 1-87.065555 0.197555l-354.612218-182.202664a42.333333 42.333333 0 0 1 38.698311-75.308177l354.606573 182.202664a10.196689 10.196689 0 0 0 9.341556-0.022577l350.477662-182.089776a42.333333 42.333333 0 1 1 39.034155 75.127555z" fill="#2c2c2c" p-id="1209"></path></svg>
+                        </span>
+                      </a>
+                      
+                      
+                      <a href="https://stackoverflow.com/users/9723854/alan" target="_blank" title="email">
+                        <span class="icon is-large has-text-grey-darker">
+                          <svg class="svg-inline--fa fa-stackoverflow fa-w-14 fa-lg" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1787" width="200" height="200"><path fill="currentColor" d="M809.714286 932.571429H170.857143v-274.285715H79.428571v365.714286h821.714286v-365.714286h-91.428571v274.285715z m-538.285715-299.428572l18.857143-89.714286 447.428572 94.285715-18.857143 89.142857z m58.857143-213.714286l38.285715-83.428571 414.285714 193.714286-38.285714 82.857143z m114.857143-203.428571l58.285714-70.285714 350.857143 293.142857-58.285714 70.285714zM672 0l272.571429 366.285714-73.142858 54.857143-272.571428-366.285714zM261.714286 840.571429v-90.857143h457.142857v90.857143H261.714286z" p-id="1788" fill="#2c2c2c"></path></svg>
+                        </span>
+                      </a>
+                      
+                      <a href="atom.xml" target="_blank" title="RSS">
+                        <span class="icon is-large has-text-black-bis">
+                          <svg class="svg-inline--fa fa-rss fa-w-14 fa-lg" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="rss" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M128.081 415.959c0 35.369-28.672 64.041-64.041 64.041S0 451.328 0 415.959s28.672-64.041 64.041-64.041 64.04 28.673 64.04 64.041zm175.66 47.25c-8.354-154.6-132.185-278.587-286.95-286.95C7.656 175.765 0 183.105 0 192.253v48.069c0 8.415 6.49 15.472 14.887 16.018 111.832 7.284 201.473 96.702 208.772 208.772.547 8.397 7.604 14.887 16.018 14.887h48.069c9.149.001 16.489-7.655 15.995-16.79zm144.249.288C439.596 229.677 251.465 40.445 16.503 32.01 7.473 31.686 0 38.981 0 48.016v48.068c0 8.625 6.835 15.645 15.453 15.999 191.179 7.839 344.627 161.316 352.465 352.465.353 8.618 7.373 15.453 15.999 15.453h48.068c9.034-.001 16.329-7.474 16.005-16.504z"></path></svg><!-- <i class="fas fa-rss fa-lg"></i> -->
+                        </span>
+                      </a>
+                    </div>
+                    <!--buttons end-->
+
+                  </div>
+                </div>
+                </div>
+              </div>
+            </nav>
+      </div>
+
+ <div class="hero-body ct-body"></div>
+      
+</section>
+<section class="ct-body">
+  <div class="container">
+    <div class="columns is-variable bd-klmn-columns is-4">
+      <div class="column is-two-thirds">
+        <div class="post-body single-content">      
+          <div class="card-image">
+            <figure class="random-img">
+            </figure>
+          </div>
+          <h1 class="title">
+            PHP内核源码阅读记---round 1 准备工作   
+          </h1>
+           
+          <div class="media">
+            
+            <figure class="media-left">
+              <p class="image is-48x48">
+                
+                  <img class="is-rounded" src="logo.jpg">
+              </p>
+            </figure>
+            
+            <div class="media-content">
+              <div class="content">
+                <p style="line-height: 30px; font-size: 12px;">
+                  
+                  <a href="https://github.com/anhoder">anhoder</a>
+                  &nbsp;&nbsp;&nbsp;<span style="color: #ccc;">|</span>&nbsp;&nbsp;&nbsp;
+                  
+                  <span class="date"><i class="fa fa-calendar-check-o" aria-hidden="true"></i>&nbsp;2018/05/10</span>
+                  
+                  <span class="tran-posted-in">posted in</span>&nbsp; 
+                  
+                  
+                    <span class="posted-in"><a href='%E6%BA%90%E7%A0%81.html'><i class="fa fa-folder" aria-hidden="true"></i>&nbsp;&nbsp;源码</a></span>
+                  
+                    <span class="posted-in"><a href='PHP.html'><i class="fa fa-folder" aria-hidden="true"></i>&nbsp;&nbsp;PHP</a></span>
+                       
+                  
+
+                  
+
+                  
+                  &nbsp;&nbsp;&nbsp;<span style="color: #ccc;">|</span>&nbsp;&nbsp;&nbsp;
+                  
+                    <a class="tag is-link is-light" href='tag_PHP.html'>#PHP</a>
+                  
+                    <a class="tag is-link is-light" href='tag_%E6%BA%90%E7%A0%81.html'>#源码</a>
+                  
+                  
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <article class="markdown-body single-content">
+          <span id="more"></span><!-- more -->
+
+<p><em>Mission Start!</em></p>
+
+<p>一直想了解一下PHP底层源码的实现，同时还可以增强自己的C语言能力，于是颇有兴致的在PHP官网下载了源码，打开整个项目却不知从何下手，然后就找了阅读资料---<a href="https://www.php-internals.com">《TIPI：深入了解PHP内核》</a>、<a href="https://github.com/walu/phpbook/blob/master/preface.md">《PHP扩展开发及内核应用》</a>、《PHP7内核剖析》，感谢各位编写的大佬！   </p>
+
+<p>因此，该系列博客都是在阅读《TIPI：深入了解PHP内核》、《PHP扩展开发及内核应用》、《PHP7内核剖析》过程中自己的一些总结、摘录。</p>
+
+<h2 id="toc_0">一、PHP源码目录结构</h2>
+
+<p>阅读源码自然少不了理解源码各个目录结构和功能，目录结构如下：</p>
+
+<pre><code class="language-markup">.             // 主要包含一些说明文件以及设计方案，有一个比较重要的文件CODING_STANDARDS，如果要想写PHP扩展的话，这个文件一定要阅读一下，它存放了开发的编码规范
+..
+├── build       // 存放源码编译的相关文件
+├── ext         // 官方扩展目录，包括绝大多数PHP函数的定义和实现
+├── main        // 这里存放的就是PHP最为核心的文件了，主要实现PHP的基本设施，这里和Zend引擎不一样，Zend引擎主要实现语言最核心的语言运行环境
+├── pear        // “PHP 扩展与应用仓库”，包含PEAR的核心文件
+├── sapi        // 包含了各种服务器抽象层的代码，例如apache的mod_php，cgi，fastcgi以及fpm等等接口
+├── TSRM        // Thread Safe Resource Manager，线程安全资源管理器，PHP的线程安全是构建在TSRM库之上的
+├── Zend        // Zend引擎，比如脚本的词法语法解析，opcode的执行以及扩展机制的实现等等
+└── tests       // 测试脚本集合
+</code></pre>
+
+<h2 id="toc_1">二、C语言常用代码</h2>
+
+<h3 id="toc_2">1. &quot;##&quot;</h3>
+
+<p>在C语言的宏中，&quot;##&quot;被称为 <strong>连接符</strong>（concatenator），它是一种预处理运算符，用来把两个语言符号(Token)组合成单个语言符号。例如：</p>
+
+<pre><code class="language-c">#define PHP_FUNCTION ZEND_FUNCTION
+#define ZEND_FUNCTION(name) ZEND_NAMED_FUNCTION(ZEND_FN(name))
+#define ZEND_FN(name) zif_##name
+#define ZEND_NAMED_FUNCTION(name) void name(INTERNAL_FUNCTION_PARAMETERS)
+#define INTERNAL_FUNCTION_PARAMETERS int ht, zval *return_value, zval **return_value_ptr, \
+zval *this_ptr, int return_value_used TSRMLS_DC
+
+PHP_FUNCTION(count);
+
+//  预处理器处理以后， PHP_FUCNTION(count);就展开为如下代码
+void zif_count(int ht, zval *return_value, zval **return_value_ptr,
+        zval *this_ptr, int return_value_used TSRMLS_DC)
+</code></pre>
+
+<p>宏ZEND_FN(name)中有一个&quot;##&quot;，它的作用一如之前所说，是一个连接符，将zif和宏的变量name的值连接起来。</p>
+
+<h3 id="toc_3">2、&quot;#&quot;和&quot;##&quot;</h3>
+
+<p>&quot;#&quot;是一种预处理运算符，它的功能是将其后面的宏参数进行字符串化操作，简单说就是在对它所引用的宏变量通过替换后在其左右各加上一个双引号，用比较官方的话说就是将语言符号(Token)转化为字符串。 例如:</p>
+
+<pre><code class="language-c">#define STR(x) #x
+
+int main(int argc char** argv)
+{
+    printf(&quot;%s\n&quot;, STR(It&#39;s a long string)); // 输出 It&#39;s a long string
+    return 0;
+}
+</code></pre>
+
+<p>&quot;##&quot;则是将两个变量连接成一个字符串，例如：</p>
+
+<pre><code class="language-c">#define STR_CONCATE(a, b) a##b
+</code></pre>
+
+<h3 id="toc_4">3、宏定义中的do-while循环</h3>
+
+<pre><code class="language-c">#define ALLOC_ZVAL(z)                                   \
+do {                                                \
+    (z) = (zval*)emalloc(sizeof(zval_gc_info));     \
+    GC_ZVAL_INIT(z);                                \
+} while (0)
+</code></pre>
+
+<p>为什么在宏定义时需要使用do-while语句呢? 这种方式使用于宏定义中存在多语句的情况。举个反例：</p>
+
+<pre><code class="language-c">#define TEST(a, b)  a++;b++;
+
+if (expr)
+    TEST(a, b);
+else
+    do_else();
+</code></pre>
+
+<p>代码经过预处理后：</p>
+
+<pre><code class="language-c">if (expr)
+    a++;b++;
+else
+    do_else();
+</code></pre>
+
+<p>可见预处理后的if-else结构被破坏了，达不到预想的效果，而原因就在于宏只是简单的代码替换。那为什么不用{}代替do{}while(0)呢？我们可以尝试一下：</p>
+
+<pre><code class="language-c">#define Test(a, b)                          \
+{                                       \
+    a++;                                \
+    b++;                                \
+}
+
+if (expr)
+    TEST(a, b);
+else
+    do_else();
+</code></pre>
+
+<p>预处理后：</p>
+
+<pre><code class="language-c">if (expr)
+    {
+        a++;
+        b++;
+    };
+else
+    do_else();
+</code></pre>
+
+<p>可以看到，在}号后面跟了一个分号，这是因为调用宏时，后面的分号可有可无，但是我们会习惯性的加上，这时预处理之后的代码将不能通过编译，所以我们通常使用do{}while(0)结构来应对多表达式的宏定义。</p>
+
+<h2 id="toc_5">三、PHP运行时的一些全局参数</h2>
+
+<pre><code class="language-c">struct _php_core_globals {
+        zend_bool magic_quotes_gpc; //  是否对输入的GET/POST/Cookie数据使用自动字符串转义。
+        zend_bool magic_quotes_runtime; //是否对运行时从外部资源产生的数据使用自动字符串转义
+        zend_bool magic_quotes_sybase;  //   是否采用Sybase形式的自动字符串转义
+
+        zend_bool safe_mode;    //  是否启用安全模式
+
+        zend_bool allow_call_time_pass_reference;   //是否强迫在函数调用时按引用传递参数
+        zend_bool implicit_flush;   //是否要求PHP输出层在每个输出块之后自动刷新数据
+
+        long output_buffering;  //输出缓冲区大小(字节)
+
+        char *safe_mode_include_dir;    //在安全模式下，该组目录和其子目录下的文件被包含时，将跳过UID/GID检查。
+        zend_bool safe_mode_gid;    //在安全模式下，默认在访问文件时会做UID比较检查
+        zend_bool sql_safe_mode;
+        zend_bool enable_dl;    //是否允许使用dl()函数。dl()函数仅在将PHP作为apache模块安装时才有效。
+
+        char *output_handler;   // 将所有脚本的输出重定向到一个输出处理函数。
+
+        char *unserialize_callback_func;    // 如果解序列化处理器需要实例化一个未定义的类，这里指定的回调函数将以该未定义类的名字作为参数被unserialize()调用，
+        long serialize_precision;   //将浮点型和双精度型数据序列化存储时的精度(有效位数)。
+
+        char *safe_mode_exec_dir;   //在安全模式下，只有该目录下的可执行程序才允许被执行系统程序的函数执行。
+
+        long memory_limit;  //一个脚本所能够申请到的最大内存字节数(可以使用K和M作为单位)。
+        long max_input_time;    // 每个脚本解析输入数据(POST, GET, upload)的最大允许时间(秒)。
+
+        zend_bool track_errors; //是否在变量$php_errormsg中保存最近一个错误或警告消息。
+        zend_bool display_errors;   //是否将错误信息作为输出的一部分显示。
+        zend_bool display_startup_errors;   //是否显示PHP启动时的错误。
+        zend_bool log_errors;   // 是否在日志文件里记录错误，具体在哪里记录取决于error_log指令
+        long      log_errors_max_len;   //设置错误日志中附加的与错误信息相关联的错误源的最大长度。
+        zend_bool ignore_repeated_errors;   //   记录错误日志时是否忽略重复的错误信息。
+        zend_bool ignore_repeated_source;   //是否在忽略重复的错误信息时忽略重复的错误源。
+        zend_bool report_memleaks;  //是否报告内存泄漏。
+        char *error_log;    //将错误日志记录到哪个文件中。
+
+        char *doc_root; //PHP的”根目录”。
+        char *user_dir; //告诉php在使用 /~username 打开脚本时到哪个目录下去找
+        char *include_path; //指定一组目录用于require(), include(), fopen_with_path()函数寻找文件。
+        char *open_basedir; // 将PHP允许操作的所有文件(包括文件自身)都限制在此组目录列表下。
+        char *extension_dir;    //存放扩展库(模块)的目录，也就是PHP用来寻找动态扩展模块的目录。
+
+        char *upload_tmp_dir;   // 文件上传时存放文件的临时目录
+        long upload_max_filesize;   // 允许上传的文件的最大尺寸。
+
+        char *error_append_string;  // 用于错误信息后输出的字符串
+        char *error_prepend_string; //用于错误信息前输出的字符串
+
+        char *auto_prepend_file;    //指定在主文件之前自动解析的文件名。
+        char *auto_append_file; //指定在主文件之后自动解析的文件名。
+
+        arg_separators arg_separator;   //PHP所产生的URL中用来分隔参数的分隔符。
+
+        char *variables_order;  // PHP注册 Environment, GET, POST, Cookie, Server 变量的顺序。
+
+        HashTable rfc1867_protected_variables;  //  RFC1867保护的变量名，在main/rfc1867.c文件中有用到此变量
+
+        short connection_status;    //  连接状态，有三个状态，正常，中断，超时
+        short ignore_user_abort;    //  是否即使在用户中止请求后也坚持完成整个请求。
+
+        unsigned char header_is_being_sent; //  是否头信息正在发送
+
+        zend_llist tick_functions;  //  仅在main目录下的php_ticks.c文件中有用到，此处定义的函数在register_tick_function等函数中有用到。
+
+        zval *http_globals[6];  // 存放GET、POST、SERVER等信息
+
+        zend_bool expose_php;   //  是否展示php的信息
+
+        zend_bool register_globals; //  是否将 E, G, P, C, S 变量注册为全局变量。
+        zend_bool register_long_arrays; //   是否启用旧式的长式数组(HTTP_*_VARS)。
+        zend_bool register_argc_argv;   //  是否声明$argv和$argc全局变量(包含用GET方法的信息)。
+        zend_bool auto_globals_jit; //  是否仅在使用到$_SERVER和$_ENV变量时才创建(而不是在脚本一启动时就自动创建)。
+
+        zend_bool y2k_compliance;   //是否强制打开2000年适应(可能在非Y2K适应的浏览器中导致问题)。
+
+        char *docref_root;  // 如果打开了html_errors指令，PHP将会在出错信息上显示超连接，
+        char *docref_ext;   //指定文件的扩展名(必须含有’.&#39;)。
+
+        zend_bool html_errors;  //是否在出错信息中使用HTML标记。
+        zend_bool xmlrpc_errors;   
+
+        long xmlrpc_error_number;
+
+        zend_bool activated_auto_globals[8];
+
+        zend_bool modules_activated;    //  是否已经激活模块
+        zend_bool file_uploads; //是否允许HTTP文件上传。
+        zend_bool during_request_startup;   //是否在请求初始化过程中
+        zend_bool allow_url_fopen;  //是否允许打开远程文件
+        zend_bool always_populate_raw_post_data;    //是否总是生成$HTTP_RAW_POST_DATA变量(原始POST数据)。
+        zend_bool report_zend_debug;    //  是否打开zend debug，仅在main/main.c文件中有使用。
+
+        int last_error_type;    //  最后的错误类型
+        char *last_error_message;   //  最后的错误信息
+        char *last_error_file;  //  最后的错误文件
+        int  last_error_lineno; //  最后的错误行
+
+        char *disable_functions;    //该指令接受一个用逗号分隔的函数名列表，以禁用特定的函数。
+        char *disable_classes;  //该指令接受一个用逗号分隔的类名列表，以禁用特定的类。
+        zend_bool allow_url_include;    //是否允许include/require远程文件。
+        zend_bool exit_on_timeout;  //  超时则退出
+#ifdef PHP_WIN32
+        zend_bool com_initialized;
+#endif
+        long max_input_nesting_level;   //最大的嵌套层数
+        zend_bool in_user_include;  //是否在用户包含空间
+
+        char *user_ini_filename;    //  用户的ini文件名
+        long user_ini_cache_ttl;    //  ini缓存过期限制
+
+        char *request_order;    //  优先级比variables_order高，在request变量生成时用到，个人觉得是历史遗留问题
+
+        zend_bool mail_x_header;    //  仅在ext/standard/mail.c文件中使用，
+        char *mail_log;
+
+        zend_bool in_error_log;
+};
+</code></pre>
+
+<p>上面很多字段都是直接与php.ini配置文件中的配置项对应。在PHP启动并读取php.ini文件时就会对这些字段进行赋值。</p>
+
+<h2 id="toc_6">四、C语言中的union（联合体）</h2>
+
+<p>联合体与结构体很相似，但两者有本质上的区别，简单了解一下两个结构的区别：</p>
+
+<blockquote>
+<p>结构体：占用空间是其内部成员的占用空间总大小；所有成员同时存在。<br/>
+联合体：内部成员共享一段内存空间，其空间大小取决于成员中占用空间最大者；联合体的值是取自其内部任意一个成员的值。</p>
+</blockquote>
+
+<p>例：</p>
+
+<pre><code class="language-c">/* 结构体 */
+struct {
+  int id;
+  char ch;
+} s_test;
+
+/* 联合体 */
+union {
+  int id;
+  char ch;
+} u_test;
+</code></pre>
+
+<p>s_test中的id与ch变量同时存在，而u_test中只可以存在一种。</p>
+
+<blockquote>
+<p><em>想了解更多关于联合体的信息，请直走===&gt;<a href="https://www.baidu.com/s?wd=%E8%81%94%E5%90%88%E4%BD%93">联合体</a></em></p>
+</blockquote>
+
+<p><em>Mission Complete!</em></p>
+
+        </article>
+        <div class="comments-wrap">
+          <div class="share-comments">
+            
+            <script src="https://utteranc.es/client.js"
+                    repo="anhoder/personal-blog-comments"
+                    issue-term="title"
+                    theme="github-dark"
+                    crossorigin="anonymous"
+                    id="github-comment"
+                    async>
+            </script>
+             
+            
+
+            
+
+            
+          </div>
+        </div><!-- end comments wrap -->
+      </div>
+      <div class="column">
+         <div class="card">
+  <header class="card-header">
+    <p class="card-header-title">
+      <i class="fa fa-commenting" aria-hidden="true"></i>&nbsp;&nbsp;
+      <span class="tran-notice">Notice</span> 
+    </p>
+  </header>
+  <div class="card-content site-notice">
+    <div class="content"> 
+       ① 本站可以使用GitHub账号登录进行评论<br><br>② 欢迎关注个人公众号，一起学习交流~<br><br><img src="wechat.png"> 
+    </div>
+  </div>                    
+</div>
+<div class="card">
+  <header class="card-header">
+    <p class="card-header-title">
+      <i class="fa fa-folder-open" aria-hidden="true"></i>&nbsp;&nbsp;
+      <span class="tran-site-categories">Categories</span> 
+    </p>
+  </header>
+  <div class="card-content site-categories">
+    <div class="content"> 
+      <ul>
+      
+        <li><a href="%E5%AE%89%E5%85%A8.html">安全</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E5%B7%A5%E5%85%B7.html">版本控制工具</a>
+           <ul> 
+          
+            <li><a href="Git.html">Git</a></li>
+          
+            <li><a href="SVN.html">SVN</a></li>
+          
+           </ul> 
+        </li> 
+      
+        <li><a href="%E8%AF%BB%E4%B9%A6.html">读书</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="%E9%BB%91%E8%8B%B9%E6%9E%9C.html">黑苹果</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C.html">计算机网络</a>
+           <ul> 
+          
+            <li><a href="%E5%97%85%E6%8E%A2.html">嗅探</a></li>
+          
+            <li><a href="HTTP.html">HTTP</a></li>
+          
+           </ul> 
+        </li> 
+      
+        <li><a href="%E9%9D%A2%E8%AF%95.html">面试</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="%E5%85%B6%E4%BB%96.html">其他</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%AE%97%E6%B3%95.html">数据结构及算法</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="Dart.html">Dart</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="Docker.html">Docker</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="JavaScript.html">JavaScript</a>
+           <ul> 
+          
+            <li><a href="Node.html">Node</a></li>
+          
+            <li><a href="React%20Native.html">React Native</a></li>
+          
+            <li><a href="Vue.html">Vue</a></li>
+          
+           </ul> 
+        </li> 
+      
+        <li><a href="Linux.html">Linux</a>
+           <ul> 
+          
+            <li><a href="crontab.html">crontab</a></li>
+          
+           </ul> 
+        </li> 
+      
+        <li><a href="Markdown.html">Markdown</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="MySQL.html">MySQL</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="PHP.html">PHP</a>
+           <ul> 
+          
+            <li><a href="%E6%89%A9%E5%B1%95.html">扩展</a></li>
+          
+            <li><a href="%E6%BA%90%E7%A0%81.html">源码</a></li>
+          
+            <li><a href="Laravel.html">Laravel</a></li>
+          
+            <li><a href="opcode.html">opcode</a></li>
+          
+            <li><a href="Swoole.html">Swoole</a></li>
+          
+            <li><a href="WordPress.html">WordPress</a></li>
+          
+           </ul> 
+        </li> 
+      
+        <li><a href="Redis.html">Redis</a>
+          
+          
+          
+        </li> 
+      
+        <li><a href="Web%E6%9C%8D%E5%8A%A1%E5%99%A8.html">Web服务器</a>
+           <ul> 
+          
+            <li><a href="Nginx.html">Nginx</a></li>
+          
+           </ul> 
+        </li> 
+      
+      </ul>
+    </div>
+  </div>                    
+</div>
+<div class="card">
+  <header class="card-header">
+    <p class="card-header-title">
+      <i class="fa fa-tags" aria-hidden="true"></i>&nbsp;&nbsp;
+      <span class="tran-site-tags">Tags</span> 
+    </p>
+  </header>
+  <div class="card-content site-tags">
+    <div class="content">
+      <div class="tags">
+      
+        <a class="tag is-link is-light" href="tag_API.html">#API</a> 
+      
+        <a class="tag is-link is-light" href="tag_Config.m4.html">#Config.m4</a> 
+      
+        <a class="tag is-link is-light" href="tag_Daemon.html">#Daemon</a> 
+      
+        <a class="tag is-link is-light" href="tag_Docker.html">#Docker</a> 
+      
+        <a class="tag is-link is-light" href="tag_Docker%20Compose.html">#Docker Compose</a> 
+      
+        <a class="tag is-link is-light" href="tag_GC.html">#GC</a> 
+      
+        <a class="tag is-link is-light" href="tag_Git.html">#Git</a> 
+      
+        <a class="tag is-link is-light" href="tag_Git%20flow.html">#Git flow</a> 
+      
+        <a class="tag is-link is-light" href="tag_HTTP.html">#HTTP</a> 
+      
+        <a class="tag is-link is-light" href="tag_JavaScript.html">#JavaScript</a> 
+      
+        <a class="tag is-link is-light" href="tag_Laravel.html">#Laravel</a> 
+      
+        <a class="tag is-link is-light" href="tag_Linux.html">#Linux</a> 
+      
+        <a class="tag is-link is-light" href="tag_Markdown.html">#Markdown</a> 
+      
+        <a class="tag is-link is-light" href="tag_MySQL.html">#MySQL</a> 
+      
+        <a class="tag is-link is-light" href="tag_Nginx.html">#Nginx</a> 
+      
+        <a class="tag is-link is-light" href="tag_Node.html">#Node</a> 
+      
+        <a class="tag is-link is-light" href="tag_PHP.html">#PHP</a> 
+      
+        <a class="tag is-link is-light" href="tag_React%20Native.html">#React Native</a> 
+      
+        <a class="tag is-link is-light" href="tag_Redis.html">#Redis</a> 
+      
+        <a class="tag is-link is-light" href="tag_SVN.html">#SVN</a> 
+      
+        <a class="tag is-link is-light" href="tag_Swoole.html">#Swoole</a> 
+      
+        <a class="tag is-link is-light" href="tag_Vue.html">#Vue</a> 
+      
+        <a class="tag is-link is-light" href="tag_atheme.html">#atheme</a> 
+      
+        <a class="tag is-link is-light" href="tag_crontab.html">#crontab</a> 
+      
+        <a class="tag is-link is-light" href="tag_imi.html">#imi</a> 
+      
+        <a class="tag is-link is-light" href="tag_musicbox.html">#musicbox</a> 
+      
+        <a class="tag is-link is-light" href="tag_musicfox.html">#musicfox</a> 
+      
+        <a class="tag is-link is-light" href="tag_mweb.html">#mweb</a> 
+      
+        <a class="tag is-link is-light" href="tag_opcache.html">#opcache</a> 
+      
+        <a class="tag is-link is-light" href="tag_route.html">#route</a> 
+      
+        <a class="tag is-link is-light" href="tag_ubuntu.html">#ubuntu</a> 
+      
+        <a class="tag is-link is-light" href="tag_windows.html">#windows</a> 
+      
+        <a class="tag is-link is-light" href="tag_wsl.html">#wsl</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E4%B8%BB%E9%A2%98.html">#主题</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E5%85%B6%E4%BB%96.html">#其他</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E5%91%BD%E4%BB%A4%E8%A1%8C.html">#命令行</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E5%97%85%E6%8E%A2.html">#嗅探</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E5%AE%89%E5%85%A8.html">#安全</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E5%AE%8F.html">#宏</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E5%B9%BF%E5%91%8A.html">#广告</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E5%BA%95%E5%B1%82.html">#底层</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E5%BC%82%E6%AD%A5.html">#异步</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E6%89%A9%E5%B1%95.html">#扩展</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.html">#数据结构</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E6%BA%90%E7%A0%81.html">#源码</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E7%AE%97%E6%B3%95.html">#算法</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E7%BD%91%E6%98%93%E4%BA%91%E9%9F%B3%E4%B9%90.html">#网易云音乐</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C.html">#计算机网络</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E8%AF%BB%E4%B9%A6.html">#读书</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E9%9D%A2%E8%AF%95.html">#面试</a> 
+      
+        <a class="tag is-link is-light" href="tag_%E9%BB%91%E8%8B%B9%E6%9E%9C.html">#黑苹果</a> 
+      
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </div><!-- end columns -->
+  </div><!-- end container -->
+</section>
+
+
+
+    <footer class="footer">
+    <div id="plt"></div>
+    <div class="content has-text-centered">
+      <p>
+        Copyright &copy; 2019
+        <span id="tran-author" class="tran-author">Author: </span><a target="_blank" href="https://github.com/anhoder">anhoder</a>,&nbsp; 
+        <span class="tran-theme">Theme: </span><a target="_blank" href="https://github.com/AlanAlbert/atheme">Atheme</a> (Based on BulmaCSS).
+      </p>
+    </div>
+  </footer>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="asset/prism.js"></script>
+
+<script type="text/javascript">
+  var imgApi = "https://picsum.photos/1024/";
+  var imgContainers = document.getElementsByClassName('random-img');
+  for (var i = 0; i <= imgContainers.length - 1; i++) {
+    // https://picsum.photos/1024/
+    var img = document.createElement('img');
+    img.src = imgApi + (400 + i);
+    imgContainers[i].appendChild(img);
+  }
+</script>
+
+
+<script type="text/javascript">
+  
+  
+    var modelJson = "asset/plt/model.json";
+    var pluginRootPath = 'asset/plt';
+    var pluginModelPath = 'asset/plt';
+  
+
+  var config = {
+    pluginRootPath: pluginRootPath,
+    pluginJsPath: "lib/",
+    pluginModelPath: pluginModelPath,
+    tagMode:false,
+    debug:false,
+    model: {
+      jsonPath: modelJson,  // xxx.model.json 的路径
+    },
+    display: {
+      width: 325,           // canvas的宽度
+      height: 300,          // canvas的高度
+      position: 'right',    // 显示位置：左或右
+      hOffset: -75,         // canvas水平偏移
+      vOffset: 0,           // canvas垂直偏移
+    },
+    dialog:{
+      enable: true
+    },
+    mobile: {
+      show: false,         // 是否在移动设备上显示
+    },
+    react: {
+      opacity: 1,         // 透明度
+    },
+    log: false,
+  };
+  L2Dwidget.init(config);
+</script>
+
+
+  
+    
+
+
+
+
+  </body>
+</html>
